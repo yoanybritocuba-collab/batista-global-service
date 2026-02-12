@@ -1,41 +1,48 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const HomeFixed = () => {
+  const { t } = useLanguage();
+
   return (
     <div className="m-0 p-0 bg-black">
       
-      {/* HERO */}
-      <section className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] min-h-[500px] lg:min-h-[600px] flex items-start pt-0 mt-0">
-        <div className="absolute inset-0 z-0 -top-[88px] lg:-top-[116px] h-[calc(100%+88px)] lg:h-[calc(100%+116px)]">
+      {/* HERO - VERSIÓN SIMPLE PARA MÓVIL */}
+      <section className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[600px] lg:h-[700px] flex items-end pb-16 lg:pb-24">
+        
+        {/* Imagen de fondo */}
+        <div className="absolute inset-0 z-0">
           <img 
             src="/images/hero1.png" 
             alt="Batista Global Service" 
             className="w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30"></div>
         </div>
         
-        <div className="container mx-auto px-4 relative z-10 flex items-center h-full w-full">
-          <div className="w-full max-w-2xl mt-16 sm:mt-20 md:mt-24 lg:mt-32">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold text-white mb-3 leading-tight">
+        {/* Contenido - SIEMPRE EN LA PARTE INFERIOR */}
+        <div className="container mx-auto px-4 relative z-10 w-full">
+          <div className="max-w-3xl mx-auto text-center">
+            
+            {/* SOLO EL NOMBRE, NADA MÁS */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
               Batista <span className="text-amber-400">Global Service</span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-white/90 mb-5 max-w-xl">
-              Productos y servicios turísticos premium en el Caribe
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3">
+            
+            {/* BOTONES - BAJADOS AL BORDE INFERIOR */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8 lg:mt-12">
               <Link 
                 to="/tienda" 
-                className="w-full sm:w-auto px-6 py-4 bg-[#00A8B5] text-white font-medium rounded-xl text-center transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,184,0,0.5)] focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-black"
+                className="w-full sm:w-auto px-8 py-4 bg-[#00A8B5] text-white font-semibold rounded-xl text-center hover:shadow-[0_0_25px_rgba(255,184,0,0.6)] transition-all duration-300 text-base sm:text-lg"
               >
-                Explorar Tienda
+                {t('explorar_tienda')}
               </Link>
               <Link 
                 to="/servicios" 
-                className="w-full sm:w-auto px-6 py-4 bg-white/10 backdrop-blur-sm border border-white/30 text-white font-medium rounded-xl text-center hover:bg-white/20 hover:border-amber-400/50 transition-all duration-300"
+                className="w-full sm:w-auto px-8 py-4 bg-white/10 backdrop-blur-md border-2 border-white/30 text-white font-semibold rounded-xl text-center hover:bg-white/20 hover:border-amber-400/60 transition-all duration-300 text-base sm:text-lg"
               >
-                Nuestros Servicios
+                {t('nuestros_servicios')}
               </Link>
             </div>
           </div>
@@ -46,21 +53,23 @@ const HomeFixed = () => {
       <section className="py-12 lg:py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 lg:mb-10">
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Servicios Turísticos</h2>
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+              {t('servicios_turisticos')}
+            </h2>
             <div className="w-16 h-1 bg-amber-400 mx-auto rounded-full"></div>
             <p className="text-sm lg:text-base text-gray-600 mt-4 max-w-2xl mx-auto">
-              Ofrecemos soluciones completas para tus viajes y envíos en el Caribe
+              {t('descripcion_servicios')}
             </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
             {[
-              { img: "Paqueteria.jpg", title: "Paquetería Express", desc: "Envíos internacionales" },
-              { img: "paquetes-turisticos.jpg", title: "Paquetes Turísticos", desc: "Viajes todo incluido" },
-              { img: "renta-de-autos.jpg", title: "Renta de Autos", desc: "Vehículos de lujo" },
-              { img: "reservas_de_hoteles.jpg", title: "Reservas de Hoteles", desc: "Mejores tarifas" },
-              { img: "reservas_de_vuelos.jpg", title: "Reservas de Vuelos", desc: "Aerolíneas internacionales" },
-              { img: "visas.jpg", title: "Visas", desc: "Trámite profesional" }
+              { img: "Paqueteria.jpg", title: t('paqueteria_express'), desc: t('envios_internacionales') },
+              { img: "paquetes-turisticos.jpg", title: t('paquetes_turisticos'), desc: t('viajes_incluido') },
+              { img: "renta-de-autos.jpg", title: t('renta_autos'), desc: t('vehiculos_lujo') },
+              { img: "reservas_de_hoteles.jpg", title: t('reservas_hoteles'), desc: t('mejores_tarifas') },
+              { img: "reservas_de_vuelos.jpg", title: t('reservas_vuelos'), desc: t('aerolineas_internacionales') },
+              { img: "visas.jpg", title: t('visas'), desc: t('tramite_profesional') }
             ].map((item, index) => (
               <Link 
                 key={index} 
@@ -109,7 +118,7 @@ const HomeFixed = () => {
         </div>
       </a>
 
-      {/* FOOTER - ANCHO COMPLETO 100% CORREGIDO */}
+      {/* FOOTER */}
       <footer className="w-full bg-black border-t border-amber-400/20">
         <div className="w-full px-4 py-12 lg:py-16">
           <div className="max-w-7xl mx-auto">
@@ -130,46 +139,46 @@ const HomeFixed = () => {
               </Link>
             </div>
 
-            {/* GRID - CENTRADO Y RESPONSIVE */}
+            {/* GRID FOOTER */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-8 lg:mb-12">
               
               {/* SOBRE NOSOTROS */}
               <div className="text-center lg:text-left">
                 <h3 className="text-white font-semibold text-base lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
-                  <span className="text-amber-400">●</span> Sobre Nosotros
+                  <span className="text-amber-400">●</span> {t('sobre_nosotros')}
                 </h3>
                 <p className="text-white/60 text-xs lg:text-sm leading-relaxed">
-                  Somos una empresa líder en servicios turísticos y de paquetería en el Caribe. Excelencia y confianza desde 2024.
+                  {t('sobre_nosotros_texto')}
                 </p>
               </div>
 
-              {/* CONTACTO DIRECTO */}
+              {/* CONTACTO */}
               <div className="text-center lg:text-left">
                 <h3 className="text-white font-semibold text-base lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
-                  <span className="text-amber-400">●</span> Contacto
+                  <span className="text-amber-400">●</span> {t('contacto')}
                 </h3>
                 <div className="space-y-3">
                   <a 
                     href="tel:+17866583567" 
-                    className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-amber-400 text-xs lg:text-sm transition-colors group"
+                    className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-amber-400 text-xs lg:text-sm transition-colors"
                   >
-                    <img src="/iconos/phone.png" alt="Teléfono" className="w-4 h-4" />
+                    <img src="/iconos/phone.png" alt={t('telefono')} className="w-4 h-4" />
                     <span>+1 (786) 658-3567</span>
                   </a>
                   <a 
                     href="mailto:batistaglobalservice25@gmail.com" 
-                    className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-amber-400 text-xs lg:text-sm transition-colors group"
+                    className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-amber-400 text-xs lg:text-sm transition-colors"
                   >
-                    <img src="/iconos/email.png" alt="Email" className="w-4 h-4" />
+                    <img src="/iconos/email.png" alt={t('correo')} className="w-4 h-4" />
                     <span>batistaglobalservice25@gmail.com</span>
                   </a>
                   <a 
                     href="https://maps.google.com/?q=700+SW+57th+Ave+Miami+FL+33144" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-amber-400 text-xs lg:text-sm transition-colors group"
+                    className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-amber-400 text-xs lg:text-sm transition-colors"
                   >
-                    <img src="/iconos/location.png" alt="Ubicación" className="w-4 h-4" />
+                    <img src="/iconos/location.png" alt={t('ubicacion')} className="w-4 h-4" />
                     <span>Miami, FL</span>
                   </a>
                 </div>
@@ -178,24 +187,24 @@ const HomeFixed = () => {
               {/* HORARIOS */}
               <div className="text-center lg:text-left">
                 <h3 className="text-white font-semibold text-base lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
-                  <span className="text-amber-400">●</span> Horarios
+                  <span className="text-amber-400">●</span> {t('horarios')}
                 </h3>
                 <div className="bg-white/5 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-3 justify-center lg:justify-start">
-                    <img src="/iconos/clock.png" alt="Horario" className="w-4 h-4" />
-                    <span className="text-white/90 text-xs lg:text-sm font-medium">Atención al cliente</span>
+                    <img src="/iconos/clock.png" alt={t('horarios')} className="w-4 h-4" />
+                    <span className="text-white/90 text-xs lg:text-sm font-medium">{t('atencion_cliente')}</span>
                   </div>
                   <div className="space-y-1 text-xs lg:text-sm">
                     <div className="flex justify-between items-center">
-                      <span className="text-white/60">Lun - Vie</span>
+                      <span className="text-white/60">{t('lun_vie')}</span>
                       <span className="text-white/90">9:00 - 18:00</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-white/60">Sábado</span>
+                      <span className="text-white/60">{t('sabado')}</span>
                       <span className="text-white/90">10:00 - 16:00</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-white/60">Domingo</span>
+                      <span className="text-white/60">{t('domingo')}</span>
                       <span className="text-white/90">10:00 - 14:00</span>
                     </div>
                   </div>
@@ -205,7 +214,7 @@ const HomeFixed = () => {
               {/* REDES SOCIALES */}
               <div className="text-center lg:text-left">
                 <h3 className="text-white font-semibold text-base lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
-                  <span className="text-amber-400">●</span> Redes Sociales
+                  <span className="text-amber-400">●</span> {t('redes_sociales')}
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
                   <a 
@@ -214,9 +223,9 @@ const HomeFixed = () => {
                     rel="noopener noreferrer" 
                     className="flex items-center gap-2 p-2 bg-white/5 rounded-lg hover:bg-[#1877F2]/20 transition-all group"
                   >
-                    <img src="/iconos/facebook.png" alt="Facebook" className="w-5 h-5" />
+                    <img src="/iconos/facebook.png" alt={t('facebook')} className="w-5 h-5" />
                     <div className="flex flex-col items-start">
-                      <span className="text-white/90 text-xs font-medium group-hover:text-[#1877F2]">Facebook</span>
+                      <span className="text-white/90 text-xs font-medium group-hover:text-[#1877F2]">{t('facebook')}</span>
                       <span className="text-white/40 text-[10px]">@BatistaGlobal</span>
                     </div>
                   </a>
@@ -226,9 +235,9 @@ const HomeFixed = () => {
                     rel="noopener noreferrer" 
                     className="flex items-center gap-2 p-2 bg-white/5 rounded-lg hover:bg-[#E4405F]/20 transition-all group"
                   >
-                    <img src="/iconos/instagram.png" alt="Instagram" className="w-5 h-5" />
+                    <img src="/iconos/instagram.png" alt={t('instagram')} className="w-5 h-5" />
                     <div className="flex flex-col items-start">
-                      <span className="text-white/90 text-xs font-medium group-hover:text-[#E4405F]">Instagram</span>
+                      <span className="text-white/90 text-xs font-medium group-hover:text-[#E4405F]">{t('instagram')}</span>
                       <span className="text-white/40 text-[10px]">@batistaglobal</span>
                     </div>
                   </a>
@@ -238,9 +247,9 @@ const HomeFixed = () => {
                     rel="noopener noreferrer" 
                     className="flex items-center gap-2 p-2 bg-white/5 rounded-lg hover:bg-white/20 transition-all group col-span-2"
                   >
-                    <img src="/iconos/tiktok.png" alt="TikTok" className="w-5 h-5" />
+                    <img src="/iconos/tiktok.png" alt={t('tiktok')} className="w-5 h-5" />
                     <div className="flex flex-col items-start">
-                      <span className="text-white/90 text-xs font-medium group-hover:text-white">TikTok</span>
+                      <span className="text-white/90 text-xs font-medium group-hover:text-white">{t('tiktok')}</span>
                       <span className="text-white/40 text-[10px]">@batista.global</span>
                     </div>
                   </a>
@@ -251,7 +260,7 @@ const HomeFixed = () => {
             {/* COPYRIGHT */}
             <div className="border-t border-white/10 pt-6">
               <p className="text-white/40 text-xs text-center">
-                © 2026 Batista Global Service. Todos los derechos reservados.
+                © 2026 Batista Global Service. {t('derechos')}
               </p>
             </div>
           </div>
@@ -261,4 +270,4 @@ const HomeFixed = () => {
   );
 };
 
-export default HomeFixed; // ✅ IMPORTANTE: ESTO ES LO QUE FALTABA
+export default HomeFixed;
