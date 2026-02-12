@@ -13,7 +13,7 @@ const Header = () => {
       <div className="container mx-auto px-3 py-2 lg:px-6 lg:py-6">
         <div className="flex items-center justify-between">
           
-          {/* LOGO - 50% MÁS PEQUEÑO EN MÓVIL */}
+          {/* LOGO */}
           <Link to="/" className="flex items-center gap-1 lg:gap-3">
             <img 
               src="/images/logo-icon.png" 
@@ -52,7 +52,7 @@ const Header = () => {
           {/* ACCIONES */}
           <div className="flex items-center space-x-1 lg:space-x-3">
             
-            {/* IDIOMA - CORREGIDO */}
+            {/* IDIOMA */}
             <button
               onClick={toggleLanguage}
               className="px-2 py-1 lg:px-3 lg:py-2 text-white/80 hover:text-amber-400 text-xs lg:text-sm font-medium rounded-lg hover:bg-white/5 flex items-center gap-1"
@@ -78,15 +78,21 @@ const Header = () => {
               aria-label="Menú"
             >
               <div className="absolute w-5 h-5 flex flex-col items-center justify-center">
-                <span className={`absolute block w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
-                  isMenuOpen ? 'rotate-45' : '-translate-y-1.5'
-                }`} />
-                <span className={`absolute block w-5 h-0.5 bg-current transition-all duration-300 ease-in-out ${
-                  isMenuOpen ? 'opacity-0' : 'opacity-100'
-                }`} />
-                <span className={`absolute block w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
-                  isMenuOpen ? '-rotate-45' : 'translate-y-1.5'
-                }`} />
+                <span 
+                  className={`absolute block w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
+                    isMenuOpen ? 'rotate-45' : '-translate-y-1.5'
+                  }`} 
+                />
+                <span 
+                  className={`absolute block w-5 h-0.5 bg-current transition-all duration-300 ease-in-out ${
+                    isMenuOpen ? 'opacity-0' : 'opacity-100'
+                  }`} 
+                />
+                <span 
+                  className={`absolute block w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
+                    isMenuOpen ? '-rotate-45' : 'translate-y-1.5'
+                  }`} 
+                />
               </div>
             </button>
           </div>
@@ -94,9 +100,11 @@ const Header = () => {
       </div>
 
       {/* MENÚ MÓVIL - CON ANIMACIÓN */}
-      <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-        isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-      }`}>
+      <div 
+        className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
         <div className="bg-black border-t border-amber-400/20 px-4 py-4">
           <nav className="space-y-2">
             <Link 

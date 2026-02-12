@@ -8,11 +8,11 @@ const HomeFixed = () => {
   return (
     <div className="m-0 p-0 bg-black">
       
-      {/* HERO - VERSIÓN SIMPLE PARA MÓVIL */}
-      <section className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[600px] lg:h-[700px] flex items-end pb-16 lg:pb-24">
+      {/* HERO - MÓVIL: ANCHO COMPLETO + 1 PULGADA ARRIBA */}
+      <section className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[500px] lg:h-[700px] flex items-end pb-16 lg:pb-24">
         
-        {/* Imagen de fondo */}
-        <div className="absolute inset-0 z-0">
+        {/* Imagen de fondo - 1 pulgada arriba en móvil */}
+        <div className="absolute inset-0 z-0 -top-[116px] lg:-top-[116px] h-[calc(100%+116px)] lg:h-[calc(100%+116px)]">
           <img 
             src="/images/hero1.png" 
             alt="Batista Global Service" 
@@ -25,22 +25,22 @@ const HomeFixed = () => {
         <div className="container mx-auto px-4 relative z-10 w-full">
           <div className="max-w-3xl mx-auto text-center">
             
-            {/* SOLO EL NOMBRE, NADA MÁS */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+            {/* SOLO EL NOMBRE */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 lg:mb-6 leading-tight">
               Batista <span className="text-amber-400">Global Service</span>
             </h1>
             
-            {/* BOTONES - BAJADOS AL BORDE INFERIOR */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8 lg:mt-12">
+            {/* BOTONES - AL BORDE INFERIOR */}
+            <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center mt-4 lg:mt-8">
               <Link 
                 to="/tienda" 
-                className="w-full sm:w-auto px-8 py-4 bg-[#00A8B5] text-white font-semibold rounded-xl text-center hover:shadow-[0_0_25px_rgba(255,184,0,0.6)] transition-all duration-300 text-base sm:text-lg"
+                className="w-full sm:w-auto px-6 lg:px-8 py-3 lg:py-4 bg-[#00A8B5] text-white font-semibold rounded-xl text-center hover:shadow-[0_0_25px_rgba(255,184,0,0.6)] transition-all duration-300 text-sm lg:text-base"
               >
                 {t('explorar_tienda')}
               </Link>
               <Link 
                 to="/servicios" 
-                className="w-full sm:w-auto px-8 py-4 bg-white/10 backdrop-blur-md border-2 border-white/30 text-white font-semibold rounded-xl text-center hover:bg-white/20 hover:border-amber-400/60 transition-all duration-300 text-base sm:text-lg"
+                className="w-full sm:w-auto px-6 lg:px-8 py-3 lg:py-4 bg-white/10 backdrop-blur-md border-2 border-white/30 text-white font-semibold rounded-xl text-center hover:bg-white/20 hover:border-amber-400/60 transition-all duration-300 text-sm lg:text-base"
               >
                 {t('nuestros_servicios')}
               </Link>
@@ -109,11 +109,11 @@ const HomeFixed = () => {
         className="fixed bottom-4 right-4 lg:bottom-6 lg:right-6 z-50 group"
       >
         <div className="absolute inset-0 rounded-full bg-[#25D366]/20 animate-ping scale-150"></div>
-        <div className="relative w-14 h-14 lg:w-20 lg:h-20 flex items-center justify-center animate-bounce hover:animate-none">
+        <div className="relative w-12 h-12 lg:w-20 lg:h-20 flex items-center justify-center animate-bounce hover:animate-none">
           <img 
             src="/iconos/whatsapp.png" 
             alt="WhatsApp" 
-            className="w-12 h-12 lg:w-16 lg:h-16 object-contain drop-shadow-2xl"
+            className="w-10 h-10 lg:w-16 lg:h-16 object-contain drop-shadow-2xl"
           />
         </div>
       </a>
@@ -129,12 +129,12 @@ const HomeFixed = () => {
                 <img 
                   src="/images/logo-icon.png" 
                   alt="Batista Global Service" 
-                  className="h-10 lg:h-14 w-auto"
+                  className="h-8 lg:h-14 w-auto"
                 />
                 <img 
                   src="/images/logo-text.png" 
                   alt="Batista Global Service" 
-                  className="h-8 lg:h-12 w-auto"
+                  className="h-6 lg:h-12 w-auto"
                 />
               </Link>
             </div>
@@ -144,7 +144,7 @@ const HomeFixed = () => {
               
               {/* SOBRE NOSOTROS */}
               <div className="text-center lg:text-left">
-                <h3 className="text-white font-semibold text-base lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
+                <h3 className="text-white font-semibold text-sm lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
                   <span className="text-amber-400">●</span> {t('sobre_nosotros')}
                 </h3>
                 <p className="text-white/60 text-xs lg:text-sm leading-relaxed">
@@ -154,7 +154,7 @@ const HomeFixed = () => {
 
               {/* CONTACTO */}
               <div className="text-center lg:text-left">
-                <h3 className="text-white font-semibold text-base lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
+                <h3 className="text-white font-semibold text-sm lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
                   <span className="text-amber-400">●</span> {t('contacto')}
                 </h3>
                 <div className="space-y-3">
@@ -162,14 +162,14 @@ const HomeFixed = () => {
                     href="tel:+17866583567" 
                     className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-amber-400 text-xs lg:text-sm transition-colors"
                   >
-                    <img src="/iconos/phone.png" alt={t('telefono')} className="w-4 h-4" />
+                    <img src="/iconos/phone.png" alt={t('telefono')} className="w-3 h-3 lg:w-4 lg:h-4" />
                     <span>+1 (786) 658-3567</span>
                   </a>
                   <a 
                     href="mailto:batistaglobalservice25@gmail.com" 
                     className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-amber-400 text-xs lg:text-sm transition-colors"
                   >
-                    <img src="/iconos/email.png" alt={t('correo')} className="w-4 h-4" />
+                    <img src="/iconos/email.png" alt={t('correo')} className="w-3 h-3 lg:w-4 lg:h-4" />
                     <span>batistaglobalservice25@gmail.com</span>
                   </a>
                   <a 
@@ -178,7 +178,7 @@ const HomeFixed = () => {
                     rel="noopener noreferrer"
                     className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-amber-400 text-xs lg:text-sm transition-colors"
                   >
-                    <img src="/iconos/location.png" alt={t('ubicacion')} className="w-4 h-4" />
+                    <img src="/iconos/location.png" alt={t('ubicacion')} className="w-3 h-3 lg:w-4 lg:h-4" />
                     <span>Miami, FL</span>
                   </a>
                 </div>
@@ -186,12 +186,12 @@ const HomeFixed = () => {
 
               {/* HORARIOS */}
               <div className="text-center lg:text-left">
-                <h3 className="text-white font-semibold text-base lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
+                <h3 className="text-white font-semibold text-sm lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
                   <span className="text-amber-400">●</span> {t('horarios')}
                 </h3>
                 <div className="bg-white/5 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-3 justify-center lg:justify-start">
-                    <img src="/iconos/clock.png" alt={t('horarios')} className="w-4 h-4" />
+                    <img src="/iconos/clock.png" alt={t('horarios')} className="w-3 h-3 lg:w-4 lg:h-4" />
                     <span className="text-white/90 text-xs lg:text-sm font-medium">{t('atencion_cliente')}</span>
                   </div>
                   <div className="space-y-1 text-xs lg:text-sm">
@@ -213,7 +213,7 @@ const HomeFixed = () => {
 
               {/* REDES SOCIALES */}
               <div className="text-center lg:text-left">
-                <h3 className="text-white font-semibold text-base lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
+                <h3 className="text-white font-semibold text-sm lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
                   <span className="text-amber-400">●</span> {t('redes_sociales')}
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
@@ -223,10 +223,10 @@ const HomeFixed = () => {
                     rel="noopener noreferrer" 
                     className="flex items-center gap-2 p-2 bg-white/5 rounded-lg hover:bg-[#1877F2]/20 transition-all group"
                   >
-                    <img src="/iconos/facebook.png" alt={t('facebook')} className="w-5 h-5" />
+                    <img src="/iconos/facebook.png" alt={t('facebook')} className="w-4 h-4 lg:w-5 lg:h-5" />
                     <div className="flex flex-col items-start">
-                      <span className="text-white/90 text-xs font-medium group-hover:text-[#1877F2]">{t('facebook')}</span>
-                      <span className="text-white/40 text-[10px]">@BatistaGlobal</span>
+                      <span className="text-white/90 text-[10px] lg:text-xs font-medium group-hover:text-[#1877F2]">{t('facebook')}</span>
+                      <span className="text-white/40 text-[8px] lg:text-[10px]">@BatistaGlobal</span>
                     </div>
                   </a>
                   <a 
@@ -235,10 +235,10 @@ const HomeFixed = () => {
                     rel="noopener noreferrer" 
                     className="flex items-center gap-2 p-2 bg-white/5 rounded-lg hover:bg-[#E4405F]/20 transition-all group"
                   >
-                    <img src="/iconos/instagram.png" alt={t('instagram')} className="w-5 h-5" />
+                    <img src="/iconos/instagram.png" alt={t('instagram')} className="w-4 h-4 lg:w-5 lg:h-5" />
                     <div className="flex flex-col items-start">
-                      <span className="text-white/90 text-xs font-medium group-hover:text-[#E4405F]">{t('instagram')}</span>
-                      <span className="text-white/40 text-[10px]">@batistaglobal</span>
+                      <span className="text-white/90 text-[10px] lg:text-xs font-medium group-hover:text-[#E4405F]">{t('instagram')}</span>
+                      <span className="text-white/40 text-[8px] lg:text-[10px]">@batistaglobal</span>
                     </div>
                   </a>
                   <a 
@@ -247,10 +247,10 @@ const HomeFixed = () => {
                     rel="noopener noreferrer" 
                     className="flex items-center gap-2 p-2 bg-white/5 rounded-lg hover:bg-white/20 transition-all group col-span-2"
                   >
-                    <img src="/iconos/tiktok.png" alt={t('tiktok')} className="w-5 h-5" />
+                    <img src="/iconos/tiktok.png" alt={t('tiktok')} className="w-4 h-4 lg:w-5 lg:h-5" />
                     <div className="flex flex-col items-start">
-                      <span className="text-white/90 text-xs font-medium group-hover:text-white">{t('tiktok')}</span>
-                      <span className="text-white/40 text-[10px]">@batista.global</span>
+                      <span className="text-white/90 text-[10px] lg:text-xs font-medium group-hover:text-white">{t('tiktok')}</span>
+                      <span className="text-white/40 text-[8px] lg:text-[10px]">@batista.global</span>
                     </div>
                   </a>
                 </div>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getProducts } from '../../services/productService';
 import { getOrders } from '../../services/orderService';
-import { getAnalytics } from '../../services/analyticsService';
 import { 
   ShoppingBag, 
   DollarSign, 
@@ -40,8 +39,6 @@ const Dashboard = () => {
       const productsResult = await getProducts();
       // Cargar órdenes
       const ordersResult = await getOrders();
-      // Cargar analytics
-      const analyticsResult = await getAnalytics();
 
       if (productsResult.success) {
         const products = productsResult.data;
@@ -66,18 +63,11 @@ const Dashboard = () => {
           pendingOrders: pending,
           completedOrders: completed,
           totalSales: total,
-          revenue: total * 0.3 // 30% margen estimado
+          revenue: total * 0.3
         }));
 
         // Últimas 5 órdenes
         setRecentOrders(orders.slice(0, 5));
-      }
-
-      if (analyticsResult.success) {
-        setStats(prev => ({
-          ...prev,
-          totalVisits: analyticsResult.data.visits || 12456
-        }));
       }
 
     } catch (error) {
@@ -218,7 +208,10 @@ const Dashboard = () => {
         <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-gray-900">Órdenes Recientes</h2>
-            <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+            <button 
+              onClick={() => window.location.href = '/admin/orders'}
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
               Ver todas
             </button>
           </div>
@@ -301,7 +294,10 @@ const Dashboard = () => {
                 <span className="text-sm text-gray-600">Necesitan reabastecimiento</span>
                 <span className="font-semibold text-orange-600">{stats.lowStockProducts}</span>
               </div>
-              <button className="w-full bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors">
+              <button 
+                onClick={() => window.location.href = '/admin/products?filter=low-stock'}
+                className="w-full bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
+              >
                 Ver productos
               </button>
             </div>
