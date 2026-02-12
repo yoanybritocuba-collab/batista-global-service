@@ -32,6 +32,7 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('batistaCart', JSON.stringify(cart));
     
+    // Calcular total y cantidad
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const count = cart.reduce((sum, item) => sum + item.quantity, 0);
     
