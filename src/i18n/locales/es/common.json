@@ -1,0 +1,289 @@
+{
+  "common": {
+    "welcome": "Bienvenido a Mi Web Caribe",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "retry": "Reintentar"
+  },
+  "nav": {
+    "home": "Inicio",
+    "shop": "Tienda",
+    "services": "Servicios",
+    "admin": "Admin",
+    "cart": "Carrito",
+    "language": "Idioma"
+  },
+  "cart": {
+    "title": "Tu Carrito",
+    "empty": "Tu carrito está vacío",
+    "add": "Añadir al carrito",
+    "remove": "Eliminar",
+    "quantity": "Cantidad",
+    "total": "Total",
+    "checkout": "Proceder al Pago",
+    "continue": "Continuar Comprando",
+    "items": "artículos",
+    "addSome": "Añade algunos productos",
+    "decrease": "Disminuir",
+    "increase": "Aumentar",
+    "checkoutMessage": "Proceso de checkout - Próximamente",
+    "pageTitle": "Carrito de Compras",
+    "pageDescription": "Esta es la página completa del carrito. Usa el sidebar del carrito para gestionar tus productos.",
+    "featureTitle": "Carrito Interactivo",
+    "featureDescription": "Usa el icono del carrito en la esquina superior derecha para ver y gestionar tus productos.",
+    "continueShopping": "Continuar Comprando",
+    "viewSidebar": "Ver Carrito"
+  },
+  "shop": {
+    "title": "Tienda Caribeña",
+    "subtitle": "Descubre productos únicos inspirados en el Caribe",
+    "filters": {
+      "all": "Todos",
+      "clothing": "Ropa",
+      "accessories": "Accesorios",
+      "souvenirs": "Souvenirs",
+      "deals": "Ofertas"
+    },
+    "flashDeals": "🚀 Ofertas Flash",
+    "flashDescription": "Solo por tiempo limitado. ¡No te lo pierdas!",
+    "endsIn": "Termina en",
+    "viewDeals": "Ver Ofertas",
+    "noProducts": "No hay productos",
+    "noProductsDesc": "Intenta cambiar tu búsqueda o filtros"
+  },
+  "product": {
+    "new": "NUEVO",
+    "sale": "OFERTA",
+    "rating": "valoraciones",
+    "addToCart": "Añadir al carrito"
+  },
+  "home": {
+    "hero": {
+      "subtitle": "Productos eléctricos, misceláneos y servicios turísticos caribeños",
+      "shopButton": "Ir a la Tienda",
+      "servicesButton": "Ver Servicios"
+    },
+    "services": {
+      "title": "Nuestros Servicios",
+      "packaging": "Paquetería",
+      "packagingDesc": "Envíos express",
+      "tours": "Paquetes Turísticos",
+      "toursDesc": "Experiencias únicas",
+      "hotels": "Hoteles",
+      "hotelsDesc": "Los mejores resorts",
+      "flights": "Vuelos",
+      "flightsDesc": "Vuelos económicos",
+      "carRental": "Renta de Autos",
+      "carRentalDesc": "Vehículos para todos",
+      "moreInfo": "Más info"
+    }
+  },
+  "services": {
+    "title": "Servicios Turísticos",
+    "subtitle": "Ofrecemos una amplia gama de servicios para hacer de tu viaje una experiencia inolvidable",
+    "packaging": {
+      "title": "Paquetería Express",
+      "desc": "Servicio de envíos rápidos y seguros a todo el Caribe",
+      "features": ["Entrega en 24-48h", "Seguimiento en tiempo real", "Seguro incluido", "Embalaje profesional"]
+    },
+    "tours": {
+      "title": "Paquetes Turísticos",
+      "desc": "Experiencias personalizadas en los destinos más hermosos del Caribe",
+      "features": ["Guías locales", "Transporte incluido", "Alojamiento 4-5 estrellas", "Actividades exclusivas"]
+    },
+    "hotels": {
+      "title": "Reservas de Hoteles",
+      "desc": "Los mejores resorts y hoteles boutique a precios exclusivos",
+      "features": ["Precios directos", "Cancelación gratuita", "Desayuno incluido", "Upgrade gratuito"]
+    },
+    "flights": {
+      "title": "Vuelos y Aerolíneas",
+      "desc": "Las mejores tarifas aéreas a destinos caribeños",
+      "features": ["Tarifas exclusivas", "Millas acumulables", "Cambios flexibles", "Asistencia 24/7"]
+    },
+    "carRental": {
+      "title": "Renta de Autos",
+      "desc": "Vehículos modernos para explorar las islas a tu ritmo",
+      "features": ["Seguro completo", "Entrega en aeropuerto", "Kilometraje ilimitado", "Asistencia en ruta"]
+    },
+    "features": "Características",
+    "contactButton": "Solicitar Información",
+    "cta": {
+      "title": "¿Necesitas un paquete personalizado?",
+      "description": "Contáctanos y crearemos el itinerario perfecto para tu viaje caribeño",
+      "button": "Contactar Ahora"
+    }
+  },
+  "admin": {
+    "title": "Panel de Administración",
+    "description": "Panel en construcción...",
+    "navigation": "Navegación",
+    "quickStats": "Estadísticas Rápidas",
+    "recentOrders": "Órdenes Recientes",
+    "recentProducts": "Productos Recientes",
+    "logout": "Cerrar Sesión",
+    "tabs": {
+      "dashboard": "Dashboard",
+      "products": "Productos",
+      "categories": "Categorías",
+      "orders": "Órdenes",
+      "stats": "Estadísticas",
+      "settings": "Configuración"
+    },
+    "stats": {
+      "totalProducts": "Total Productos",
+      "totalSales": "Ventas Totales",
+      "totalUsers": "Total Usuarios",
+      "totalOrders": "Total Órdenes",
+      "totalRevenue": "Ingresos Totales",
+      "totalCustomers": "Total Clientes",
+      "avgRating": "Rating Promedio",
+      "vsLastMonth": "vs mes pasado",
+      "salesByMonth": "Ventas por Mes",
+      "revenueByCategory": "Ingresos por Categoría",
+      "last7Days": "Últimos 7 días",
+      "topProducts": "Productos Más Vendidos",
+      "product": "Producto",
+      "category": "Categoría",
+      "sold": "Vendidos",
+      "revenue": "Ingresos",
+      "stock": "Inventario",
+      "units": "unidades"
+    },
+    "products": {
+      "manage": "Gestión de Productos",
+      "list": "Lista de Productos",
+      "create": "Crear Producto",
+      "edit": "Editar Producto",
+      "update": "Actualizar Producto",
+      "created": "Producto creado exitosamente",
+      "updated": "Producto actualizado exitosamente",
+      "confirmDelete": "¿Estás seguro de eliminar este producto?",
+      "delete": "Eliminar",
+      "view": "Ver",
+      "search": "Buscar productos...",
+      "filter": "Filtrar",
+      "addNew": "Añadir Nuevo",
+      "backToList": "Volver a la lista",
+      "product": "Producto",
+      "category": "Categoría",
+      "price": "Precio",
+      "stock": "Stock",
+      "status": "Estado",
+      "actions": "Acciones",
+      "name": "Nombre",
+      "namePlaceholder": "Nombre del producto",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción del producto",
+      "originalPrice": "Precio Original",
+      "discount": "Descuento",
+      "image": "Imagen",
+      "imageUpload": "Arrastra o selecciona una imagen",
+      "selectImage": "Seleccionar Imagen",
+      "isNew": "Es Nuevo",
+      "isFeatured": "Es Destacado",
+      "onSale": "En Oferta",
+      "featured": "Destacado",
+      "units": "unidades",
+      "showing": "Mostrando",
+      "of": "de",
+      "noProducts": "No hay productos",
+      "noProductsDesc": "No se encontraron productos que coincidan con tu búsqueda",
+      "createFirst": "Crear Primer Producto"
+    },
+    "categories": {
+      "manage": "Gestión de Categorías",
+      "title": "Categorías",
+      "subtitle": "Organiza tus productos por categorías",
+      "add": "Añadir Categoría",
+      "newCategory": "Nueva Categoría",
+      "name": "Nombre",
+      "slug": "Slug",
+      "description": "Descripción",
+      "icon": "Icono",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "noDescription": "Sin descripción",
+      "products": "productos",
+      "active": "Activo",
+      "noCategories": "No hay categorías",
+      "noCategoriesDesc": "Crea tu primera categoría para organizar tus productos",
+      "createFirst": "Crear Primera Categoría",
+      "electronics": "Electrónica",
+      "clothing": "Ropa",
+      "accessories": "Accesorios",
+      "souvenirs": "Souvenirs",
+      "home": "Hogar",
+      "other": "Otros"
+    },
+    "orders": {
+      "manage": "Gestión de Órdenes",
+      "search": "Buscar órdenes...",
+      "filter": "Filtrar",
+      "allStatus": "Todos los estados",
+      "orderId": "ID de Orden",
+      "customer": "Cliente",
+      "date": "Fecha",
+      "total": "Total",
+      "status": "Estado",
+      "actions": "Acciones",
+      "items": "items",
+      "view": "Ver",
+      "edit": "Editar",
+      "pending": "Pendiente",
+      "processing": "Procesando",
+      "shipped": "Enviado",
+      "completed": "Completado",
+      "cancelled": "Cancelado",
+      "noOrders": "No hay órdenes",
+      "noOrdersDesc": "No se encontraron órdenes que coincidan con tu búsqueda"
+    },
+    "settings": {
+      "title": "Configuración",
+      "general": "General",
+      "storeName": "Nombre de la Tienda",
+      "currency": "Moneda",
+      "notifications": "Notificaciones",
+      "newOrders": "Nuevas órdenes",
+      "lowStock": "Stock bajo",
+      "newsletter": "Boletín de noticias",
+      "save": "Guardar Cambios"
+    },
+    "auth": {
+      "title": "Acceso Administrativo",
+      "description": "Inicia sesión para acceder al panel de administración",
+      "login": "Iniciar Sesión",
+      "backHome": "Volver al Inicio",
+      "welcome": "Bienvenido de nuevo",
+      "subtitle": "Inicia sesión en tu cuenta de administrador",
+      "email": "Correo Electrónico",
+      "password": "Contraseña",
+      "remember": "Recordarme",
+      "forgot": "¿Olvidaste tu contraseña?",
+      "loginError": "Error al iniciar sesión",
+      "demoCredentials": "Credenciales de demostración:"
+    }
+  },
+  "footer": {
+    "description": "Tu tienda virtual caribeña con productos y servicios de calidad.",
+    "links": {
+      "title": "Enlaces"
+    },
+    "contact": {
+      "title": "Contacto",
+      "phone": "+1 (809) 555-1234",
+      "email": "info@caribeshop.com",
+      "address": "Santo Domingo, RD"
+    },
+    "copyright": "© 2024 CaribeShop. Todos los derechos reservados."
+  }
+}

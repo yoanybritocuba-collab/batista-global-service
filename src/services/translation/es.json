@@ -1,0 +1,13 @@
+{
+  "header": {
+    "home": "Inicio",
+    "shop": "Tienda",
+    "services": "Servicios",
+    "offers": "Ofertas",
+    "admin": "Admin",
+    "language": "Idioma"
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados"
+  }
+}

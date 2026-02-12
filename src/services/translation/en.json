@@ -1,0 +1,13 @@
+{
+  "header": {
+    "home": "Home",
+    "shop": "Shop",
+    "services": "Services",
+    "offers": "Offers",
+    "admin": "Admin",
+    "language": "Language"
+  },
+  "footer": {
+    "rights": "All rights reserved"
+  }
+}
