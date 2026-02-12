@@ -5,8 +5,8 @@ import { AuthProvider } from './contexts/auth/AuthContext';
 import { CartProvider } from './contexts/cart/CartContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 
-// Importaciones admin
-import AdminLayout from './components/admin/AdminLayout';
+// Importaciones admin - RUTA CORREGIDA
+import AdminLayout from './components/Admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import AdminProducts from './pages/admin/Products';
 import AdminOrders from './pages/admin/Orders';
