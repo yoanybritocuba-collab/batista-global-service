@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import ImageUploader from '../../components/admin/ImageUploader';
+import ImageUploader from '../../components/admin/ImageUploader'; // ← RUTA CORREGIDA
 import { getProductById, createProduct, updateProduct } from '../../services/productService';
 import { toast } from 'react-hot-toast';
 
@@ -108,7 +108,7 @@ const ProductEdit = () => {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           
-          {/* SECCIÓN DE IMÁGENES - SUBIDA REAL */}
+          {/* SECCIÓN DE IMÁGENES */}
           <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-2xl border-2 border-blue-100">
             <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <span className="w-2 h-8 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full"></span>
