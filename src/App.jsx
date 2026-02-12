@@ -5,7 +5,7 @@ import { AuthProvider } from './contexts/auth/AuthContext';
 import { CartProvider } from './contexts/cart/CartContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 
-// Importaciones admin - RUTA CORREGIDA
+// Importaciones admin - RUTA CORREGIDA (Admin con mayúscula)
 import AdminLayout from './components/Admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import AdminProducts from './pages/admin/Products';

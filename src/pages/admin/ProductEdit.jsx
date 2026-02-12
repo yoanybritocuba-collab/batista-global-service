@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import ImageUploader from '../../components/admin/ImageUploader'; // ← RUTA CORREGIDA
+import ImageUploader from '../../components/Admin/ImageUploader'; // ← RUTA CORREGIDA (Admin con mayúscula)
 import { getProductById, createProduct, updateProduct } from '../../services/productService';
 import { toast } from 'react-hot-toast';
 
