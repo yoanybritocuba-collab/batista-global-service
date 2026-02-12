@@ -10,7 +10,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-3 lg:py-6">
         <div className="flex items-center justify-between">
           
-          {/* LOGO DOBLE - más pequeño en móvil */}
+          {/* LOGO DOBLE */}
           <Link to="/" className="flex items-center gap-2 lg:gap-3">
             <img 
               src="/images/logo-icon.png" 
@@ -24,7 +24,7 @@ const Header = () => {
             />
           </Link>
 
-          {/* ACCIONES - visibles siempre */}
+          {/* ACCIONES */}
           <div className="flex items-center space-x-2 lg:space-x-4">
             <button
               onClick={() => setLanguage(language === "es" ? "en" : "es")}
@@ -55,45 +55,25 @@ const Header = () => {
         </div>
       </div>
 
-      {/* MENÚ MÓVIL DESPLEGABLE */}
+      {/* MENÚ MÓVIL */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-black border-t border-amber-400/20 animate-slideDown">
+        <div className="lg:hidden bg-black border-t border-amber-400/20">
           <div className="container mx-auto px-4 py-4">
             <nav className="space-y-3">
-              <Link 
-                to="/" 
-                className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base font-medium rounded-lg hover:bg-white/5 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link to="/" className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base font-medium rounded-lg hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>
                 Inicio
               </Link>
-              <Link 
-                to="/servicios" 
-                className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base font-medium rounded-lg hover:bg-white/5 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link to="/servicios" className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base font-medium rounded-lg hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>
                 Servicios
               </Link>
-              <Link 
-                to="/tienda" 
-                className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base font-medium rounded-lg hover:bg-white/5 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link to="/tienda" className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base font-medium rounded-lg hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>
                 Tienda
               </Link>
-              <Link 
-                to="/productos" 
-                className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base font-medium rounded-lg hover:bg-white/5 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link to="/productos" className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base font-medium rounded-lg hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>
                 Productos
               </Link>
               <div className="border-t border-amber-400/20 my-2"></div>
-              <Link 
-                to="/admin/dashboard" 
-                className="block py-3 px-4 bg-[#00A8B5]/10 text-[#00A8B5] text-base font-medium rounded-lg hover:bg-[#00A8B5]/20 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link to="/admin/dashboard" className="block py-3 px-4 bg-[#00A8B5]/10 text-[#00A8B5] text-base font-medium rounded-lg hover:bg-[#00A8B5]/20" onClick={() => setIsMenuOpen(false)}>
                 Panel Admin
               </Link>
             </nav>
