@@ -1,219 +1,356 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getProducts } from '../../services/productService';
+import { getOrders } from '../../services/orderService';
+import { getAnalytics } from '../../services/analyticsService';
 import { 
-  TrendingUp, 
+  ShoppingBag, 
+  DollarSign, 
   Users, 
-  ShoppingCart, 
-  DollarSign,
-  Package,
+  Package, 
+  TrendingUp, 
   Clock,
-  AlertCircle
+  CheckCircle,
+  Truck,
+  XCircle
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const Dashboard = () => {
-  // Datos de ejemplo para métricas
-  const metrics = [
-    { 
-      title: 'Ventas Hoy', 
-      value: '$2,850', 
-      change: '+12.5%', 
-      icon: <DollarSign className="w-6 h-6" />, 
-      color: 'bg-green-500' 
-    },
-    { 
-      title: 'Órdenes', 
-      value: '48', 
-      change: '+8.2%', 
-      icon: <ShoppingCart className="w-6 h-6" />, 
-      color: 'bg-blue-500' 
-    },
-    { 
-      title: 'Visitas', 
-      value: '1,240', 
-      change: '+5.7%', 
-      icon: <Users className="w-6 h-6" />, 
-      color: 'bg-purple-500' 
-    },
-    { 
-      title: 'Productos', 
-      value: '156', 
-      change: '+3.4%', 
-      icon: <Package className="w-6 h-6" />, 
-      color: 'bg-orange-500' 
-    },
-  ];
+  const [stats, setStats] = useState({
+    totalSales: 0,
+    totalOrders: 0,
+    totalVisits: 12456,
+    totalProducts: 0,
+    pendingOrders: 0,
+    completedOrders: 0,
+    lowStockProducts: 0,
+    revenue: 0
+  });
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const recentOrders = [
-    { id: '#ORD-001', customer: 'Juan Pérez', amount: '$149.99', status: 'Completado', date: 'Hoy, 10:30' },
-    { id: '#ORD-002', customer: 'María García', amount: '$89.50', status: 'Pendiente', date: 'Hoy, 09:15' },
-    { id: '#ORD-003', customer: 'Carlos López', amount: '$299.99', status: 'Enviado', date: 'Ayer, 16:45' },
-    { id: '#ORD-004', customer: 'Ana Rodríguez', amount: '$45.99', status: 'Completado', date: 'Ayer, 14:20' },
-    { id: '#ORD-005', customer: 'Pedro Martínez', amount: '$189.99', status: 'Cancelado', date: '10 Feb' },
-  ];
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
 
-  const lowStockProducts = [
-    { name: 'Smartphone X', stock: 3, minStock: 10 },
-    { name: 'Audífonos Bluetooth', stock: 5, minStock: 15 },
-    { name: 'Cargador USB-C', stock: 2, minStock: 20 },
-    { name: 'Fundas iPhone', stock: 8, minStock: 25 },
-  ];
+  const loadDashboardData = async () => {
+    setLoading(true);
+    try {
+      // Cargar productos
+      const productsResult = await getProducts();
+      // Cargar órdenes
+      const ordersResult = await getOrders();
+      // Cargar analytics
+      const analyticsResult = await getAnalytics();
+
+      if (productsResult.success) {
+        const products = productsResult.data;
+        const lowStock = products.filter(p => p.stock < 10).length;
+        
+        setStats(prev => ({
+          ...prev,
+          totalProducts: products.length,
+          lowStockProducts: lowStock
+        }));
+      }
+
+      if (ordersResult.success) {
+        const orders = ordersResult.data;
+        const pending = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
+        const completed = orders.filter(o => o.status === 'delivered' || o.status === 'completed').length;
+        const total = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+        
+        setStats(prev => ({
+          ...prev,
+          totalOrders: orders.length,
+          pendingOrders: pending,
+          completedOrders: completed,
+          totalSales: total,
+          revenue: total * 0.3 // 30% margen estimado
+        }));
+
+        // Últimas 5 órdenes
+        setRecentOrders(orders.slice(0, 5));
+      }
+
+      if (analyticsResult.success) {
+        setStats(prev => ({
+          ...prev,
+          totalVisits: analyticsResult.data.visits || 12456
+        }));
+      }
+
+    } catch (error) {
+      console.error('Error cargando dashboard:', error);
+      toast.error('Error al cargar datos del dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('es-CU', {
+      style: 'currency',
+      currency: 'CUP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount || 0);
+  };
+
+  const getStatusBadge = (status) => {
+    const statusMap = {
+      pending: { color: 'bg-yellow-100 text-yellow-800', icon: Clock, text: 'Pendiente' },
+      processing: { color: 'bg-blue-100 text-blue-800', icon: Package, text: 'Procesando' },
+      shipped: { color: 'bg-purple-100 text-purple-800', icon: Truck, text: 'Enviado' },
+      delivered: { color: 'bg-green-100 text-green-800', icon: CheckCircle, text: 'Entregado' },
+      cancelled: { color: 'bg-red-100 text-red-800', icon: XCircle, text: 'Cancelado' }
+    };
+    return statusMap[status] || statusMap.pending;
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Resumen general y métricas de tu tienda</p>
+        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-600 mt-1">Bienvenido de nuevo, Administrador</p>
       </div>
 
-      {/* Métricas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {metrics.map((metric, index) => (
-          <div key={index} className="bg-white rounded-xl shadow p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm text-gray-500">{metric.title}</p>
-                <p className="text-2xl font-bold mt-2">{metric.value}</p>
-                <div className="flex items-center mt-2">
-                  <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                  <span className="text-sm text-green-500">{metric.change}</span>
-                  <span className="text-sm text-gray-500 ml-1">vs ayer</span>
-                </div>
-              </div>
-              <div className={`${metric.color} p-3 rounded-lg`}>
-                {metric.icon}
-              </div>
+      {/* Cards de estadísticas */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        {/* Ventas totales */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+              <DollarSign className="w-6 h-6 text-white" />
             </div>
+            <span className="text-xs font-medium text-green-600 bg-green-100 px-3 py-1.5 rounded-full">
+              +12.5%
+            </span>
           </div>
-        ))}
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Ventas Totales</h3>
+          <div className="flex items-end justify-between">
+            <span className="text-2xl lg:text-3xl font-bold text-gray-900">
+              {formatCurrency(stats.totalSales)}
+            </span>
+            <span className="text-sm text-gray-500">último mes</span>
+          </div>
+        </div>
+
+        {/* Órdenes totales */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg">
+              <ShoppingBag className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-xs font-medium text-blue-600 bg-blue-100 px-3 py-1.5 rounded-full">
+              +8.2%
+            </span>
+          </div>
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Órdenes Totales</h3>
+          <div className="flex items-end justify-between">
+            <span className="text-2xl lg:text-3xl font-bold text-gray-900">
+              {stats.totalOrders}
+            </span>
+            <span className="text-sm text-gray-500">{stats.pendingOrders} pendientes</span>
+          </div>
+        </div>
+
+        {/* Visitantes */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg">
+              <Users className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-xs font-medium text-purple-600 bg-purple-100 px-3 py-1.5 rounded-full">
+              +5.3%
+            </span>
+          </div>
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Visitantes</h3>
+          <div className="flex items-end justify-between">
+            <span className="text-2xl lg:text-3xl font-bold text-gray-900">
+              {stats.totalVisits.toLocaleString()}
+            </span>
+            <span className="text-sm text-gray-500">este mes</span>
+          </div>
+        </div>
+
+        {/* Productos */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-lg">
+              <Package className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-xs font-medium text-orange-600 bg-orange-100 px-3 py-1.5 rounded-full">
+              {stats.lowStockProducts} bajo stock
+            </span>
+          </div>
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Productos</h3>
+          <div className="flex items-end justify-between">
+            <span className="text-2xl lg:text-3xl font-bold text-gray-900">
+              {stats.totalProducts}
+            </span>
+            <span className="text-sm text-gray-500">en catálogo</span>
+          </div>
+        </div>
       </div>
 
-      {/* Dos columnas principales */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Grid de 2 columnas */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Órdenes recientes */}
-        <div className="bg-white rounded-xl shadow">
-          <div className="p-6 border-b">
-            <h2 className="text-lg font-semibold">Órdenes Recientes</h2>
-            <p className="text-sm text-gray-500">Últimas 5 órdenes</p>
-          </div>
-          <div className="p-6">
-            <div className="space-y-4">
-              {recentOrders.map((order) => (
-                <div key={order.id} className="flex justify-between items-center p-4 hover:bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium">{order.id}</p>
-                    <p className="text-sm text-gray-500">{order.customer}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold">{order.amount}</p>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                      order.status === 'Completado' ? 'bg-green-100 text-green-800' :
-                      order.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
-                      order.status === 'Enviado' ? 'bg-blue-100 text-blue-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {order.status}
-                    </span>
-                    <p className="text-sm text-gray-500 mt-1">{order.date}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button className="w-full mt-6 py-3 text-blue-600 hover:bg-blue-50 rounded-lg font-medium">
-              Ver todas las órdenes
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">Órdenes Recientes</h2>
+            <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+              Ver todas
             </button>
           </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Orden</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {recentOrders.length > 0 ? (
+                  recentOrders.map((order, index) => {
+                    const status = getStatusBadge(order.status);
+                    const StatusIcon = status.icon;
+                    return (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-4 py-4 text-sm font-medium text-gray-900">#{order.id?.slice(-6) || `ORD-${index + 1}`}</td>
+                        <td className="px-4 py-4 text-sm text-gray-600">{order.customer?.name || 'Cliente'}</td>
+                        <td className="px-4 py-4 text-sm text-gray-600">{formatDate(order.createdAt)}</td>
+                        <td className="px-4 py-4 text-sm font-medium text-gray-900">{formatCurrency(order.total)}</td>
+                        <td className="px-4 py-4">
+                          <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium ${status.color}`}>
+                            <StatusIcon className="w-3 h-3" />
+                            {status.text}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="px-4 py-8 text-center text-gray-500">
+                      No hay órdenes recientes
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        {/* Stock bajo y actividad */}
-        <div className="space-y-6">
-          {/* Alertas de stock */}
-          <div className="bg-white rounded-xl shadow">
-            <div className="p-6 border-b">
-              <div className="flex items-center">
-                <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
-                <h2 className="text-lg font-semibold">Stock Bajo</h2>
-              </div>
-              <p className="text-sm text-gray-500">Productos que necesitan reabastecimiento</p>
+        {/* Resumen de ventas */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">Resumen de Ventas</h2>
+            <TrendingUp className="w-5 h-5 text-gray-400" />
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Ingresos totales</span>
+              <span className="font-semibold text-gray-900">{formatCurrency(stats.totalSales)}</span>
             </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                {lowStockProducts.map((product, index) => (
-                  <div key={index} className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">{product.name}</p>
-                      <p className="text-sm text-gray-500">Mínimo: {product.minStock} unidades</p>
-                    </div>
-                    <div className="text-right">
-                      <p className={`text-lg font-bold ${
-                        product.stock < 5 ? 'text-red-600' : 'text-yellow-600'
-                      }`}>
-                        {product.stock} unidades
-                      </p>
-                      <button className="mt-2 text-sm text-blue-600 hover:text-blue-800">
-                        Reabastecer
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Órdenes completadas</span>
+              <span className="font-semibold text-gray-900">{stats.completedOrders}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Ticket promedio</span>
+              <span className="font-semibold text-gray-900">
+                {formatCurrency(stats.completedOrders > 0 ? stats.totalSales / stats.completedOrders : 0)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center pt-4 border-t">
+              <span className="text-sm font-medium text-gray-700">Margen estimado</span>
+              <span className="font-semibold text-green-600">{formatCurrency(stats.revenue)}</span>
             </div>
           </div>
 
-          {/* Actividad reciente */}
-          <div className="bg-white rounded-xl shadow">
-            <div className="p-6 border-b">
-              <div className="flex items-center">
-                <Clock className="w-5 h-5 text-gray-500 mr-2" />
-                <h2 className="text-lg font-semibold">Actividad Reciente</h2>
+          <div className="mt-6 pt-6 border-t">
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Productos con stock bajo</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Necesitan reabastecimiento</span>
+                <span className="font-semibold text-orange-600">{stats.lowStockProducts}</span>
               </div>
-            </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                    <Package className="w-4 h-4 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Nuevo producto agregado</p>
-                    <p className="text-sm text-gray-500">"Smart Watch Pro" fue añadido al catálogo</p>
-                    <p className="text-xs text-gray-400">Hace 2 horas</p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    <ShoppingCart className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Orden completada</p>
-                    <p className="text-sm text-gray-500">Orden #ORD-001 marcada como completada</p>
-                    <p className="text-xs text-gray-400">Hace 4 horas</p>
-                  </div>
-                </div>
-              </div>
+              <button className="w-full bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors">
+                Ver productos
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Quick actions */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">Acciones Rápidas</h2>
+      {/* Acciones rápidas */}
+      <div className="bg-white rounded-2xl shadow-lg p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="p-4 border rounded-lg hover:bg-gray-50 text-center">
-            <Package className="w-6 h-6 mx-auto text-gray-600" />
-            <p className="mt-2 font-medium">Agregar Producto</p>
+          <button 
+            onClick={() => window.location.href = '/admin/products/new'}
+            className="flex flex-col items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors group"
+          >
+            <div className="p-3 bg-white rounded-lg shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
+              <Package className="w-5 h-5" />
+            </div>
+            <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">Nuevo Producto</span>
           </button>
-          <button className="p-4 border rounded-lg hover:bg-gray-50 text-center">
-            <ShoppingCart className="w-6 h-6 mx-auto text-gray-600" />
-            <p className="mt-2 font-medium">Crear Orden</p>
+          
+          <button 
+            onClick={() => window.location.href = '/admin/orders'}
+            className="flex flex-col items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors group"
+          >
+            <div className="p-3 bg-white rounded-lg shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
+              <ShoppingBag className="w-5 h-5" />
+            </div>
+            <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">Ver Órdenes</span>
           </button>
-          <button className="p-4 border rounded-lg hover:bg-gray-50 text-center">
-            <TrendingUp className="w-6 h-6 mx-auto text-gray-600" />
-            <p className="mt-2 font-medium">Generar Reporte</p>
+          
+          <button 
+            onClick={() => window.location.href = '/admin/products?filter=low-stock'}
+            className="flex flex-col items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors group"
+          >
+            <div className="p-3 bg-white rounded-lg shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">Stock Bajo</span>
           </button>
-          <button className="p-4 border rounded-lg hover:bg-gray-50 text-center">
-            <Users className="w-6 h-6 mx-auto text-gray-600" />
-            <p className="mt-2 font-medium">Ver Clientes</p>
+          
+          <button 
+            onClick={() => window.location.href = '/admin/analytics'}
+            className="flex flex-col items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors group"
+          >
+            <div className="p-3 bg-white rounded-lg shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
+              <DollarSign className="w-5 h-5" />
+            </div>
+            <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">Reportes</span>
           </button>
         </div>
       </div>

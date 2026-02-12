@@ -10,24 +10,24 @@ const Header = () => {
 
   return (
     <header className="bg-black sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3 lg:py-6">
+      <div className="container mx-auto px-3 py-2 lg:px-6 lg:py-6">
         <div className="flex items-center justify-between">
           
-          {/* LOGO */}
-          <Link to="/" className="flex items-center gap-2 lg:gap-3">
+          {/* LOGO - 50% MÁS PEQUEÑO EN MÓVIL */}
+          <Link to="/" className="flex items-center gap-1 lg:gap-3">
             <img 
               src="/images/logo-icon.png" 
               alt="Batista Global Service" 
-              className="h-8 w-auto lg:h-12"
+              className="h-6 w-auto lg:h-12"
             />
             <img 
               src="/images/logo-text.png" 
               alt="Batista Global Service" 
-              className="h-6 w-auto lg:h-10"
+              className="h-4 w-auto lg:h-10 hidden sm:block"
             />
           </Link>
 
-          {/* NAVEGACIÓN - Escritorio */}
+          {/* NAVEGACIÓN ESCRITORIO */}
           <nav className="hidden lg:flex items-center space-x-1">
             <Link to="/" className="px-4 py-3 text-white/90 hover:text-amber-400 text-sm font-medium rounded-lg hover:bg-white/5">
               {t('inicio')}
@@ -45,71 +45,99 @@ const Header = () => {
               to="/admin/dashboard" 
               className="flex items-center gap-2 px-5 py-3 ml-2 bg-[#00A8B5] hover:bg-[#00909B] text-white text-sm font-medium rounded-lg transition-all hover:shadow-[0_0_20px_rgba(255,184,0,0.5)]"
             >
-              <span>{t('panelAdmin')}</span>
+              <span>{t('panel_admin')}</span>
             </Link>
           </nav>
 
           {/* ACCIONES */}
-          <div className="flex items-center space-x-2 lg:space-x-3">
+          <div className="flex items-center space-x-1 lg:space-x-3">
             
-            {/* IDIOMA */}
+            {/* IDIOMA - CORREGIDO */}
             <button
               onClick={toggleLanguage}
-              className="px-2 py-1.5 lg:px-3 lg:py-2 text-white/80 hover:text-amber-400 text-xs lg:text-sm font-medium rounded-lg hover:bg-white/5 flex items-center gap-1"
+              className="px-2 py-1 lg:px-3 lg:py-2 text-white/80 hover:text-amber-400 text-xs lg:text-sm font-medium rounded-lg hover:bg-white/5 flex items-center gap-1"
             >
               <span className="text-base">{language === 'es' ? '🇪🇸' : '🇺🇸'}</span>
-              <span className="uppercase">{language}</span>
+              <span className="uppercase hidden sm:inline">{language}</span>
             </button>
 
             {/* CARRITO */}
             <Link to="/cart" className="relative p-1.5 lg:p-2.5 rounded-lg hover:bg-white/5 group">
-              <svg className="w-5 h-5 lg:w-6 lg:h-6 text-white/80 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 lg:w-6 lg:h-6 text-white/80 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              <span className="absolute -top-1 -right-1 bg-amber-400 text-black text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center shadow-lg">
+              <span className="absolute -top-1 -right-1 bg-amber-400 text-black text-xs font-bold rounded-full min-w-[18px] h-4 px-1 flex items-center justify-center shadow-lg">
                 {cartCount}
               </span>
             </Link>
 
-            {/* MENÚ HAMBURGUESA - MÓVIL */}
+            {/* MENÚ HAMBURGUESA - CON EFECTO X */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-1.5 text-white/80 hover:text-amber-400 rounded-lg hover:bg-white/5"
+              className="lg:hidden relative w-8 h-8 flex items-center justify-center text-white/80 hover:text-amber-400 rounded-lg hover:bg-white/5 transition-colors"
               aria-label="Menú"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <div className="absolute w-5 h-5 flex flex-col items-center justify-center">
+                <span className={`absolute block w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
+                  isMenuOpen ? 'rotate-45' : '-translate-y-1.5'
+                }`} />
+                <span className={`absolute block w-5 h-0.5 bg-current transition-all duration-300 ease-in-out ${
+                  isMenuOpen ? 'opacity-0' : 'opacity-100'
+                }`} />
+                <span className={`absolute block w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
+                  isMenuOpen ? '-rotate-45' : 'translate-y-1.5'
+                }`} />
+              </div>
             </button>
           </div>
         </div>
       </div>
 
-      {/* MENÚ MÓVIL */}
-      {isMenuOpen && (
-        <div className="lg:hidden bg-black border-t border-amber-400/20">
-          <div className="container mx-auto px-4 py-4">
-            <nav className="space-y-2">
-              <Link to="/" className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base rounded-lg hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>
-                {t('inicio')}
-              </Link>
-              <Link to="/servicios" className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base rounded-lg hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>
-                {t('servicios')}
-              </Link>
-              <Link to="/tienda" className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base rounded-lg hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>
-                {t('tienda')}
-              </Link>
-              <Link to="/productos" className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base rounded-lg hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>
-                {t('productos')}
-              </Link>
-              <div className="border-t border-amber-400/20 my-2"></div>
-              <Link to="/admin/dashboard" className="block py-3 px-4 bg-[#00A8B5]/10 text-[#00A8B5] text-base font-medium rounded-lg hover:bg-[#00A8B5]/20" onClick={() => setIsMenuOpen(false)}>
-                {t('panelAdmin')}
-              </Link>
-            </nav>
-          </div>
+      {/* MENÚ MÓVIL - CON ANIMACIÓN */}
+      <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+        isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+      }`}>
+        <div className="bg-black border-t border-amber-400/20 px-4 py-4">
+          <nav className="space-y-2">
+            <Link 
+              to="/" 
+              className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base rounded-lg hover:bg-white/5 transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t('inicio')}
+            </Link>
+            <Link 
+              to="/servicios" 
+              className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base rounded-lg hover:bg-white/5"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t('servicios')}
+            </Link>
+            <Link 
+              to="/tienda" 
+              className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base rounded-lg hover:bg-white/5"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t('tienda')}
+            </Link>
+            <Link 
+              to="/productos" 
+              className="block py-3 px-4 text-white/90 hover:text-amber-400 text-base rounded-lg hover:bg-white/5"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t('productos')}
+            </Link>
+            <div className="border-t border-amber-400/20 my-2"></div>
+            <Link 
+              to="/admin/dashboard" 
+              className="block py-3 px-4 bg-[#00A8B5]/10 text-[#00A8B5] text-base font-medium rounded-lg hover:bg-[#00A8B5]/20"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t('panel_admin')}
+            </Link>
+          </nav>
         </div>
-      )}
+      </div>
     </header>
   );
 };
