@@ -8,29 +8,30 @@ const HomeFixed = () => {
   return (
     <div className="m-0 p-0 bg-black">
       
-      {/* HERO - MÓVIL: ANCHO COMPLETO + 1 PULGADA ARRIBA */}
-      <section className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[500px] lg:h-[700px] flex items-end pb-16 lg:pb-24">
+      {/* HERO */}
+      <section className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-auto min-h-[500px] lg:min-h-[700px] flex items-end pb-16 lg:pb-24 -mt-[148px] lg:-mt-[116px]">
         
-        {/* Imagen de fondo - 1 pulgada arriba en móvil */}
-        <div className="absolute inset-0 z-0 -top-[116px] lg:-top-[116px] h-[calc(100%+116px)] lg:h-[calc(100%+116px)]">
+        {/* Imagen de fondo */}
+        <div className="absolute inset-0 z-0 bg-black overflow-hidden">
+          <div className="absolute inset-0 bg-black/40 z-10"></div>
           <img 
             src="/images/hero1.png" 
             alt="Batista Global Service" 
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-contain lg:object-cover mx-auto"
+            style={{
+              transform: window.innerWidth < 768 
+                ? 'translateY(-60px)'
+                : 'translateY(-20px)',
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30"></div>
         </div>
         
-        {/* Contenido - SIEMPRE EN LA PARTE INFERIOR */}
-        <div className="container mx-auto px-4 relative z-10 w-full">
+        {/* Contenido */}
+        <div className="container mx-auto px-4 relative z-20 w-full">
           <div className="max-w-3xl mx-auto text-center">
-            
-            {/* SOLO EL NOMBRE */}
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 lg:mb-6 leading-tight">
               Batista <span className="text-amber-400">Global Service</span>
             </h1>
-            
-            {/* BOTONES - AL BORDE INFERIOR */}
             <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center mt-4 lg:mt-8">
               <Link 
                 to="/tienda" 
@@ -101,164 +102,208 @@ const HomeFixed = () => {
         </div>
       </section>
 
-      {/* WHATSAPP FLOTANTE */}
+      {/* WHATSAPP FLOTANTE - SUBIDO 2cm (bottom-20) */}
       <a 
-        href="https://wa.me/17866583567?text=Hola%20Batista%20Global%20Service,%20quiero%20información"
+        href="https://wa.me/17866583567?text=Hola%20Batista%20Global%20Service%2C%20quiero%20informaci%C3%B3n%20sobre%20sus%20servicios.%20%F0%9F%8C%9F"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-4 right-4 lg:bottom-6 lg:right-6 z-50 group"
+        className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 group"
       >
         <div className="absolute inset-0 rounded-full bg-[#25D366]/20 animate-ping scale-150"></div>
-        <div className="relative w-12 h-12 lg:w-20 lg:h-20 flex items-center justify-center animate-bounce hover:animate-none">
+        <div className="relative w-14 h-14 lg:w-20 lg:h-20 flex items-center justify-center animate-bounce hover:animate-none bg-gradient-to-br from-green-500 to-green-600 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(37,211,102,0.7)] transition-shadow">
           <img 
             src="/iconos/whatsapp.png" 
             alt="WhatsApp" 
-            className="w-10 h-10 lg:w-16 lg:h-16 object-contain drop-shadow-2xl"
+            className="w-8 h-8 lg:w-12 lg:h-12 object-contain drop-shadow-2xl"
           />
+        </div>
+        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] lg:text-xs font-bold px-2 py-1 rounded-full animate-pulse shadow-lg">
+          1:1
         </div>
       </a>
 
       {/* FOOTER */}
       <footer className="w-full bg-black border-t border-amber-400/20">
-        <div className="w-full px-4 py-12 lg:py-16">
+        <div className="w-full px-4 py-6 lg:py-8">
           <div className="max-w-7xl mx-auto">
             
             {/* LOGO CENTRAL */}
-            <div className="flex justify-center mb-8 lg:mb-12">
-              <Link to="/" className="flex items-center gap-3 lg:gap-4">
+            <div className="flex justify-center mb-4 lg:mb-6">
+              <Link to="/" className="flex items-center gap-3 lg:gap-6 hover:scale-105 transition-transform">
                 <img 
                   src="/images/logo-icon.png" 
                   alt="Batista Global Service" 
-                  className="h-8 lg:h-14 w-auto"
+                  className="h-10 lg:h-16 w-auto"
                 />
                 <img 
                   src="/images/logo-text.png" 
                   alt="Batista Global Service" 
-                  className="h-6 lg:h-12 w-auto"
+                  className="h-8 lg:h-14 w-auto"
                 />
               </Link>
             </div>
 
-            {/* GRID FOOTER */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-8 lg:mb-12">
+            {/* GRID DE CONTACTO */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
               
-              {/* SOBRE NOSOTROS */}
-              <div className="text-center lg:text-left">
-                <h3 className="text-white font-semibold text-sm lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
-                  <span className="text-amber-400">●</span> {t('sobre_nosotros')}
+              {/* COLUMNA IZQUIERDA */}
+              <div className="space-y-4">
+                <h3 className="text-xl lg:text-2xl font-bold text-white mb-4 text-center lg:text-left">
+                  <span className="bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
+                    Contáctanos
+                  </span>
                 </h3>
-                <p className="text-white/60 text-xs lg:text-sm leading-relaxed">
-                  {t('sobre_nosotros_texto')}
-                </p>
-              </div>
-
-              {/* CONTACTO */}
-              <div className="text-center lg:text-left">
-                <h3 className="text-white font-semibold text-sm lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
-                  <span className="text-amber-400">●</span> {t('contacto')}
-                </h3>
-                <div className="space-y-3">
-                  <a 
-                    href="tel:+17866583567" 
-                    className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-amber-400 text-xs lg:text-sm transition-colors"
-                  >
-                    <img src="/iconos/phone.png" alt={t('telefono')} className="w-3 h-3 lg:w-4 lg:h-4" />
-                    <span>+1 (786) 658-3567</span>
-                  </a>
-                  <a 
-                    href="mailto:batistaglobalservice25@gmail.com" 
-                    className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-amber-400 text-xs lg:text-sm transition-colors"
-                  >
-                    <img src="/iconos/email.png" alt={t('correo')} className="w-3 h-3 lg:w-4 lg:h-4" />
-                    <span>batistaglobalservice25@gmail.com</span>
-                  </a>
-                  <a 
-                    href="https://maps.google.com/?q=700+SW+57th+Ave+Miami+FL+33144" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-amber-400 text-xs lg:text-sm transition-colors"
-                  >
-                    <img src="/iconos/location.png" alt={t('ubicacion')} className="w-3 h-3 lg:w-4 lg:h-4" />
-                    <span>Miami, FL</span>
-                  </a>
-                </div>
-              </div>
-
-              {/* HORARIOS */}
-              <div className="text-center lg:text-left">
-                <h3 className="text-white font-semibold text-sm lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
-                  <span className="text-amber-400">●</span> {t('horarios')}
-                </h3>
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-3 justify-center lg:justify-start">
-                    <img src="/iconos/clock.png" alt={t('horarios')} className="w-3 h-3 lg:w-4 lg:h-4" />
-                    <span className="text-white/90 text-xs lg:text-sm font-medium">{t('atencion_cliente')}</span>
+                
+                {/* TELÉFONO */}
+                <a 
+                  href="tel:+17866583567" 
+                  className="group flex flex-col lg:flex-row items-center lg:items-start gap-3 p-3 bg-white/5 rounded-xl hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-blue-700/20 transition-all duration-300 border border-white/10 hover:border-blue-500/30"
+                >
+                  <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                    <img src="/iconos/phone.png" alt="Teléfono" className="w-5 h-5 lg:w-8 lg:h-8" />
                   </div>
-                  <div className="space-y-1 text-xs lg:text-sm">
-                    <div className="flex justify-between items-center">
-                      <span className="text-white/60">{t('lun_vie')}</span>
-                      <span className="text-white/90">9:00 - 18:00</span>
+                  <div className="text-center lg:text-left">
+                    <p className="text-xs text-blue-400 font-medium mb-1">LLÁMANOS AHORA</p>
+                    <p className="text-base lg:text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
+                      +1 (786) 658-3567
+                    </p>
+                  </div>
+                </a>
+
+                {/* CORREO */}
+                <a 
+                  href="mailto:batistaglobalservice25@gmail.com" 
+                  className="group flex flex-col lg:flex-row items-center lg:items-start gap-3 p-3 bg-white/5 rounded-xl hover:bg-gradient-to-r hover:from-yellow-600/20 hover:to-amber-600/20 transition-all duration-300 border border-white/10 hover:border-amber-500/30"
+                >
+                  <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                    <img src="/iconos/email.png" alt="Email" className="w-5 h-5 lg:w-8 lg:h-8" />
+                  </div>
+                  <div className="text-center lg:text-left">
+                    <p className="text-xs text-amber-400 font-medium mb-1">ESCRÍBENOS</p>
+                    <p className="text-sm lg:text-lg font-bold text-white group-hover:text-amber-400 transition-colors break-all">
+                      batistaglobalservice25@gmail.com
+                    </p>
+                  </div>
+                </a>
+
+                {/* UBICACIÓN */}
+                <a 
+                  href="https://maps.google.com/?q=700+SW+57th+Ave+Miami+FL+33144" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="group flex flex-col lg:flex-row items-center lg:items-start gap-3 p-3 bg-white/5 rounded-xl hover:bg-gradient-to-r hover:from-red-600/20 hover:to-pink-600/20 transition-all duration-300 border border-white/10 hover:border-red-500/30"
+                >
+                  <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                    <img src="/iconos/location.png" alt="Ubicación" className="w-5 h-5 lg:w-8 lg:h-8" />
+                  </div>
+                  <div className="text-center lg:text-left">
+                    <p className="text-xs text-red-400 font-medium mb-1">VISÍTANOS</p>
+                    <p className="text-sm lg:text-lg font-bold text-white group-hover:text-red-400 transition-colors">
+                      700 SW 57th Ave, Miami FL
+                    </p>
+                  </div>
+                </a>
+              </div>
+              
+              {/* COLUMNA DERECHA */}
+              <div className="space-y-4">
+                
+                {/* HORARIOS */}
+                <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 border border-amber-400/20 shadow-xl">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2 justify-center lg:justify-start">
+                    <div className="w-8 h-8 bg-amber-400/20 rounded-lg flex items-center justify-center">
+                      <img src="/iconos/clock.png" alt="Horarios" className="w-4 h-4" />
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-white/60">{t('sabado')}</span>
-                      <span className="text-white/90">10:00 - 16:00</span>
+                    <span className="bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
+                      {t('horarios')}
+                    </span>
+                  </h3>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center p-2 bg-white/5 rounded-lg text-xs lg:text-sm">
+                      <span className="text-white/70">{t('lun_vie')}</span>
+                      <span className="text-white font-semibold">9:00 - 18:00</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-white/60">{t('domingo')}</span>
-                      <span className="text-white/90">10:00 - 14:00</span>
+                    <div className="flex justify-between items-center p-2 bg-white/5 rounded-lg text-xs lg:text-sm">
+                      <span className="text-white/70">{t('sabado')}</span>
+                      <span className="text-white font-semibold">10:00 - 16:00</span>
+                    </div>
+                    <div className="flex justify-between items-center p-2 bg-white/5 rounded-lg text-xs lg:text-sm">
+                      <span className="text-white/70">{t('domingo')}</span>
+                      <span className="text-white font-semibold">10:00 - 14:00</span>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* REDES SOCIALES */}
-              <div className="text-center lg:text-left">
-                <h3 className="text-white font-semibold text-sm lg:text-lg mb-3 flex items-center justify-center lg:justify-start gap-2">
-                  <span className="text-amber-400">●</span> {t('redes_sociales')}
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <a 
-                    href="https://facebook.com/BatistaGlobalServices" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex items-center gap-2 p-2 bg-white/5 rounded-lg hover:bg-[#1877F2]/20 transition-all group"
-                  >
-                    <img src="/iconos/facebook.png" alt={t('facebook')} className="w-4 h-4 lg:w-5 lg:h-5" />
-                    <div className="flex flex-col items-start">
-                      <span className="text-white/90 text-[10px] lg:text-xs font-medium group-hover:text-[#1877F2]">{t('facebook')}</span>
-                      <span className="text-white/40 text-[8px] lg:text-[10px]">@BatistaGlobal</span>
+                {/* REDES SOCIALES */}
+                <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 border border-amber-400/20 shadow-xl">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2 justify-center lg:justify-start">
+                    <div className="w-8 h-8 bg-amber-400/20 rounded-lg flex items-center justify-center">
+                      <span className="text-amber-400 text-base">🌐</span>
                     </div>
-                  </a>
-                  <a 
-                    href="https://instagram.com/batistaglobalservice" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex items-center gap-2 p-2 bg-white/5 rounded-lg hover:bg-[#E4405F]/20 transition-all group"
-                  >
-                    <img src="/iconos/instagram.png" alt={t('instagram')} className="w-4 h-4 lg:w-5 lg:h-5" />
-                    <div className="flex flex-col items-start">
-                      <span className="text-white/90 text-[10px] lg:text-xs font-medium group-hover:text-[#E4405F]">{t('instagram')}</span>
-                      <span className="text-white/40 text-[8px] lg:text-[10px]">@batistaglobal</span>
-                    </div>
-                  </a>
-                  <a 
-                    href="https://tiktok.com/@batista.global" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex items-center gap-2 p-2 bg-white/5 rounded-lg hover:bg-white/20 transition-all group col-span-2"
-                  >
-                    <img src="/iconos/tiktok.png" alt={t('tiktok')} className="w-4 h-4 lg:w-5 lg:h-5" />
-                    <div className="flex flex-col items-start">
-                      <span className="text-white/90 text-[10px] lg:text-xs font-medium group-hover:text-white">{t('tiktok')}</span>
-                      <span className="text-white/40 text-[8px] lg:text-[10px]">@batista.global</span>
-                    </div>
-                  </a>
+                    <span className="bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
+                      {t('redes_sociales')}
+                    </span>
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 gap-2">
+                    {/* FACEBOOK */}
+                    <a 
+                      href="https://facebook.com/BatistaGlobalServices" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-3 p-2 bg-white/5 rounded-lg hover:bg-[#1877F2]/20 transition-all"
+                    >
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#1877F2] to-[#0e5a9c] rounded-lg flex items-center justify-center shadow group-hover:scale-110 transition-transform">
+                        <img src="/iconos/facebook.png" alt="Facebook" className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white font-medium text-sm group-hover:text-[#1877F2] transition-colors">Facebook</p>
+                        <p className="text-gray-400 text-xs">@BatistaGlobalServices</p>
+                      </div>
+                      <span className="text-white/40 group-hover:text-[#1877F2]">→</span>
+                    </a>
+
+                    {/* INSTAGRAM */}
+                    <a 
+                      href="https://instagram.com/batistaglobalservice" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-3 p-2 bg-white/5 rounded-lg hover:bg-[#E4405F]/20 transition-all"
+                    >
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#E4405F] to-[#bc2a8d] rounded-lg flex items-center justify-center shadow group-hover:scale-110 transition-transform">
+                        <img src="/iconos/instagram.png" alt="Instagram" className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white font-medium text-sm group-hover:text-[#E4405F] transition-colors">Instagram</p>
+                        <p className="text-gray-400 text-xs">@batistaglobalservice</p>
+                      </div>
+                      <span className="text-white/40 group-hover:text-[#E4405F]">→</span>
+                    </a>
+
+                    {/* TIKTOK */}
+                    <a 
+                      href="https://tiktok.com/@batista.global" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-3 p-2 bg-white/5 rounded-lg hover:bg-white/20 transition-all"
+                    >
+                      <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center shadow group-hover:scale-110 transition-transform">
+                        <img src="/iconos/tiktok.png" alt="TikTok" className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white font-medium text-sm group-hover:text-white transition-colors">TikTok</p>
+                        <p className="text-gray-400 text-xs">@batista.global</p>
+                      </div>
+                      <span className="text-white/40 group-hover:text-white">→</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* COPYRIGHT */}
-            <div className="border-t border-white/10 pt-6">
+            <div className="border-t border-white/10 mt-6 pt-4">
               <p className="text-white/40 text-xs text-center">
                 © 2026 Batista Global Service. {t('derechos')}
               </p>
