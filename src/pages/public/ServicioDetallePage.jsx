@@ -9,13 +9,13 @@ import {
   Plane, Hotel, Briefcase, Globe
 } from 'lucide-react';
 
-// IMPORTACIONES CORREGIDAS - CON S MAYÚSCULA
-import ShippingDetail from '../../components/Services/ShippingDetail';
-import ToursDetail from '../../components/Services/ToursDetail';
-import RentalDetail from '../../components/Services/RentalDetail';
-import HotelsDetail from '../../components/Services/HotelsDetail';
-import FlightsDetail from '../../components/Services/FlightsDetail';
-import VisasDetail from '../../components/Services/VisasDetail';
+// IMPORTACIONES CORREGIDAS - CON MINÚSCULAS (services)
+import ShippingDetail from '../../components/services/ShippingDetail';
+import ToursDetail from '../../components/services/ToursDetail';
+import RentalDetail from '../../components/services/RentalDetail';
+import HotelsDetail from '../../components/services/HotelsDetail';
+import FlightsDetail from '../../components/services/FlightsDetail';
+import VisasDetail from '../../components/services/VisasDetail';
 
 const ServicioDetallePage = () => {
   const { id } = useParams();
