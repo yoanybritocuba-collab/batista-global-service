@@ -6,10 +6,11 @@ import {
   Star, Clock, MapPin, Users, DollarSign,
   CheckCircle, XCircle, Calendar, Phone,
   Mail, Camera, Package, Scale, Car,
-  Plane, Hotel, Briefcase, Globe
+  Plane, Hotel, Briefcase, Globe,
+  Shield, Award, Sparkles, Truck
 } from 'lucide-react';
 
-// IMPORTACIONES CORREGIDAS - CON MINÚSCULAS (services)
+// Importaciones de los paneles específicos
 import ShippingDetail from '../../components/services/ShippingDetail';
 import ToursDetail from '../../components/services/ToursDetail';
 import RentalDetail from '../../components/services/RentalDetail';
@@ -38,12 +39,13 @@ const ServicioDetallePage = () => {
   useEffect(() => {
     if (services.length > 0) {
       const found = services.find(s => s.id === id);
+      console.log("🔍 Servicio encontrado:", found);
       setService(found || null);
     }
   }, [services, id]);
 
   const getImageUrl = (imageUrl) => {
-    if (!imageUrl) return 'https://via.placeholder.com/800x600?text=Servicio';
+    if (!imageUrl) return 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
     if (imageUrl.startsWith('http')) return imageUrl;
     if (imageUrl.startsWith('/')) return imageUrl;
     if (imageUrl.startsWith('data:')) return imageUrl;
@@ -79,7 +81,7 @@ const ServicioDetallePage = () => {
 
   const getServiceIcon = () => {
     switch(service?.type) {
-      case 'shipping': return <Package className="h-8 w-8" />;
+      case 'shipping': return <Truck className="h-8 w-8" />;
       case 'tours': return <Globe className="h-8 w-8" />;
       case 'rental': return <Car className="h-8 w-8" />;
       case 'hotels': return <Hotel className="h-8 w-8" />;
@@ -89,8 +91,26 @@ const ServicioDetallePage = () => {
     }
   };
 
+  const getServiceColor = () => {
+    switch(service?.type) {
+      case 'shipping': return 'from-green-600 to-emerald-600';
+      case 'tours': return 'from-amber-600 to-orange-600';
+      case 'rental': return 'from-blue-600 to-indigo-600';
+      case 'hotels': return 'from-purple-600 to-pink-600';
+      case 'flights': return 'from-sky-600 to-blue-600';
+      case 'visas': return 'from-indigo-600 to-purple-600';
+      default: return 'from-amber-600 to-amber-800';
+    }
+  };
+
   const renderServiceDetail = () => {
-    if (!service || !service.type) return null;
+    if (!service || !service.type) {
+      console.log("❌ No hay servicio o tipo");
+      return null;
+    }
+
+    console.log("📦 Renderizando detalle para tipo:", service.type);
+    console.log("📦 Datos del servicio:", service.content);
 
     switch (service.type) {
       case 'shipping':
@@ -107,9 +127,9 @@ const ServicioDetallePage = () => {
         return <VisasDetail data={service.content || {}} service={service} />;
       default:
         return (
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-xl font-bold mb-4">Información del Servicio</h2>
-            <p className="text-gray-600">{service.description}</p>
+          <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200">
+            <h2 className="text-2xl font-bold mb-4">Información del Servicio</h2>
+            <p className="text-gray-600 text-lg leading-relaxed">{service.description}</p>
           </div>
         );
     }
@@ -120,7 +140,7 @@ const ServicioDetallePage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando detalles del servicio...</p>
+          <p className="text-gray-600 text-lg">Cargando detalles del servicio...</p>
         </div>
       </div>
     );
@@ -193,18 +213,20 @@ const ServicioDetallePage = () => {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 py-8">
-        {/* Título y tipo */}
-        <div className="mb-6 flex items-center gap-3">
-          <div className="p-3 bg-amber-100 text-amber-700 rounded-xl">
-            {getServiceIcon()}
-          </div>
-          <div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-800">
-              {service.title}
-            </h1>
-            <p className="text-lg text-gray-600 mt-1">
-              {service.subtitle}
-            </p>
+        {/* Hero del servicio */}
+        <div className={`bg-gradient-to-r ${getServiceColor()} text-white rounded-2xl p-8 mb-8 shadow-xl`}>
+          <div className="flex items-center gap-4">
+            <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
+              {getServiceIcon()}
+            </div>
+            <div>
+              <h1 className="text-4xl lg:text-5xl font-bold mb-2">
+                {service.title}
+              </h1>
+              <p className="text-white/90 text-xl">
+                {service.subtitle}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -262,58 +284,16 @@ const ServicioDetallePage = () => {
 
           {/* Columna derecha - Información */}
           <div className="space-y-6">
-            {/* Resumen rápido */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {service.content?.tarifasPorPeso?.[0] && (
-                  <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-10 h-10 bg-green-100 rounded-full mb-2">
-                      <Scale className="h-5 w-5 text-green-600" />
-                    </div>
-                    <p className="text-xs text-gray-500">Desde</p>
-                    <p className="font-bold text-green-600">${service.content.tarifasPorPeso[0].precio}</p>
-                  </div>
-                )}
-                {service.content?.marcas?.length > 0 && (
-                  <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-10 h-10 bg-amber-100 rounded-full mb-2">
-                      <Car className="h-5 w-5 text-amber-600" />
-                    </div>
-                    <p className="text-xs text-gray-500">Vehículos</p>
-                    <p className="font-bold">{service.content.marcas.length}</p>
-                  </div>
-                )}
-                {service.content?.destinos?.length > 0 && (
-                  <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full mb-2">
-                      <MapPin className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <p className="text-xs text-gray-500">Destinos</p>
-                    <p className="font-bold">{service.content.destinos.length}</p>
-                  </div>
-                )}
-                {service.content?.duracion && (
-                  <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-10 h-10 bg-purple-100 rounded-full mb-2">
-                      <Clock className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <p className="text-xs text-gray-500">Duración</p>
-                    <p className="font-bold text-sm">{service.content.duracion}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* Detalle específico del servicio */}
             {renderServiceDetail()}
 
-            {/* Botones de acción */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 sticky bottom-6">
-              <h3 className="font-semibold text-lg mb-4">¿Necesitas ayuda?</h3>
+            {/* Botones de acción - Siempre visibles al final */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 sticky bottom-6">
+              <h3 className="font-semibold text-xl mb-4 text-gray-800">¿Necesitas ayuda?</h3>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleWhatsApp}
-                  className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-4 rounded-xl font-medium hover:bg-green-700 transition-all transform hover:scale-105"
+                  className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-4 rounded-xl font-medium hover:bg-green-700 transition-all transform hover:scale-105 shadow-lg"
                 >
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 14.12 2.91 16.2 4.3 17.82L2.44 21.94L6.7 20.11C8.24 20.93 10 21.4 11.82 21.4H11.84C17.3 21.4 21.75 16.95 21.75 11.49C21.75 6.03 17.3 2 12.04 2ZM12.05 19.56C10.54 19.56 9.07 19.15 7.79 18.38L7.47 18.19L4.96 19.07L5.86 16.64L5.65 16.31C4.78 14.97 4.31 13.44 4.31 11.86C4.31 7.54 7.79 4.06 12.11 4.06C16.43 4.06 19.91 7.54 19.91 11.86C19.91 16.18 16.43 19.56 12.05 19.56Z"/>
@@ -322,14 +302,15 @@ const ServicioDetallePage = () => {
                 </button>
                 <a
                   href="tel:+17866583567"
-                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-4 rounded-xl font-medium hover:bg-blue-700 transition-all transform hover:scale-105"
+                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-4 rounded-xl font-medium hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg"
                 >
                   <Phone className="h-5 w-5" />
                   Llamar ahora
                 </a>
               </div>
-              <p className="text-center text-sm text-gray-500 mt-4">
-                📧 batistaglobalservice25@gmail.com
+              <p className="text-center text-sm text-gray-500 mt-4 flex items-center justify-center gap-2">
+                <Mail className="h-4 w-4" />
+                batistaglobalservice25@gmail.com
               </p>
             </div>
           </div>

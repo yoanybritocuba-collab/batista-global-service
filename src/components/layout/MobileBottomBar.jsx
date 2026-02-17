@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/cart/CartContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useClienteAuth } from '../../contexts/auth/ClienteAuthContext';
-import { Home, Search, ShoppingCart, User, X, LogOut, UserCircle, Heart, Shield } from 'lucide-react';
+import { Home, Search, ShoppingCart, User, X, LogOut, UserCircle, Heart, Shield, ArrowLeft } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const MobileBottomBar = () => {
@@ -44,6 +44,11 @@ const MobileBottomBar = () => {
     setShowUserMenu(false);
   };
 
+  const goBack = () => {
+    navigate(-1);
+    setShowUserMenu(false);
+  };
+
   const goToAdmin = () => {
     navigate('/admin-login');
     setShowUserMenu(false);
@@ -61,7 +66,16 @@ const MobileBottomBar = () => {
             className="flex flex-col items-center justify-center p-2 text-white/80 hover:text-amber-400 transition-colors" 
           >
             <Home className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">{t('inicio')}</span>
+            <span className="text-[10px] mt-0.5">Inicio</span>
+          </button>
+
+          {/* ATRÁS */}
+          <button
+            onClick={goBack}
+            className="flex flex-col items-center justify-center p-2 text-white/80 hover:text-amber-400 transition-colors" 
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5">Atrás</span>
           </button>
 
           {/* BUSCADOR */}
@@ -73,7 +87,7 @@ const MobileBottomBar = () => {
             <span className="text-[10px] mt-0.5">{t('buscar')}</span>
           </button>
 
-          {/* ADMIN - Nueva opción */}
+          {/* ADMIN */}
           <button
             onClick={goToAdmin}
             className="flex flex-col items-center justify-center p-2 text-amber-400 hover:text-amber-300 transition-colors relative"

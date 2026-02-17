@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useServices } from '../../contexts/services/ServicesContext';
-import { ArrowLeft, Share2, Heart } from 'lucide-react';
+import { 
+  ArrowLeft, Share2, Heart, 
+  Star, Clock, MapPin, Users, DollarSign,
+  CheckCircle, XCircle, Calendar, Phone,
+  Mail, Camera, Package, Scale, Car,
+  Plane, Hotel, Briefcase, Globe,
+  Shield, Award, Sparkles, Truck
+} from 'lucide-react';
 
-// Importar componentes específicos por tipo de servicio - CON S MAYÚSCULA
-import ShippingDetail from '../../components/Services/ShippingDetail';
-import ToursDetail from '../../components/Services/ToursDetail';
-import RentalDetail from '../../components/Services/RentalDetail';
-import HotelsDetail from '../../components/Services/HotelsDetail';
-import FlightsDetail from '../../components/Services/FlightsDetail';
-import VisasDetail from '../../components/Services/VisasDetail';
+// Importaciones de los paneles específicos (con minúsculas)
+import ShippingDetail from '../../components/services/ShippingDetail';
+import ToursDetail from '../../components/services/ToursDetail';
+import RentalDetail from '../../components/services/RentalDetail';
+import HotelsDetail from '../../components/services/HotelsDetail';
+import FlightsDetail from '../../components/services/FlightsDetail';
+import VisasDetail from '../../components/services/VisasDetail';
 
 const ServicioDetallePage = () => {
   const { id } = useParams();
@@ -37,14 +44,16 @@ const ServicioDetallePage = () => {
   }, [services, id]);
 
   const getImageUrl = (imageUrl) => {
-    if (!imageUrl) return '/images/default-service.jpg';
+    if (!imageUrl) return 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
     if (imageUrl.startsWith('http')) return imageUrl;
     if (imageUrl.startsWith('/')) return imageUrl;
+    if (imageUrl.startsWith('data:')) return imageUrl;
     return `/images/${imageUrl}`;
   };
 
   const images = service?.gallery?.length > 0 ? service.gallery : 
-                 service?.mainImage ? [service.mainImage] : [];
+                 service?.mainImage ? [service.mainImage] : 
+                 service?.imageUrl ? [service.imageUrl] : [];
 
   const handleShare = () => {
     if (navigator.share) {
@@ -69,7 +78,30 @@ const ServicioDetallePage = () => {
     window.open(`https://wa.me/17866583567?text=${encodeURIComponent(message)}`, '_blank');
   };
 
-  // Renderizar el componente específico según el tipo de servicio
+  const getServiceIcon = () => {
+    switch(service?.type) {
+      case 'shipping': return <Truck className="h-8 w-8" />;
+      case 'tours': return <Globe className="h-8 w-8" />;
+      case 'rental': return <Car className="h-8 w-8" />;
+      case 'hotels': return <Hotel className="h-8 w-8" />;
+      case 'flights': return <Plane className="h-8 w-8" />;
+      case 'visas': return <Briefcase className="h-8 w-8" />;
+      default: return <Star className="h-8 w-8" />;
+    }
+  };
+
+  const getServiceColor = () => {
+    switch(service?.type) {
+      case 'shipping': return 'from-green-600 to-emerald-600';
+      case 'tours': return 'from-amber-600 to-orange-600';
+      case 'rental': return 'from-blue-600 to-indigo-600';
+      case 'hotels': return 'from-purple-600 to-pink-600';
+      case 'flights': return 'from-sky-600 to-blue-600';
+      case 'visas': return 'from-indigo-600 to-purple-600';
+      default: return 'from-amber-600 to-amber-800';
+    }
+  };
+
   const renderServiceDetail = () => {
     if (!service || !service.type) return null;
 
@@ -88,9 +120,9 @@ const ServicioDetallePage = () => {
         return <VisasDetail data={service.content || {}} service={service} />;
       default:
         return (
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-xl font-bold mb-4">Información del Servicio</h2>
-            <p className="text-gray-600">{service.description}</p>
+          <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200">
+            <h2 className="text-2xl font-bold mb-4">Información del Servicio</h2>
+            <p className="text-gray-600 text-lg leading-relaxed">{service.description}</p>
           </div>
         );
     }
@@ -101,7 +133,7 @@ const ServicioDetallePage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando detalles del servicio...</p>
+          <p className="text-gray-600 text-lg">Cargando detalles del servicio...</p>
         </div>
       </div>
     );
@@ -137,9 +169,9 @@ const ServicioDetallePage = () => {
               className="flex items-center gap-2 text-gray-600 hover:text-amber-500 transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
-              <span>Volver a servicios</span>
+              <span className="hidden sm:inline">Volver a servicios</span>
             </button>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <Heart className="h-5 w-5 text-gray-600" />
               </button>
@@ -174,21 +206,43 @@ const ServicioDetallePage = () => {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 py-8">
+        {/* Hero del servicio */}
+        <div className={`bg-gradient-to-r ${getServiceColor()} text-white rounded-2xl p-8 mb-8 shadow-xl`}>
+          <div className="flex items-center gap-4">
+            <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
+              {getServiceIcon()}
+            </div>
+            <div>
+              <h1 className="text-4xl lg:text-5xl font-bold mb-2">
+                {service.title}
+              </h1>
+              <p className="text-white/90 text-xl">
+                {service.subtitle}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Columna izquierda - Galería */}
           <div className="space-y-4">
             {/* Imagen principal */}
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-              <div className="relative aspect-square lg:aspect-auto lg:h-[500px]">
+              <div className="relative aspect-square lg:aspect-auto lg:h-[500px] bg-gray-100">
                 <img
                   src={getImageUrl(images[selectedImage])}
                   alt={service.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain lg:object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                  }}
                 />
                 {service.isFeatured && (
                   <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 bg-amber-500 text-white rounded-full text-sm font-medium shadow-lg">
-                      ⭐ Destacado
+                    <span className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full text-sm font-medium shadow-lg flex items-center gap-1">
+                      <Star className="h-4 w-4 fill-white" />
+                      Destacado
                     </span>
                   </div>
                 )}
@@ -210,6 +264,10 @@ const ServicioDetallePage = () => {
                       src={getImageUrl(img)}
                       alt={`${service.title} ${idx + 1}`}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://via.placeholder.com/100x100?text=Imagen';
+                      }}
                     />
                   </button>
                 ))}
@@ -217,28 +275,18 @@ const ServicioDetallePage = () => {
             )}
           </div>
 
-          {/* Columna derecha - Información dinámica según tipo */}
+          {/* Columna derecha - Información */}
           <div className="space-y-6">
-            {/* Título y categoría */}
-            <div>
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
-                {service.title}
-              </h1>
-              <p className="text-xl text-gray-600">
-                {service.subtitle}
-              </p>
-            </div>
-
-            {/* Renderizado del detalle específico */}
+            {/* Detalle específico del servicio */}
             {renderServiceDetail()}
 
-            {/* Contacto rápido */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <h3 className="font-semibold text-lg mb-4">¿Necesitas ayuda?</h3>
+            {/* Botones de acción - Siempre visibles al final */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 sticky bottom-6">
+              <h3 className="font-semibold text-xl mb-4 text-gray-800">¿Necesitas ayuda?</h3>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleWhatsApp}
-                  className="flex-1 flex items-center justify-center gap-2 bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-4 rounded-xl font-medium hover:bg-green-700 transition-all transform hover:scale-105 shadow-lg"
                 >
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 14.12 2.91 16.2 4.3 17.82L2.44 21.94L6.7 20.11C8.24 20.93 10 21.4 11.82 21.4H11.84C17.3 21.4 21.75 16.95 21.75 11.49C21.75 6.03 17.3 2 12.04 2ZM12.05 19.56C10.54 19.56 9.07 19.15 7.79 18.38L7.47 18.19L4.96 19.07L5.86 16.64L5.65 16.31C4.78 14.97 4.31 13.44 4.31 11.86C4.31 7.54 7.79 4.06 12.11 4.06C16.43 4.06 19.91 7.54 19.91 11.86C19.91 16.18 16.43 19.56 12.05 19.56Z"/>
@@ -246,15 +294,17 @@ const ServicioDetallePage = () => {
                   WhatsApp
                 </button>
                 <a
-                  href={`tel:+17866583567`}
-                  className="flex-1 flex items-center justify-center gap-2 bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors"
+                  href="tel:+17866583567"
+                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-4 rounded-xl font-medium hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg"
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  Llamar
+                  <Phone className="h-5 w-5" />
+                  Llamar ahora
                 </a>
               </div>
+              <p className="text-center text-sm text-gray-500 mt-4 flex items-center justify-center gap-2">
+                <Mail className="h-4 w-4" />
+                batistaglobalservice25@gmail.com
+              </p>
             </div>
           </div>
         </div>

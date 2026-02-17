@@ -13,7 +13,8 @@ import {
   Truck,
   Users,
   Home,
-  ArrowLeft
+  ArrowLeft,
+  Globe
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -34,34 +35,60 @@ const AdminLayout = () => {
 
   const handleLogout = () => {
     logout();
+    navigate('/admin-login');
   };
 
   const goToHome = () => {
     navigate('/');
   };
 
+  const goBack = () => {
+    navigate(-1);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header superior con navegación */}
-      <div className="bg-white shadow-sm sticky top-0 z-30">
+      {/* Header superior con navegación - MEJORADO */}
+      <div className="bg-white shadow-sm sticky top-0 z-30 border-b border-gray-200">
         <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded"
+              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+              title="Abrir menú"
             >
               <Menu className="h-5 w-5" />
             </button>
+            
+            {/* BOTÓN DE INICIO - SIEMPRE VISIBLE */}
             <button
               onClick={goToHome}
-              className="flex items-center gap-2 text-gray-600 hover:text-amber-500 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors shadow-sm"
+              title="Ir al sitio web"
             >
-              <Home className="h-5 w-5" />
-              <span className="hidden sm:inline">Volver al sitio</span>
+              <Home className="h-4 w-4" />
+              <span className="hidden sm:inline font-medium">Ir al Inicio</span>
+            </button>
+
+            {/* BOTÓN DE ATRÁS */}
+            <button
+              onClick={goBack}
+              className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Página anterior"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Atrás</span>
             </button>
           </div>
-          <h1 className="text-lg font-bold text-gray-800">Panel Administrativo</h1>
-          <div className="w-10" /> {/* Espaciador */}
+
+          <h1 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+            <Globe className="h-5 w-5 text-amber-500" />
+            Panel Administrativo
+          </h1>
+
+          <div className="w-32 flex justify-end">
+            {/* Espaciador para mantener el header balanceado */}
+          </div>
         </div>
       </div>
 
@@ -81,30 +108,37 @@ const AdminLayout = () => {
       >
         <div className="h-full flex flex-col">
           {/* Header del sidebar */}
-          <div className="p-4 border-b flex justify-between items-center">
+          <div className="p-4 border-b flex justify-between items-center bg-gradient-to-r from-amber-50 to-orange-50">
             <h1 className="text-xl font-bold text-gray-800">Batista Admin</h1>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded"
+              className="lg:hidden p-2 hover:bg-white/50 rounded-lg"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
 
-          {/* Botón Volver al inicio dentro del sidebar */}
+          {/* BOTÓN DE INICIO EN EL SIDEBAR - DESTACADO */}
           <button
             onClick={() => {
               navigate('/');
               setSidebarOpen(false);
             }}
-            className="flex items-center gap-3 px-4 py-3 mx-4 mt-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors border border-amber-200"
+            className="flex items-center gap-3 px-4 py-3 mx-4 mt-4 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors shadow-md"
           >
-            <ArrowLeft className="h-5 w-5" />
-            <span>Volver al sitio web</span>
+            <Home className="h-5 w-5" />
+            <span className="font-medium">Ir al sitio web</span>
           </button>
 
+          {/* Separador */}
+          <div className="px-4 mt-4 mb-2">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Menú de Administración
+            </p>
+          </div>
+
           {/* Menú de navegación */}
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 px-4 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path || 
@@ -115,7 +149,7 @@ const AdminLayout = () => {
                   to={item.path}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-amber-50 text-amber-600'
+                      ? 'bg-amber-50 text-amber-600 font-medium'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                   onClick={() => setSidebarOpen(false)}
@@ -128,10 +162,10 @@ const AdminLayout = () => {
           </nav>
 
           {/* Footer del sidebar */}
-          <div className="p-4 border-t">
-            <div className="mb-4 px-4 py-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Administrador</p>
-              <p className="text-sm font-medium truncate">{user?.email}</p>
+          <div className="p-4 border-t bg-gray-50">
+            <div className="mb-4 px-4 py-3 bg-white rounded-lg shadow-sm">
+              <p className="text-xs text-gray-500">Administrador</p>
+              <p className="text-sm font-medium truncate text-gray-800">{user?.email || 'admin@batista.com'}</p>
             </div>
             <button
               onClick={handleLogout}

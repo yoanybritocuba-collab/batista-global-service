@@ -134,9 +134,9 @@ const useSearch = (productos = []) => {
 
     const options = {
       keys: [
-        { name: 'name', weight: 0.6 },
-        { name: 'description', weight: 0.3 },
-        { name: 'category', weight: 0.1 },
+        { name: 'name', Scale: 0.6 },
+        { name: 'description', Scale: 0.3 },
+        { name: 'category', Scale: 0.1 },
       ],
       threshold: 0.4,
       distance: 100,

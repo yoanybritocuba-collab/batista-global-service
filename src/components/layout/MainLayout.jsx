@@ -7,7 +7,7 @@ import { Toaster } from 'react-hot-toast';
 const MainLayout = ({ children, showFooter = true, showMobileBar = true }) => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header /> {/* Siemvisible en todas las áreas */}
+      <Header /> {/* Siempre visible */}
       
       <main className="flex-grow">
         {children}

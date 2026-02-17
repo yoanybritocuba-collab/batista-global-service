@@ -1,11 +1,12 @@
 ﻿import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import MainLayout from './components/layout/MainLayout'; // 👈 IMPORTANTE: debe estar aquí
+import MainLayout from './components/layout/MainLayout';
 import { AuthProvider } from './contexts/auth/AuthContext';
 import { ClienteAuthProvider } from './contexts/auth/ClienteAuthContext';
 import { CartProvider } from './contexts/cart/CartContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ServicesProvider } from './contexts/services/ServicesContext';
+import { SearchProvider } from './contexts/SearchContext';
 import { useAuth } from './contexts/auth/AuthContext';
 import { useClienteAuth } from './contexts/auth/ClienteAuthContext';
 import WhatsAppButton from './components/ui/WhatsAppButton';
@@ -28,6 +29,7 @@ import Tienda from './pages/public/Tienda';
 import Cart from './pages/public/Cart';
 import ClienteLogin from './pages/public/ClienteLogin';
 import ClientePerfil from './pages/public/ClientePerfil';
+import SearchResultsPage from './pages/public/SearchResultsPage';
 
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center h-64">
@@ -64,6 +66,7 @@ const AppRoutes = () => {
           </MainLayout>
         } />
         
+        {/* Ruta dinámica para cada servicio individual */}
         <Route path="/servicio/:id" element={
           <MainLayout>
             <ServicioDetallePage />
@@ -85,6 +88,13 @@ const AppRoutes = () => {
         <Route path="/categoria/:category" element={
           <MainLayout>
             <Tienda />
+          </MainLayout>
+        } />
+
+        {/* Ruta de búsqueda */}
+        <Route path="/buscar" element={
+          <MainLayout>
+            <SearchResultsPage />
           </MainLayout>
         } />
 
@@ -176,9 +186,11 @@ const App = () => {
       <ClienteAuthProvider>
         <AuthProvider>
           <ServicesProvider>
-            <CartProvider>
-              <AppRoutes />
-            </CartProvider>
+            <SearchProvider>
+              <CartProvider>
+                <AppRoutes />
+              </CartProvider>
+            </SearchProvider>
           </ServicesProvider>
         </AuthProvider>
       </ClienteAuthProvider>

@@ -9,13 +9,11 @@ const ImageUploader = ({ value, onChange, folder = 'services' }) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
       alert('Por favor selecciona una imagen válida');
       return;
     }
 
-    // Validar tamaño (máximo 5MB)
     if (file.size > 5 * 1024 * 1024) {
       alert('La imagen no debe superar los 5MB');
       return;
@@ -23,12 +21,9 @@ const ImageUploader = ({ value, onChange, folder = 'services' }) => {
 
     setUploading(true);
 
-    // Crear preview local
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreview(reader.result);
-      // Por ahora guardamos como base64
-      // En producción, aquí subirías a Firebase Storage
       onChange(reader.result);
       setUploading(false);
     };
