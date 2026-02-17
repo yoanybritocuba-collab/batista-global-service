@@ -13,8 +13,7 @@ import {
   Truck,
   Users,
   Home,
-  ArrowLeft,
-  Globe
+  ArrowLeft
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -46,34 +45,39 @@ const AdminLayout = () => {
     navigate(-1);
   };
 
+  // Cerrar sidebar al cambiar de ruta en móvil
+  React.useEffect(() => {
+    setSidebarOpen(false);
+  }, [location]);
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header superior con navegación - MEJORADO */}
+      {/* Header superior con navegación - MEJORADO PARA MÓVIL */}
       <div className="bg-white shadow-sm sticky top-0 z-30 border-b border-gray-200">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
+            {/* Botón de menú hamburguesa - SIEMPRE VISIBLE EN MÓVIL */}
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
-              title="Abrir menú"
+              aria-label="Abrir menú"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-6 w-6" />
             </button>
             
-            {/* BOTÓN DE INICIO - SIEMPRE VISIBLE */}
+            {/* Botón de inicio - visible en móvil */}
             <button
               onClick={goToHome}
-              className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors shadow-sm"
-              title="Ir al sitio web"
+              className="flex items-center gap-2 px-3 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors shadow-sm text-sm lg:text-base"
             >
               <Home className="h-4 w-4" />
-              <span className="hidden sm:inline font-medium">Ir al Inicio</span>
+              <span className="hidden sm:inline">Inicio</span>
             </button>
 
-            {/* BOTÓN DE ATRÁS */}
+            {/* Botón de atrás - visible en móvil */}
             <button
               onClick={goBack}
-              className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors text-sm lg:text-base"
               title="Página anterior"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -81,28 +85,27 @@ const AdminLayout = () => {
             </button>
           </div>
 
-          <h1 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-            <Globe className="h-5 w-5 text-amber-500" />
-            Panel Administrativo
+          <h1 className="text-base lg:text-lg font-bold text-gray-800 truncate max-w-[150px] sm:max-w-none">
+            Panel Admin
           </h1>
 
-          <div className="w-32 flex justify-end">
-            {/* Espaciador para mantener el header balanceado */}
+          <div className="w-10 sm:w-32 flex justify-end">
+            {/* Espaciador */}
           </div>
         </div>
       </div>
 
-      {/* Sidebar para móvil */}
-      <div
-        className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-40 transition-opacity lg:hidden ${
-          sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={() => setSidebarOpen(false)}
-      />
+      {/* Overlay para cuando el sidebar está abierto en móvil */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-      {/* Sidebar */}
+      {/* Sidebar - MEJORADO PARA MÓVIL */}
       <div
-        className={`fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -113,12 +116,13 @@ const AdminLayout = () => {
             <button
               onClick={() => setSidebarOpen(false)}
               className="lg:hidden p-2 hover:bg-white/50 rounded-lg"
+              aria-label="Cerrar menú"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
 
-          {/* BOTÓN DE INICIO EN EL SIDEBAR - DESTACADO */}
+          {/* Botón de inicio en el sidebar - DESTACADO */}
           <button
             onClick={() => {
               navigate('/');
@@ -137,8 +141,8 @@ const AdminLayout = () => {
             </p>
           </div>
 
-          {/* Menú de navegación */}
-          <nav className="flex-1 px-4 space-y-1">
+          {/* Menú de navegación - CON TAMAÑOS ADECUADOS PARA MÓVIL */}
+          <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path || 
@@ -178,9 +182,9 @@ const AdminLayout = () => {
         </div>
       </div>
 
-      {/* Contenido principal */}
+      {/* Contenido principal - CON PADDING ADECUADO PARA MÓVIL */}
       <div className="lg:pl-64">
-        <main className="p-6">
+        <main className="p-4 sm:p-6">
           <Outlet />
         </main>
       </div>
