@@ -1,0 +1,22 @@
+﻿{
+  "type": "shipping",
+  "title": "Paquetería Express",
+  "subtitle": "Envíos rápidos a todo el Caribe",
+  "mainImage": "/images/Paqueteria.jpg",
+  "gallery": ["/images/Paqueteria.jpg"],
+  "isActive": true,
+  "isFeatured": true,
+  "content": {
+    "productosPermitidos": ["Documentos", "Ropa", "Electrónicos", "Medicinas"],
+    "productosRestringidos": ["Armas", "Explosivos", "Líquidos inflamables"],
+    "tarifasPorPeso": [
+      {"peso": "0-2 kg", "precio": 25, "tiempo": "3-5 días"},
+      {"peso": "2-5 kg", "precio": 45, "tiempo": "3-5 días"}
+    ],
+    "destinos": [
+      {"pais": "Cuba", "tarifaBase": 25, "tiempoEstimado": "5-7 días"}
+    ]
+  },
+  "createdAt": "2026-02-15T23:00:00.000Z",
+  "updatedAt": "2026-02-15T23:00:00.000Z"
+}

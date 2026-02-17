@@ -1,5 +1,6 @@
+// src/pages/admin/AdminLayout.jsx
 import React from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/auth/AuthContext';
 import {
   LayoutDashboard,
@@ -10,25 +11,20 @@ import {
   LogOut,
   Menu,
   X,
-  Truck,
-  Users,
-  Home,
-  ArrowLeft
+  Truck
 } from 'lucide-react';
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const { user, logout } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const menuItems = [
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/admin/products', icon: Package, label: 'Productos' },
-    { path: '/admin/services', icon: Truck, label: 'Servicios Turísticos' },
+    { path: '/admin/services', icon: Truck, label: 'Servicios' },
     { path: '/admin/orders', icon: ShoppingBag, label: 'Pedidos' },
     { path: '/admin/analytics', icon: BarChart3, label: 'Analíticas' },
-    { path: '/admin/users', icon: Users, label: 'Usuarios' },
     { path: '/admin/settings', icon: Settings, label: 'Configuración' },
   ];
 
@@ -36,35 +32,8 @@ const AdminLayout = () => {
     logout();
   };
 
-  const goToHome = () => {
-    navigate('/');
-  };
-
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header superior con navegación */}
-      <div className="bg-white shadow-sm sticky top-0 z-30">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-            <button
-              onClick={goToHome}
-              className="flex items-center gap-2 text-gray-600 hover:text-amber-500 transition-colors"
-            >
-              <Home className="h-5 w-5" />
-              <span className="hidden sm:inline">Volver al sitio</span>
-            </button>
-          </div>
-          <h1 className="text-lg font-bold text-gray-800">Panel Administrativo</h1>
-          <div className="w-10" /> {/* Espaciador */}
-        </div>
-      </div>
-
       {/* Sidebar para móvil */}
       <div
         className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-40 transition-opacity lg:hidden ${
@@ -91,24 +60,11 @@ const AdminLayout = () => {
             </button>
           </div>
 
-          {/* Botón Volver al inicio dentro del sidebar */}
-          <button
-            onClick={() => {
-              navigate('/');
-              setSidebarOpen(false);
-            }}
-            className="flex items-center gap-3 px-4 py-3 mx-4 mt-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors border border-amber-200"
-          >
-            <ArrowLeft className="h-5 w-5" />
-            <span>Volver al sitio web</span>
-          </button>
-
           {/* Menú de navegación */}
           <nav className="flex-1 p-4 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.path || 
-                              (item.path === '/admin/services' && location.pathname.includes('/admin/services'));
+              const isActive = location.pathname === item.path;
               return (
                 <Link
                   key={item.path}
@@ -118,7 +74,6 @@ const AdminLayout = () => {
                       ? 'bg-amber-50 text-amber-600'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
-                  onClick={() => setSidebarOpen(false)}
                 >
                   <Icon className="h-5 w-5" />
                   <span>{item.label}</span>
@@ -146,6 +101,21 @@ const AdminLayout = () => {
 
       {/* Contenido principal */}
       <div className="lg:pl-64">
+        {/* Header móvil */}
+        <header className="bg-white shadow-sm lg:hidden">
+          <div className="flex items-center justify-between p-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 hover:bg-gray-100 rounded"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+            <h1 className="text-lg font-bold">Batista Admin</h1>
+            <div className="w-10" /> {/* Espaciador */}
+          </div>
+        </header>
+
+        {/* Contenido de la página */}
         <main className="p-6">
           <Outlet />
         </main>

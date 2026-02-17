@@ -37,3 +37,125 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ===== ANIMACIONES PARA WHATSAPP BUTTON ===== */
+
+/* Animación de flotación */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Animaciones de pulso con diferentes velocidades */
+@keyframes ping-slow {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes ping-slower {
+  75%, 100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes ping-slowest {
+  75%, 100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+.animate-ping-slow {
+  animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.animate-ping-slower {
+  animation: ping-slower 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.animate-ping-slowest {
+  animation: ping-slowest 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Animación de entrada */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Rotación suave */
+@keyframes gentle-rotate {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+.animate-gentle-rotate {
+  animation: gentle-rotate 4s ease-in-out infinite;
+}
+
+/* Efecto de brillo */
+@keyframes glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(74, 222, 128, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(74, 222, 128, 0.8));
+  }
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Para móvil, reducir intensidad de animaciones */
+@media (max-width: 768px) {
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+  
+  .animate-ping-slow,
+  .animate-ping-slower,
+  .animate-ping-slowest {
+    animation-duration: 3s;
+  }
+}

@@ -14,20 +14,15 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Verificar si hay admin en localStorage
-    const adminAuth = localStorage.getItem('isAdmin') === 'true';
-    setIsAdmin(adminAuth);
-    
-    // Si hay un usuario guardado
-    const savedUser = localStorage.getItem('authUser');
-    if (savedUser) {
+    const adminAuth = localStorage.getItem('adminAuth');
+    if (adminAuth) {
       try {
-        setUser(JSON.parse(savedUser));
+        setUser(JSON.parse(adminAuth));
       } catch (error) {
-        console.error('Error loading user:', error);
+        console.error('Error loading admin:', error);
       }
     }
     setLoading(false);
@@ -35,51 +30,33 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      // Para admin (contraseña especial)
+      // SOLO admin con contraseña fija
       if (email === 'admin@batista.com' && password === 'Keily8520') {
         const adminUser = {
           id: 'admin',
           email,
           name: 'Administrador',
-          role: 'admin',
-          isAdmin: true
+          role: 'admin'
         };
         setUser(adminUser);
-        setIsAdmin(true);
-        localStorage.setItem('isAdmin', 'true');
-        localStorage.setItem('authUser', JSON.stringify(adminUser));
-        toast.success('Bienvenido Administrador');
-        return { success: true, role: 'admin' };
+        localStorage.setItem('adminAuth', JSON.stringify(adminUser));
+        toast.success('✅ Bienvenido Administrador');
+        return { success: true };
       }
-      
-      // Para clientes normales (simulado)
-      if (email && password) {
-        const clientUser = {
-          id: 'client_' + Date.now(),
-          email,
-          name: email.split('@')[0],
-          role: 'client',
-          isAdmin: false
-        };
-        setUser(clientUser);
-        setIsAdmin(false);
-        localStorage.setItem('authUser', JSON.stringify(clientUser));
-        toast.success('¡Bienvenido!');
-        return { success: true, role: 'client' };
-      }
-      
+
+      // Si no coincide, error
+      toast.error('❌ Credenciales incorrectas');
       return { success: false, error: 'Credenciales inválidas' };
     } catch (error) {
+      toast.error('❌ Error al iniciar sesión');
       return { success: false, error: error.message };
     }
   };
 
   const logout = () => {
     setUser(null);
-    setIsAdmin(false);
-    localStorage.removeItem('isAdmin');
-    localStorage.removeItem('authUser');
-    toast.success('Sesión cerrada');
+    localStorage.removeItem('adminAuth');
+    toast.success('✅ Sesión cerrada');
   };
 
   const value = {
@@ -87,8 +64,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
-    isAuthenticated: !!user,
-    isAdmin
+    isAuthenticated: !!user
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

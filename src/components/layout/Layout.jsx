@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 const Layout = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header /> {/* Esta es la barra de navegación superior */}
       <main className="flex-grow container mx-auto px-4 py-6">
         {children}
       </main>
