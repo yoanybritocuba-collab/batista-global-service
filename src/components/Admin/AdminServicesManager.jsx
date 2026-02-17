@@ -1,67 +1,114 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Plus, Edit, Trash2, Upload,
-  Image as ImageIcon, X, Search,
-  CheckCircle, Star,
-  Clock, Users, MapPin, DollarSign,
-  Package, Plane, Hotel, Car,
-  Ship, Briefcase, ChevronDown, ChevronUp
+  Plus, Edit, Trash2, Search,
+  CheckCircle, Save, X
 } from 'lucide-react';
 import { useServices } from '../../contexts/services/ServicesContext';
 import { toast } from 'react-hot-toast';
 
-// Importar los paneles específicos
+// Importar paneles específicos
 import ShippingPanel from './ServicePanels/ShippingPanel';
 import ToursPanel from './ServicePanels/ToursPanel';
 import RentalPanel from './ServicePanels/RentalPanel';
 import HotelsPanel from './ServicePanels/HotelsPanel';
 import FlightsPanel from './ServicePanels/FlightsPanel';
 import VisasPanel from './ServicePanels/VisasPanel';
+import ImageUploader from './ImageUploader';
+
+// Tipos de servicios
+const SERVICE_TYPES = [
+  { id: 'shipping', name: '📦 Paquetería', component: ShippingPanel, color: 'green' },
+  { id: 'tours', name: '🏝️ Tours', component: ToursPanel, color: 'blue' },
+  { id: 'rental', name: '🚗 Renta de Autos', component: RentalPanel, color: 'amber' },
+  { id: 'hotels', name: '🏨 Hoteles', component: HotelsPanel, color: 'purple' },
+  { id: 'flights', name: '✈️ Vuelos', component: FlightsPanel, color: 'sky' },
+  { id: 'visas', name: '🛂 Visas', component: VisasPanel, color: 'emerald' }
+];
+
+// Estructura inicial para cada tipo de servicio
+const getInitialContent = (type) => {
+  switch(type) {
+    case 'shipping':
+      return {
+        rangosPrecios: { minimo: 15, maximo: 250 },
+        productosPermitidos: [],
+        productosRestringidos: [],
+        tarifas: [],
+        destinos: [],
+        tiempos: { nacional: '2-4 días', internacional: '5-10 días', express: '24-48h' }
+      };
+    case 'tours':
+      return {
+        destinos: [],
+        incluye: [],
+        noIncluye: [],
+        recomendaciones: []
+      };
+    case 'rental':
+      return {
+        sucursales: [],
+        vehiculos: [],
+        seguros: [],
+        requisitos: []
+      };
+    case 'hotels':
+      return {
+        destinos: [],
+        servicios: [],
+        politicas: { checkIn: '15:00', checkOut: '12:00' }
+      };
+    case 'flights':
+      return {
+        rutas: [],
+        clases: [],
+        aerolineas: []
+      };
+    case 'visas':
+      return {
+        paises: [],
+        requisitos: [],
+        documentos: [],
+        tiempos: { minimo: '5 días', promedio: '15 días', maximo: '30 días' }
+      };
+    default:
+      return {};
+  }
+};
 
 const AdminServicesManager = () => {
   const { services, loading, addService, updateService, deleteService } = useServices();
-
-  // Estado para formulario
-  const [editingService, setEditingService] = useState(null);
+  
+  const [editingId, setEditingId] = useState(null);
   const [selectedType, setSelectedType] = useState('shipping');
-  const [expandedSections, setExpandedSections] = useState({
-    basic: true,
-    images: true,
-    content: true
-  });
-
-  // Estructura base del servicio
   const [formData, setFormData] = useState({
-    type: 'shipping',
     title: '',
     subtitle: '',
     mainImage: '',
     gallery: [],
-    content: {},
+    content: getInitialContent('shipping'),
     isActive: true,
     isFeatured: false
   });
 
-  // Estados para imágenes
-  const [mainImagePreview, setMainImagePreview] = useState('');
-  const [galleryPreviews, setGalleryPreviews] = useState([]);
-  
-  // Estados para búsqueda y filtros
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [saving, setSaving] = useState(false);
 
-  // Tipos de servicios
-  const serviceTypes = [
-    { value: 'shipping', label: '📦 Paquetería', icon: Package },
-    { value: 'tours', label: '🏝️ Tours', icon: Ship },
-    { value: 'rental', label: '🚗 Renta de Autos', icon: Car },
-    { value: 'hotels', label: '🏨 Hoteles', icon: Hotel },
-    { value: 'flights', label: '✈️ Vuelos', icon: Plane },
-    { value: 'visas', label: '🛂 Visas', icon: Briefcase }
-  ];
+  // Resetear formulario cuando cambia el tipo
+  useEffect(() => {
+    if (!editingId) {
+      setFormData({
+        title: '',
+        subtitle: '',
+        mainImage: '',
+        gallery: [],
+        content: getInitialContent(selectedType),
+        isActive: true,
+        isFeatured: false
+      });
+    }
+  }, [selectedType, editingId]);
 
-  // Filtrar servicios
   const filteredServices = services.filter(service => {
     const matchesSearch = service.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          service.subtitle?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -69,49 +116,59 @@ const AdminServicesManager = () => {
     return matchesSearch && matchesType;
   });
 
-  // Manejar cambio de tipo
   const handleTypeChange = (type) => {
     setSelectedType(type);
-    setFormData(prev => ({
-      ...prev,
-      type: type,
-      content: {}
-    }));
+    setEditingId(null);
   };
 
-  // Manejar cambio de imagen principal
-  const handleMainImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setMainImagePreview(reader.result);
-        setFormData(prev => ({ ...prev, mainImage: reader.result }));
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleMainImageChange = (imageUrl) => {
+    setFormData(prev => ({ ...prev, mainImage: imageUrl }));
   };
 
-  // Guardar servicio
+  const handleGalleryChange = (galleryUrls) => {
+    setFormData(prev => ({ ...prev, gallery: galleryUrls }));
+  };
+
+  const handleContentChange = (newContent) => {
+    setFormData(prev => ({ ...prev, content: newContent }));
+  };
+
   const handleSaveService = async (e) => {
     e.preventDefault();
+    
+    if (!formData.title.trim()) {
+      toast.error('El título es obligatorio');
+      return;
+    }
+
     setSaving(true);
 
     try {
       const serviceData = {
         ...formData,
+        type: selectedType,
         updatedAt: new Date().toISOString()
       };
 
-      if (editingService) {
-        await updateService(editingService.id, serviceData);
+      if (editingId) {
+        await updateService(editingId, serviceData);
         toast.success('✅ Servicio actualizado');
       } else {
         await addService(serviceData);
         toast.success('✅ Servicio creado');
       }
 
-      resetForm();
+      // Resetear formulario
+      setEditingId(null);
+      setFormData({
+        title: '',
+        subtitle: '',
+        mainImage: '',
+        gallery: [],
+        content: getInitialContent(selectedType),
+        isActive: true,
+        isFeatured: false
+      });
     } catch (error) {
       console.error('Error:', error);
       toast.error('Error al guardar');
@@ -120,26 +177,21 @@ const AdminServicesManager = () => {
     }
   };
 
-  // Editar servicio
   const handleEdit = (service) => {
-    setEditingService(service);
+    setEditingId(service.id);
     setSelectedType(service.type);
     setFormData({
-      type: service.type,
       title: service.title || '',
       subtitle: service.subtitle || '',
       mainImage: service.mainImage || '',
       gallery: service.gallery || [],
-      content: service.content || {},
+      content: service.content || getInitialContent(service.type),
       isActive: service.isActive !== false,
       isFeatured: service.isFeatured || false
     });
-    setMainImagePreview(service.mainImage || '');
-    setGalleryPreviews(service.gallery || []);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Eliminar servicio
   const handleDelete = async (id) => {
     if (window.confirm('¿Eliminar este servicio?')) {
       try {
@@ -151,41 +203,20 @@ const AdminServicesManager = () => {
     }
   };
 
-  // Resetear formulario
-  const resetForm = () => {
-    setEditingService(null);
-    setSelectedType('shipping');
+  const handleCancel = () => {
+    setEditingId(null);
     setFormData({
-      type: 'shipping',
       title: '',
       subtitle: '',
       mainImage: '',
       gallery: [],
-      content: {},
+      content: getInitialContent(selectedType),
       isActive: true,
       isFeatured: false
     });
-    setMainImagePreview('');
-    setGalleryPreviews([]);
   };
 
-  // Renderizar panel según tipo
-  const renderContentPanel = () => {
-    const props = {
-      data: formData.content,
-      onChange: (newContent) => setFormData({ ...formData, content: newContent })
-    };
-
-    switch(selectedType) {
-      case 'shipping': return <ShippingPanel {...props} />;
-      case 'tours': return <ToursPanel {...props} />;
-      case 'rental': return <RentalPanel {...props} />;
-      case 'hotels': return <HotelsPanel {...props} />;
-      case 'flights': return <FlightsPanel {...props} />;
-      case 'visas': return <VisasPanel {...props} />;
-      default: return null;
-    }
-  };
+  const SelectedPanel = SERVICE_TYPES.find(t => t.id === selectedType)?.component;
 
   if (loading && services.length === 0) {
     return (
@@ -201,141 +232,138 @@ const AdminServicesManager = () => {
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6">
         <h1 className="text-2xl font-bold text-gray-800">Gestión de Servicios</h1>
-        <p className="text-gray-600">Crea y edita servicios con información detallada</p>
+        <p className="text-gray-600">Cada servicio tiene su propia configuración</p>
+      </div>
+
+      {/* Selector de Tipo */}
+      <div className="bg-white rounded-2xl shadow-lg p-6">
+        <h2 className="text-lg font-semibold mb-4">Tipo de Servicio</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {SERVICE_TYPES.map(type => (
+            <button
+              key={type.id}
+              onClick={() => handleTypeChange(type.id)}
+              className={`p-4 rounded-xl border-2 transition-all ${
+                selectedType === type.id
+                  ? `border-${type.color}-500 bg-${type.color}-50`
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="text-2xl mb-2">{type.name.split(' ')[0]}</div>
+              <div className="text-sm font-medium">{type.name.split(' ')[1]}</div>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Formulario */}
       <div className="bg-white rounded-2xl shadow-lg p-6">
-        <div className="flex justify-between mb-6">
+        <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold">
-            {editingService ? '✏️ Editar Servicio' : '➕ Nuevo Servicio'}
+            {editingId ? '✏️ Editar Servicio' : '➕ Nuevo Servicio'}
           </h2>
-          {editingService && (
-            <button onClick={resetForm} className="text-gray-600 hover:text-gray-800">
-              Cancelar
+          {editingId && (
+            <button
+              onClick={handleCancel}
+              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center gap-2"
+            >
+              <X className="h-4 w-4" />
+              Cancelar edición
             </button>
           )}
         </div>
 
         <form onSubmit={handleSaveService} className="space-y-6">
-          {/* Tipo de Servicio */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <label className="block font-medium mb-3">Tipo de Servicio</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              {serviceTypes.map(type => {
-                const Icon = type.icon;
-                return (
-                  <button
-                    key={type.value}
-                    type="button"
-                    onClick={() => handleTypeChange(type.value)}
-                    className={`p-3 rounded-lg border-2 transition-all ${
-                      selectedType === type.value
-                        ? 'border-amber-500 bg-amber-50'
-                        : 'border-gray-200 hover:border-amber-200'
-                    }`}
-                  >
-                    <Icon className="h-6 w-6 mx-auto mb-1" />
-                    <span className="text-xs">{type.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Información Básica */}
-          <div className="border rounded-xl overflow-hidden">
-            <div className="p-4 bg-gray-50 font-semibold">📋 Información Básica</div>
-            <div className="p-6 space-y-4">
+          {/* Campos básicos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Título del Servicio *
+              </label>
               <input
                 type="text"
-                placeholder="Título del servicio"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                placeholder="Ej: Paquetería Express"
                 required
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Subtítulo
+              </label>
               <input
                 type="text"
-                placeholder="Subtítulo"
                 value={formData.subtitle}
                 onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                placeholder="Breve descripción"
               />
             </div>
           </div>
 
           {/* Imagen Principal */}
-          <div className="border rounded-xl overflow-hidden">
-            <div className="p-4 bg-gray-50 font-semibold">📸 Imagen Principal</div>
-            <div className="p-6">
-              {mainImagePreview ? (
-                <div className="relative w-64 h-64">
-                  <img src={mainImagePreview} alt="Preview" className="w-full h-full object-cover rounded-lg" />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMainImagePreview('');
-                      setFormData({ ...formData, mainImage: '' });
-                    }}
-                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : (
-                <label className="block cursor-pointer">
-                  <div className="border-3 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-amber-400 w-64">
-                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">Seleccionar imagen</p>
-                  </div>
-                  <input type="file" accept="image/*" onChange={handleMainImageChange} className="hidden" />
-                </label>
-              )}
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Imagen Principal
+            </label>
+            <ImageUploader
+              value={formData.mainImage}
+              onChange={handleMainImageChange}
+              folder={`services/${selectedType}`}
+            />
           </div>
 
-          {/* Panel de Contenido Específico */}
-          <div className="border rounded-xl overflow-hidden">
-            <div className="p-4 bg-gray-50 font-semibold">📊 Información del Servicio</div>
-            <div className="p-6">
-              {renderContentPanel()}
+          {/* Panel específico del servicio */}
+          {SelectedPanel && (
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold mb-4">Configuración específica</h3>
+              <SelectedPanel
+                data={formData.content}
+                onChange={handleContentChange}
+              />
             </div>
-          </div>
+          )}
 
           {/* Opciones */}
-          <div className="flex gap-6 p-4 bg-gray-50 rounded-lg">
-            <label className="flex items-center gap-3">
+          <div className="flex gap-6 pt-4 border-t">
+            <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={formData.isActive}
                 onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                className="w-5 h-5"
+                className="w-4 h-4 text-amber-500"
               />
-              <span>Servicio Activo</span>
+              <span className="text-sm text-gray-700">Servicio activo</span>
             </label>
-            <label className="flex items-center gap-3">
+            <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={formData.isFeatured}
                 onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-                className="w-5 h-5"
+                className="w-4 h-4 text-amber-500"
               />
-              <span>Destacado</span>
+              <span className="text-sm text-gray-700">Destacar servicio</span>
             </label>
           </div>
 
           {/* Botones */}
-          <div className="flex justify-end gap-4">
-            <button type="button" onClick={resetForm} className="px-6 py-3 border rounded-lg">
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
+            >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-8 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50"
+              className="px-8 py-3 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600 disabled:opacity-50 flex items-center gap-2"
             >
-              {saving ? 'Guardando...' : (editingService ? 'Actualizar' : 'Crear')}
+              <Save className="h-5 w-5" />
+              {saving ? 'Guardando...' : (editingId ? 'Actualizar' : 'Crear Servicio')}
             </button>
           </div>
         </form>
@@ -344,48 +372,85 @@ const AdminServicesManager = () => {
       {/* Lista de Servicios */}
       <div className="bg-white rounded-2xl shadow-lg p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">📋 Servicios</h2>
+          <h2 className="text-xl font-bold">📋 Servicios Creados</h2>
           <div className="flex gap-4">
-            <input
-              type="text"
-              placeholder="Buscar..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 border rounded-lg"
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                placeholder="Buscar..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+              />
+            </div>
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-4 py-2 border rounded-lg"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
             >
               <option value="all">Todos</option>
-              {serviceTypes.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              {SERVICE_TYPES.map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
             </select>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredServices.map(service => (
-            <div key={service.id} className="border rounded-xl overflow-hidden">
-              <img
-                src={service.mainImage || '/images/default-service.jpg'}
-                alt={service.title}
-                className="w-full h-40 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="font-bold">{service.title}</h3>
-                <p className="text-sm text-gray-600 mt-1">{service.subtitle}</p>
-                <div className="flex justify-end gap-2 mt-4">
-                  <button onClick={() => handleEdit(service)} className="p-2 text-blue-600 hover:bg-blue-50 rounded">
-                    <Edit className="h-4 w-4" />
-                  </button>
-                  <button onClick={() => handleDelete(service.id)} className="p-2 text-red-600 hover:bg-red-50 rounded">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+          {filteredServices.map(service => {
+            const typeInfo = SERVICE_TYPES.find(t => t.id === service.type);
+            return (
+              <div
+                key={service.id}
+                className="border rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
+              >
+                <div className="relative h-40 bg-gray-100">
+                  {service.mainImage ? (
+                    <img
+                      src={service.mainImage}
+                      alt={service.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      Sin imagen
+                    </div>
+                  )}
+                  <div className="absolute top-2 left-2">
+                    <span className={`px-2 py-1 bg-${typeInfo?.color}-100 text-${typeInfo?.color}-800 rounded-full text-xs font-medium`}>
+                      {typeInfo?.name}
+                    </span>
+                  </div>
+                  {service.isFeatured && (
+                    <div className="absolute top-2 right-2">
+                      <span className="px-2 py-1 bg-amber-500 text-white rounded-full text-xs">
+                        ⭐ Destacado
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-lg mb-1">{service.title}</h3>
+                  <p className="text-sm text-gray-600 mb-4">{service.subtitle}</p>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => handleEdit(service)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(service.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
