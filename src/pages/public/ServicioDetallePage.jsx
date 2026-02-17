@@ -9,7 +9,7 @@ import {
   Plane, Hotel, Briefcase, Globe
 } from 'lucide-react';
 
-// Importar componentes específicos
+// IMPORTACIONES CORREGIDAS - CON S MAYÚSCULA
 import ShippingDetail from '../../components/Services/ShippingDetail';
 import ToursDetail from '../../components/Services/ToursDetail';
 import RentalDetail from '../../components/Services/RentalDetail';
@@ -77,7 +77,6 @@ const ServicioDetallePage = () => {
     window.open(`https://wa.me/17866583567?text=${encodeURIComponent(message)}`, '_blank');
   };
 
-  // Obtener icono del servicio
   const getServiceIcon = () => {
     switch(service?.type) {
       case 'shipping': return <Package className="h-8 w-8" />;
@@ -148,7 +147,7 @@ const ServicioDetallePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header con navegación - ESTO YA ESTÁ EN LAYOUT, pero añadimos botones de acción */}
+      {/* Header con navegación */}
       <div className="bg-white border-b sticky top-0 z-10 shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
