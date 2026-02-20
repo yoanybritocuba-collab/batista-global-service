@@ -33,7 +33,8 @@ import ClienteLogin from './pages/public/ClienteLogin';
 import ClientePerfil from './pages/public/ClientePerfil';
 import SearchResultsPage from './pages/public/SearchResultsPage';
 import VerificacionPendiente from './pages/public/VerificacionPendiente';
-import RecuperarPassword from './pages/public/RecuperarPassword'; // 👈 NUEVA IMPORTACIÓN
+import RecuperarPassword from './pages/public/RecuperarPassword';
+import VerificacionCodigo from './pages/public/VerificacionCodigo'; // 👈 NUEVO
 
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center h-64">
@@ -106,7 +107,8 @@ const AppRoutes = () => {
         {/* RUTAS DE CLIENTE */}
         <Route path="/cliente/login" element={<ClienteLogin />} />
         <Route path="/verificacion-pendiente" element={<VerificacionPendiente />} />
-        <Route path="/recuperar-password" element={<RecuperarPassword />} /> {/* 👈 NUEVA RUTA */}
+        <Route path="/recuperar-password" element={<RecuperarPassword />} />
+        <Route path="/verificacion-codigo" element={<VerificacionCodigo />} /> {/* 👈 NUEVA RUTA */}
         
         <Route path="/cliente/perfil" element={
           <ProtectedClienteRoute>

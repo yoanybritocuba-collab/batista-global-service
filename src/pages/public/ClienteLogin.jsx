@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useClienteAuth } from '../../contexts/auth/ClienteAuthContext';
 import { Mail, Lock, User, Phone, ArrowLeft, ShoppingBag, Send } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const ClienteLogin = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -18,6 +19,16 @@ const ClienteLogin = () => {
   
   const { login, register } = useClienteAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Mostrar mensaje si viene de verificación exitosa
+  useEffect(() => {
+    if (location.state?.message) {
+      toast.success(location.state.message);
+      // Limpiar el state para que no se muestre de nuevo
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const handleChange = (e) => {
     setFormData({
@@ -36,8 +47,14 @@ const ClienteLogin = () => {
       if (isLogin) {
         // LOGIN
         const result = await login(formData.email, formData.password);
+        
         if (result.success) {
           navigate('/tienda');
+        } else if (result.necesitaVerificacion) {
+          // 👈 NUEVO: Redirigir a verificación por código
+          navigate('/verificacion-codigo', { 
+            state: { email: formData.email } 
+          });
         } else {
           setError(result.error || 'Error al iniciar sesión');
         }
@@ -59,10 +76,17 @@ const ClienteLogin = () => {
         );
 
         if (result.success) {
-          setSuccessMessage(result.message);
-          setTimeout(() => {
-            navigate('/verificacion-pendiente');
-          }, 3000);
+          if (result.necesitaVerificacion) {
+            // 👈 NUEVO: Redirigir a verificación por código
+            navigate('/verificacion-codigo', { 
+              state: { email: formData.email } 
+            });
+          } else {
+            setSuccessMessage(result.message);
+            setTimeout(() => {
+              navigate('/verificacion-pendiente');
+            }, 3000);
+          }
         } else {
           setError(result.error || 'Error al registrarse');
         }
@@ -199,7 +223,7 @@ const ClienteLogin = () => {
             </div>
           )}
 
-          {/* Enlace para recuperar contraseña (solo en login) */}
+          {/* Enlace para recuperar contraseña */}
           {isLogin && (
             <div className="text-right">
               <Link
