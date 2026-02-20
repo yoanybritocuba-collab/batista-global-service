@@ -7,6 +7,7 @@ import { CartProvider } from './contexts/cart/CartContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ServicesProvider } from './contexts/services/ServicesContext';
 import { SearchProvider } from './contexts/SearchContext';
+import { DestinosProvider } from './contexts/DestinosContext';
 import { useAuth } from './contexts/auth/AuthContext';
 import { useClienteAuth } from './contexts/auth/ClienteAuthContext';
 import WhatsAppButton from './components/ui/WhatsAppButton';
@@ -18,6 +19,7 @@ import AdminProducts from './pages/admin/Products';
 import AdminOrders from './pages/admin/Orders';
 import AdminAnalytics from './pages/admin/Analytics';
 import AdminServices from './pages/admin/AdminServices';
+import AdminDestinos from './pages/admin/AdminDestinos';
 import ProductEdit from './pages/admin/ProductEdit';
 import AdminLogin from './pages/admin/AdminLogin';
 
@@ -156,6 +158,7 @@ const AppRoutes = () => {
           <Route path="products/edit/:id" element={<ProductEdit />} />
           <Route path="products/new" element={<ProductEdit />} />
           <Route path="services" element={<AdminServices />} />
+          <Route path="destinos" element={<AdminDestinos />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="analytics" element={<AdminAnalytics />} />
         </Route>
@@ -186,11 +189,13 @@ const App = () => {
       <ClienteAuthProvider>
         <AuthProvider>
           <ServicesProvider>
-            <SearchProvider>
-              <CartProvider>
-                <AppRoutes />
-              </CartProvider>
-            </SearchProvider>
+            <DestinosProvider>  {/* 👈 NUEVO - Proveedor de destinos populares */}
+              <SearchProvider>
+                <CartProvider>
+                  <AppRoutes />
+                </CartProvider>
+              </SearchProvider>
+            </DestinosProvider>
           </ServicesProvider>
         </AuthProvider>
       </ClienteAuthProvider>
