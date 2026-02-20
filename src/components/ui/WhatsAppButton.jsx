@@ -16,7 +16,7 @@ const WhatsAppButton = () => {
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="fixed bottom-6 left-6 z-50 group"  {/* 👈 CAMBIADO DE right-6 A left-6 */}
+      className="fixed bottom-6 left-6 z-50 group"
       aria-label="Chatear por WhatsApp"
     >
       {/* Efecto de anillos expansivos */}
