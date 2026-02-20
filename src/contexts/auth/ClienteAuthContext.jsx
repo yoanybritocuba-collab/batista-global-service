@@ -26,7 +26,6 @@ export const ClienteAuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Escuchar cambios en la autenticación
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       console.log('🔄 Cambio en autenticación:', firebaseUser ? 'Usuario logueado' : 'Usuario no logueado');
@@ -34,7 +33,6 @@ export const ClienteAuthProvider = ({ children }) => {
       if (firebaseUser) {
         setUser(firebaseUser);
         
-        // Cargar datos adicionales de Firestore
         const docRef = doc(db, 'users', firebaseUser.uid);
         const docSnap = await getDoc(docRef);
         
@@ -51,14 +49,16 @@ export const ClienteAuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // REGISTRO CON VERIFICACIÓN DE EMAIL
+  // ✅ REGISTRO CON VERIFICACIÓN OBLIGATORIA
   const register = async (email, password, userData) => {
     try {
-      // 1. Crear usuario en Firebase Auth
+      console.log('1️⃣ Creando usuario en Firebase Auth...');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // 2. Guardar datos adicionales en Firestore
+      console.log('2️⃣ Usuario creado con UID:', user.uid);
+      
+      // Guardar en Firestore
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: user.email,
@@ -69,16 +69,26 @@ export const ClienteAuthProvider = ({ children }) => {
         updatedAt: new Date().toISOString()
       });
 
-      // 3. ENVIAR EMAIL DE VERIFICACIÓN
-      await sendEmailVerification(user, {
+      console.log('3️⃣ Datos guardados en Firestore');
+
+      // ✅ ENVIAR EMAIL DE VERIFICACIÓN (FUERZA BRUTA)
+      console.log('4️⃣ Enviando email de verificación a:', email);
+      
+      // Usar actionCodeSettings para asegurar el envío
+      const actionCodeSettings = {
         url: 'https://batistaglobalservice.web.app/cliente/login',
         handleCodeInApp: true
-      });
-
-      toast.success('✅ Registro exitoso. Por favor verifica tu email.');
+      };
       
-      // NO iniciamos sesión automáticamente
+      await sendEmailVerification(user, actionCodeSettings);
+      
+      console.log('5️⃣ Email de verificación ENVIADO');
+
+      // ✅ CERRAR SESIÓN INMEDIATAMENTE
       await signOut(auth);
+      console.log('6️⃣ Sesión cerrada - usuario debe verificar email');
+
+      toast.success('✅ Revisa tu correo para verificar tu cuenta');
       
       return { 
         success: true, 
@@ -86,7 +96,10 @@ export const ClienteAuthProvider = ({ children }) => {
       };
       
     } catch (error) {
-      console.error('Error en registro:', error);
+      console.error('❌ Error en registro:', error);
+      console.error('Código:', error.code);
+      console.error('Mensaje:', error.message);
+      
       let errorMessage = 'Error al registrarse';
       
       switch (error.code) {
@@ -108,14 +121,21 @@ export const ClienteAuthProvider = ({ children }) => {
     }
   };
 
-  // LOGIN - VERIFICAR QUE EL EMAIL ESTÉ VERIFICADO
+  // ✅ LOGIN - VERIFICA EMAIL ANTES DE DEJAR ENTRAR
   const login = async (email, password) => {
     try {
+      console.log('🔐 Intentando login para:', email);
+      
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // VERIFICAR SI EL EMAIL ESTÁ CONFIRMADO
+      console.log('👤 Usuario encontrado:', user.uid);
+      console.log('📧 Email verificado:', user.emailVerified ? '✅' : '❌');
+
+      // ⚠️ BLOQUEAR SI NO ESTÁ VERIFICADO
       if (!user.emailVerified) {
+        console.log('⛔ Email NO verificado - reenviando email');
+        
         // Reenviar email de verificación
         await sendEmailVerification(user, {
           url: 'https://batistaglobalservice.web.app/cliente/login',
@@ -123,14 +143,15 @@ export const ClienteAuthProvider = ({ children }) => {
         });
         
         await signOut(auth);
-        toast.warning('❌ Debes verificar tu email. Hemos enviado un nuevo código.');
+        
+        toast.warning('❌ Debes verificar tu email. Hemos reenviado el código.');
         return { 
           success: false, 
           error: 'Email no verificado. Revisa tu correo.' 
         };
       }
       
-      // Actualizar estado de verificación en Firestore
+      // ✅ ACTUALIZAR FIRESTORE
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, {
         emailVerified: true,
@@ -141,9 +162,9 @@ export const ClienteAuthProvider = ({ children }) => {
       return { success: true, user };
       
     } catch (error) {
-      console.error('Error en login:', error);
-      let errorMessage = 'Error al iniciar sesión';
+      console.error('❌ Error en login:', error);
       
+      let errorMessage = 'Error al iniciar sesión';
       switch (error.code) {
         case 'auth/user-not-found':
           errorMessage = 'Usuario no encontrado';
@@ -174,32 +195,16 @@ export const ClienteAuthProvider = ({ children }) => {
         handleCodeInApp: true
       });
       
-      toast.success('✅ Email de recuperación enviado. Revisa tu correo.');
-      return { 
-        success: true, 
-        message: 'Te hemos enviado un email para restablecer tu contraseña.' 
-      };
+      toast.success('✅ Email de recuperación enviado');
+      return { success: true };
     } catch (error) {
       console.error('Error enviando recuperación:', error);
-      let errorMessage = 'Error al enviar email de recuperación';
-      
-      switch (error.code) {
-        case 'auth/user-not-found':
-          errorMessage = 'No existe una cuenta con este email';
-          break;
-        case 'auth/invalid-email':
-          errorMessage = 'Email inválido';
-          break;
-        default:
-          errorMessage = error.message;
-      }
-      
-      toast.error(errorMessage);
-      return { success: false, error: errorMessage };
+      toast.error('Error al enviar email de recuperación');
+      return { success: false, error: error.message };
     }
   };
 
-  // REENVIAR EMAIL DE VERIFICACIÓN
+  // 📧 REENVIAR EMAIL DE VERIFICACIÓN
   const resendVerificationEmail = async () => {
     if (!auth.currentUser) {
       toast.error('No hay usuario autenticado');
@@ -220,7 +225,6 @@ export const ClienteAuthProvider = ({ children }) => {
     }
   };
 
-  // LOGOUT
   const logout = async () => {
     try {
       await signOut(auth);
