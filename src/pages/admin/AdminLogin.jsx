@@ -33,19 +33,16 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl w-full max-w-md p-6 sm:p-8 border border-amber-500/20">
-        <div className="text-center mb-6 sm:mb-8">
-          <div className="bg-gradient-to-r from-amber-500 to-amber-600 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Shield className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl w-full max-w-md p-6 border border-amber-500/20">
+        <div className="text-center mb-6">
+          <div className="bg-gradient-to-r from-amber-500 to-amber-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Shield className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Acceso Administrativo</h1>
-          <p className="text-sm sm:text-base text-gray-600 mt-2">Panel de control Batista Global Service</p>
-          <div className="mt-2 inline-block bg-amber-100 text-amber-700 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium">
-            Solo personal autorizado
-          </div>
+          <h1 className="text-xl font-bold text-gray-800">Acceso Administrativo</h1>
+          <p className="text-sm text-gray-600 mt-2">Panel de control Batista Global Service</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Email Administrador
@@ -74,7 +71,7 @@ const AdminLogin = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
-                placeholder="Ingresa tu contraseña"
+                placeholder="••••••••"
                 required
               />
             </div>
@@ -89,7 +86,7 @@ const AdminLogin = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 rounded-lg font-medium hover:from-amber-600 hover:to-amber-700 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl text-base"
+            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 rounded-lg font-medium hover:from-amber-600 hover:to-amber-700 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg text-base"
           >
             {loading ? (
               'Iniciando sesión...'
@@ -101,11 +98,6 @@ const AdminLogin = () => {
             )}
           </button>
         </form>
-
-        <div className="mt-6 text-center text-sm text-gray-500 border-t pt-6">
-          <p>Acceso restringido para administradores</p>
-          <p className="text-xs mt-2">© 2026 Batista Global Service</p>
-        </div>
       </div>
     </div>
   );

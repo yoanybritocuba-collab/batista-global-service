@@ -1,67 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useClienteAuth } from '../../contexts/auth/ClienteAuthContext';
-import { Mail, ArrowLeft, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { Mail, ArrowLeft, CheckCircle, AlertCircle, RefreshCw, Lock, User, Phone } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const VerificacionCodigo = () => {
   const [codigo, setCodigo] = useState(['', '', '', '', '', '']);
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [tiempoRestante, setTiempoRestante] = useState(600); // 10 minutos en segundos
+  const [tiempoRestante, setTiempoRestante] = useState(600);
   
-  const { verificarCodigoRegistro } = useClienteAuth();
+  const { verificarYCompletarRegistro, emailPendiente } = useClienteAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const email = location.state?.email || emailPendiente || '';
 
   useEffect(() => {
-    // Obtener email de la navegación
-    const emailFromState = location.state?.email;
-    if (emailFromState) {
-      setEmail(emailFromState);
-    } else {
-      // Si no hay email, redirigir al login
-      toast.error('No se encontró el email para verificar');
+    if (!email) {
+      toast.error('No hay email pendiente de verificación');
       navigate('/cliente/login');
     }
-  }, [location, navigate]);
+  }, [email, navigate]);
 
   useEffect(() => {
-    // Timer de expiración
     const timer = setInterval(() => {
-      setTiempoRestante(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
+      setTiempoRestante(prev => prev <= 1 ? 0 : prev - 1);
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
   const handleChange = (index, value) => {
-    if (value.length > 1) return; // Solo un dígito
+    if (value.length > 1) return;
     
     const newCodigo = [...codigo];
-    newCodigo[index] = value.replace(/[^0-9]/g, ''); // Solo números
-    
+    newCodigo[index] = value.replace(/[^0-9]/g, '');
     setCodigo(newCodigo);
     
-    // Auto-avanzar al siguiente campo
     if (value && index < 5) {
-      const nextInput = document.getElementById(`codigo-${index + 1}`);
-      if (nextInput) nextInput.focus();
+      document.getElementById(`codigo-${index + 1}`)?.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
-    // Retroceder con backspace
     if (e.key === 'Backspace' && !codigo[index] && index > 0) {
-      const prevInput = document.getElementById(`codigo-${index - 1}`);
-      if (prevInput) prevInput.focus();
+      document.getElementById(`codigo-${index - 1}`)?.focus();
     }
   };
 
@@ -74,40 +59,45 @@ const VerificacionCodigo = () => {
       return;
     }
 
+    if (!password) {
+      setError('Ingresa una contraseña');
+      return;
+    }
+
+    if (!name) {
+      setError('Ingresa tu nombre');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
-      // Simular verificación (en producción usarías verificarCodigoRegistro)
-      // const result = await verificarCodigoRegistro(email, codigoCompleto);
-      
-      // Simulación de éxito
-      if (codigoCompleto === '123456') { // Código de prueba
-        toast.success('✅ Código verificado correctamente');
+      // Obtener datos del registro desde location.state
+      const userData = location.state?.userData || {
+        name,
+        phone
+      };
+
+      const result = await verificarYCompletarRegistro(
+        email,
+        password,
+        codigoCompleto,
+        userData
+      );
+
+      if (result.success) {
         navigate('/cliente/login', { 
           state: { message: '✅ Cuenta verificada. Ya puedes iniciar sesión.' } 
         });
       } else {
-        setError('Código incorrecto');
-        setCodigo(['', '', '', '', '', '']);
-        document.getElementById('codigo-0')?.focus();
+        setError(result.error || 'Error al verificar');
       }
     } catch (err) {
       setError('Error al verificar el código');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleResend = async () => {
-    setLoading(true);
-    // Simular reenvío
-    setTimeout(() => {
-      setTiempoRestante(600);
-      setCodigo(['', '', '', '', '', '']);
-      setLoading(false);
-      toast.success('✅ Nuevo código enviado a tu correo');
-    }, 1500);
   };
 
   const formatTime = (seconds) => {
@@ -128,37 +118,88 @@ const VerificacionCodigo = () => {
           <span>Volver al login</span>
         </button>
 
-        <div className="text-center mb-8">
-          <div className="bg-amber-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Mail className="h-10 w-10 text-amber-600" />
+        <div className="text-center mb-6">
+          <div className="bg-amber-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Mail className="h-8 w-8 text-amber-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
+          <h1 className="text-xl font-bold text-gray-800">
             Verifica tu correo
           </h1>
-          <p className="text-gray-600">
-            Hemos enviado un código de 6 dígitos a:
+          <p className="text-sm text-gray-600 mt-1">
+            Hemos enviado un código a:
           </p>
-          <p className="text-lg font-semibold text-amber-600 mt-2 break-all">
+          <p className="text-sm font-semibold text-amber-600 break-all">
             {email}
           </p>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 text-blue-700 p-4 rounded-lg mb-6">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-left">
-              <p>Ingresa el código de 6 dígitos que enviamos a tu correo.</p>
+        <div className="bg-blue-50 border border-blue-200 text-blue-700 p-3 rounded-lg mb-4 text-sm">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+            <div>
+              <p>Ingresa el código de 6 dígitos para activar tu cuenta.</p>
               <p className="font-medium mt-1">Tiempo restante: {formatTime(tiempoRestante)}</p>
             </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Campos del formulario */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nombre completo
+            </label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-sm"
+                placeholder="Tu nombre"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Teléfono (opcional)
+            </label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-sm"
+                placeholder="+1 234 567 890"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Contraseña
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-sm"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
               Código de verificación
             </label>
-            <div className="flex justify-center gap-2">
+            <div className="flex justify-center gap-1">
               {codigo.map((digito, index) => (
                 <input
                   key={index}
@@ -169,7 +210,7 @@ const VerificacionCodigo = () => {
                   value={digito}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none"
+                  className="w-10 h-10 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none"
                   autoFocus={index === 0}
                   disabled={loading}
                 />
@@ -178,7 +219,7 @@ const VerificacionCodigo = () => {
           </div>
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center">
+            <div className="bg-red-50 text-red-600 p-2 rounded-lg text-xs text-center">
               {error}
             </div>
           )}
@@ -186,38 +227,15 @@ const VerificacionCodigo = () => {
           <button
             type="submit"
             disabled={loading || tiempoRestante === 0}
-            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 rounded-lg font-medium hover:from-amber-600 hover:to-amber-700 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 rounded-lg font-medium hover:from-amber-600 hover:to-amber-700 transition-all duration-300 disabled:opacity-50 text-sm"
           >
-            {loading ? (
-              'Verificando...'
-            ) : (
-              <>
-                <CheckCircle className="h-5 w-5" />
-                Verificar código
-              </>
-            )}
+            {loading ? 'Verificando...' : 'Activar cuenta'}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600 mb-2">
-            ¿No recibiste el código?
-          </p>
-          <button
-            onClick={handleResend}
-            disabled={loading}
-            className="text-amber-500 hover:text-amber-600 font-medium flex items-center justify-center gap-1 mx-auto"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Reenviar código
-          </button>
-        </div>
-
-        <div className="mt-6 text-center border-t pt-6">
-          <p className="text-xs text-gray-500">
-            El código expira en 10 minutos por seguridad.
-          </p>
-        </div>
+        <p className="text-xs text-gray-400 text-center mt-4">
+          El código expira en 10 minutos
+        </p>
       </div>
     </div>
   );

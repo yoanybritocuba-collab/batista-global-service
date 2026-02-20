@@ -1,94 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useClienteAuth } from '../../contexts/auth/ClienteAuthContext';
-import { Mail, Lock, User, Phone, ArrowLeft, ShoppingBag, Send } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { Mail, Lock, User, Phone, ArrowLeft } from 'lucide-react';
 
 const ClienteLogin = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    phone: ''
-  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
   
-  const { login, register } = useClienteAuth();
+  const { register, login } = useClienteAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Mostrar mensaje si viene de verificación exitosa
-  useEffect(() => {
-    if (location.state?.message) {
-      toast.success(location.state.message);
-      // Limpiar el state para que no se muestre de nuevo
-      window.history.replaceState({}, document.title);
-    }
-  }, [location]);
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccessMessage('');
     setLoading(true);
 
     try {
       if (isLogin) {
-        // LOGIN
-        const result = await login(formData.email, formData.password);
-        
+        const result = await login(email, password);
         if (result.success) {
           navigate('/tienda');
-        } else if (result.necesitaVerificacion) {
-          // 👈 NUEVO: Redirigir a verificación por código
-          navigate('/verificacion-codigo', { 
-            state: { email: formData.email } 
-          });
-        } else {
-          setError(result.error || 'Error al iniciar sesión');
         }
       } else {
-        // REGISTRO
-        if (formData.password !== formData.confirmPassword) {
-          setError('Las contraseñas no coinciden');
-          setLoading(false);
-          return;
-        }
-
-        const result = await register(
-          formData.email,
-          formData.password,
-          {
-            name: formData.name,
-            phone: formData.phone
-          }
-        );
-
-        if (result.success) {
-          if (result.necesitaVerificacion) {
-            // 👈 NUEVO: Redirigir a verificación por código
-            navigate('/verificacion-codigo', { 
-              state: { email: formData.email } 
-            });
-          } else {
-            setSuccessMessage(result.message);
-            setTimeout(() => {
-              navigate('/verificacion-pendiente');
-            }, 3000);
-          }
-        } else {
-          setError(result.error || 'Error al registrarse');
+        const result = await register(email, password, { name, phone });
+        if (result.necesitaVerificacion) {
+          navigate('/verificacion-codigo', { 
+            state: { 
+              email, 
+              userData: { name, phone } 
+            } 
+          });
         }
       }
     } catch (err) {
@@ -99,144 +45,74 @@ const ClienteLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-sm p-6">
         
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-gray-600 hover:text-amber-500 mb-6 transition-colors"
+          className="flex items-center gap-1 text-gray-600 hover:text-amber-500 mb-4 text-sm"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Volver al inicio</span>
+          <span>Volver</span>
         </button>
 
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800">
-            {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
-          </h1>
-          <p className="text-gray-600 mt-2">
-            {isLogin 
-              ? 'Accede a tu cuenta para continuar' 
-              : 'Regístrate para comenzar a comprar'}
-          </p>
-        </div>
+        <h1 className="text-xl font-bold text-gray-800 text-center mb-2">
+          {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
+        </h1>
 
-        {successMessage && (
-          <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg mb-6">
-            <p className="text-sm">{successMessage}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           {!isLogin && (
             <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nombre completo
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-                    placeholder="Tu nombre"
-                  />
-                </div>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-sm"
+                  placeholder="Nombre completo"
+                  required
+                />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Teléfono (opcional)
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-                    placeholder="+1 234 567 890"
-                  />
-                </div>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-sm"
+                  placeholder="Teléfono"
+                />
               </div>
             </>
           )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Correo electrónico
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-                placeholder="tu@email.com"
-              />
-            </div>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-sm"
+              placeholder="Email"
+              required
+            />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Contraseña
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-                placeholder="••••••••"
-              />
-            </div>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-sm"
+              placeholder="Contraseña"
+              required
+            />
           </div>
-
-          {!isLogin && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirmar contraseña
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Enlace para recuperar contraseña */}
-          {isLogin && (
-            <div className="text-right">
-              <Link
-                to="/recuperar-password"
-                className="text-sm text-amber-500 hover:text-amber-600 transition-colors"
-              >
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </div>
-          )}
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+            <div className="bg-red-50 text-red-600 p-2 rounded-lg text-xs">
               {error}
             </div>
           )}
@@ -244,40 +120,19 @@ const ClienteLogin = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 rounded-lg font-medium hover:from-amber-600 hover:to-amber-700 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full bg-amber-500 text-white py-2 rounded-lg font-medium hover:bg-amber-600 transition-colors text-sm disabled:opacity-50"
           >
-            {loading ? (
-              'Procesando...'
-            ) : (
-              <>
-                {isLogin ? <Lock className="h-5 w-5" /> : <Send className="h-5 w-5" />}
-                {isLogin ? 'Iniciar Sesión' : 'Registrarme'}
-              </>
-            )}
+            {loading ? 'Procesando...' : (isLogin ? 'Iniciar Sesión' : 'Registrarme')}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            {isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
-            <button
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setError('');
-                setSuccessMessage('');
-                setFormData({
-                  name: '',
-                  email: '',
-                  password: '',
-                  confirmPassword: '',
-                  phone: ''
-                });
-              }}
-              className="ml-2 text-amber-500 hover:text-amber-600 font-medium"
-            >
-              {isLogin ? 'Regístrate' : 'Inicia sesión'}
-            </button>
-          </p>
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-amber-500 hover:text-amber-600 text-sm"
+          >
+            {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
+          </button>
         </div>
       </div>
     </div>

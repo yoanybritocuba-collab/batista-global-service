@@ -3,7 +3,6 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
-// Tu configuración Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDFqig-6NozL6ALQh5klX15D-XIWIF8bnQ",
   authDomain: "batistaglobalservice.firebaseapp.com",
@@ -14,12 +13,9 @@ const firebaseConfig = {
   measurementId: "G-FCNPNFDVMM"
 };
 
-// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
-
-// Exportar servicios
-export const db = getFirestore(app);       // Firestore Database
-export const storage = getStorage(app);    // Cloud Storage - ¡DEBE ESTAR AQUÍ!
-export const auth = getAuth(app);          // Authentication
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+export const auth = getAuth(app);
 
 export default app;

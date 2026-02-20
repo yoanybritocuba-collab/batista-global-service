@@ -10,6 +10,18 @@ const cartReducer = (state, action) => {
     case 'SET_CART':
       return { ...state, items: action.payload, loading: false };
     case 'ADD_ITEM':
+      // Verificar si el producto ya existe
+      const existingItem = state.items.find(item => item.id === action.payload.id);
+      if (existingItem) {
+        // Si existe, actualizar cantidad
+        const updatedItems = state.items.map(item =>
+          item.id === action.payload.id
+            ? { ...item, quantity: item.quantity + action.payload.quantity }
+            : item
+        );
+        return { ...state, items: updatedItems };
+      }
+      // Si no existe, agregar nuevo
       return { ...state, items: [...state.items, action.payload] };
     case 'UPDATE_ITEM':
       return {
@@ -34,7 +46,8 @@ const cartReducer = (state, action) => {
 
 // Función para obtener la clave del localStorage según el usuario
 const getStorageKey = (userId) => {
-  return userId ? `cart_user_${userId}` : 'cart_guest';
+  if (!userId) return 'cart_guest';
+  return `cart_user_${userId}`;
 };
 
 // Cargar carrito desde localStorage
@@ -42,6 +55,7 @@ const loadCartFromStorage = (userId) => {
   const key = getStorageKey(userId);
   try {
     const savedCart = localStorage.getItem(key);
+    console.log(`🔑 Cargando carrito para clave: ${key}`, savedCart ? '✅' : '❌ vacío');
     return savedCart ? JSON.parse(savedCart) : [];
   } catch (error) {
     console.error('Error loading cart:', error);
@@ -54,6 +68,7 @@ const saveCartToStorage = (userId, items) => {
   const key = getStorageKey(userId);
   try {
     localStorage.setItem(key, JSON.stringify(items));
+    console.log(`💾 Guardando carrito para clave: ${key} (${items.length} items)`);
   } catch (error) {
     console.error('Error saving cart:', error);
   }
@@ -63,13 +78,15 @@ export const CartProvider = ({ children }) => {
   const { user, isAuthenticated } = useClienteAuth();
   const [state, dispatch] = useReducer(cartReducer, { items: [], loading: true });
 
-  // Obtener userId actual
-  const userId = user?.id || null;
+  // Obtener userId actual (USAMOS EL UID DE FIREBASE)
+  const userId = user?.uid || null;
 
   // Cargar carrito cuando cambia el usuario
   useEffect(() => {
     const loadCart = async () => {
       dispatch({ type: 'SET_LOADING', payload: true });
+      
+      console.log('👤 Usuario actual:', userId || 'Invitado');
       
       // Cargar carrito específico del usuario
       const cartItems = loadCartFromStorage(userId);
@@ -90,23 +107,10 @@ export const CartProvider = ({ children }) => {
 
   // Agregar al carrito
   const addToCart = useCallback((product, quantity = 1) => {
-    const existingItem = state.items.find(item => item.id === product.id);
-    
-    if (existingItem) {
-      // Actualizar cantidad
-      const updatedItem = {
-        ...existingItem,
-        quantity: existingItem.quantity + quantity
-      };
-      dispatch({ type: 'UPDATE_ITEM', payload: updatedItem });
-      toast.success('Producto actualizado en el carrito');
-    } else {
-      // Agregar nuevo
-      const newItem = { ...product, quantity };
-      dispatch({ type: 'ADD_ITEM', payload: newItem });
-      toast.success('Producto agregado al carrito');
-    }
-  }, [state.items]);
+    const newItem = { ...product, quantity };
+    dispatch({ type: 'ADD_ITEM', payload: newItem });
+    toast.success('Producto agregado al carrito');
+  }, []);
 
   // Eliminar del carrito
   const removeFromCart = useCallback((productId) => {
