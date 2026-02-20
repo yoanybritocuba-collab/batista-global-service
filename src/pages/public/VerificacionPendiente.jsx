@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useClienteAuth } from '../../contexts/auth/ClienteAuthContext';
-import { Mail, RefreshCw, ArrowLeft } from 'lucide-react';
+import { Mail, RefreshCw, ArrowLeft, AlertCircle } from 'lucide-react';
 
 const VerificacionPendiente = () => {
   const navigate = useNavigate();
   const { resendVerificationEmail, user } = useClienteAuth();
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   const handleResendEmail = async () => {
-    await resendVerificationEmail();
+    setLoading(true);
+    setMessage('');
+    const result = await resendVerificationEmail();
+    if (result.success) {
+      setMessage('✅ Email reenviado. Revisa tu bandeja de entrada o SPAM.');
+    } else {
+      setMessage('❌ Error al reenviar. Intenta más tarde.');
+    }
+    setLoading(false);
   };
 
   return (
@@ -31,7 +41,7 @@ const VerificacionPendiente = () => {
           ¡Verifica tu email!
         </h1>
         
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 mb-4">
           Hemos enviado un enlace de verificación a:
         </p>
         
@@ -39,17 +49,32 @@ const VerificacionPendiente = () => {
           {user?.email || 'tu correo electrónico'}
         </p>
         
-        <p className="text-sm text-gray-500 mb-8">
-          Haz clic en el enlace del correo para activar tu cuenta. Luego podrás iniciar sesión.
-        </p>
+        <div className="bg-blue-50 border border-blue-200 text-blue-700 p-4 rounded-lg mb-6">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-left">
+              <strong>Importante:</strong> Revisa también tu carpeta de <strong>SPAM</strong> o <strong>Correo no deseado</strong>. 
+              El email puede tardar unos minutos en llegar.
+            </p>
+          </div>
+        </div>
+
+        {message && (
+          <div className={`p-3 rounded-lg mb-4 text-sm ${
+            message.includes('✅') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+          }`}>
+            {message}
+          </div>
+        )}
 
         <div className="space-y-4">
           <button
             onClick={handleResendEmail}
-            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
           >
-            <RefreshCw className="h-5 w-5" />
-            Reenviar email
+            <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? 'Enviando...' : 'Reenviar email'}
           </button>
 
           <button

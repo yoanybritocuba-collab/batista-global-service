@@ -71,20 +71,22 @@ export const ClienteAuthProvider = ({ children }) => {
 
       console.log('3️⃣ Datos guardados en Firestore');
 
-      // ✅ ENVIAR EMAIL DE VERIFICACIÓN (FUERZA BRUTA)
+      // ✅ ENVIAR EMAIL DE VERIFICACIÓN (MÉTODO MEJORADO)
       console.log('4️⃣ Enviando email de verificación a:', email);
       
-      // Usar actionCodeSettings para asegurar el envío
+      // Configuración específica para el email
       const actionCodeSettings = {
         url: 'https://batistaglobalservice.web.app/cliente/login',
-        handleCodeInApp: true
+        handleCodeInApp: true,
+        dynamicLinkDomain: 'batistaglobalservice.page.link' // Opcional
       };
       
+      // Enviar email
       await sendEmailVerification(user, actionCodeSettings);
       
-      console.log('5️⃣ Email de verificación ENVIADO');
+      console.log('5️⃣ Email de verificación ENVIADO correctamente');
 
-      // ✅ CERRAR SESIÓN INMEDIATAMENTE
+      // ✅ IMPORTANTE: CERRAR SESIÓN INMEDIATAMENTE
       await signOut(auth);
       console.log('6️⃣ Sesión cerrada - usuario debe verificar email');
 
