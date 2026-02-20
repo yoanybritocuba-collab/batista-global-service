@@ -32,6 +32,7 @@ import Cart from './pages/public/Cart';
 import ClienteLogin from './pages/public/ClienteLogin';
 import ClientePerfil from './pages/public/ClientePerfil';
 import SearchResultsPage from './pages/public/SearchResultsPage';
+import VerificacionPendiente from './pages/public/VerificacionPendiente'; // 👈 NUEVO
 
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center h-64">
@@ -103,8 +104,9 @@ const AppRoutes = () => {
         {/* LOGIN ADMIN - Sin layout (página completa) */}
         <Route path="/admin-login" element={<AdminLogin />} />
 
-        {/* RUTAS DE CLIENTE - Todas con MainLayout */}
+        {/* RUTAS DE CLIENTE */}
         <Route path="/cliente/login" element={<ClienteLogin />} />
+        <Route path="/verificacion-pendiente" element={<VerificacionPendiente />} /> {/* 👈 NUEVA RUTA */}
         
         <Route path="/cliente/perfil" element={
           <ProtectedClienteRoute>
@@ -146,7 +148,7 @@ const AppRoutes = () => {
           </ProtectedClienteRoute>
         } />
 
-        {/* RUTAS ADMIN - Con AdminLayout (tiene su propio header/sidebar) */}
+        {/* RUTAS ADMIN - Con AdminLayout */}
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminLayout />
@@ -189,7 +191,7 @@ const App = () => {
       <ClienteAuthProvider>
         <AuthProvider>
           <ServicesProvider>
-            <DestinosProvider>  {/* 👈 NUEVO - Proveedor de destinos populares */}
+            <DestinosProvider>
               <SearchProvider>
                 <CartProvider>
                   <AppRoutes />
