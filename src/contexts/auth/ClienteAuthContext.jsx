@@ -1,12 +1,14 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { 
-  registerUser, 
-  loginUser, 
-  logoutUser, 
-  getUserData,
-  onAuthStateChange,
-  updateUserData
-} from '../../services/firebase/auth';
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  onAuthStateChanged
+} from 'firebase/auth';
+import { auth, db } from '../../services/firebase/config';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 
 const ClienteAuthContext = createContext();
@@ -26,124 +28,221 @@ export const ClienteAuthProvider = ({ children }) => {
 
   // Escuchar cambios en la autenticación
   useEffect(() => {
-    console.log("📡 Configurando listener de autenticación...");
-    const unsubscribe = onAuthStateChange(async (firebaseUser) => {
-      console.log("🔄 Cambio en autenticación:", firebaseUser ? "Usuario logueado" : "Usuario no logueado");
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('🔄 Cambio en autenticación:', firebaseUser ? 'Usuario logueado' : 'Usuario no logueado');
       
       if (firebaseUser) {
-        console.log("👤 Usuario autenticado:", firebaseUser.uid);
         setUser(firebaseUser);
         
         // Cargar datos adicionales de Firestore
-        console.log("📥 Cargando datos de Firestore para:", firebaseUser.uid);
-        const result = await getUserData(firebaseUser.uid);
-        if (result.success) {
-          console.log("✅ Datos de usuario cargados:", result.data);
-          setUserData(result.data);
-        } else {
-          console.log("⚠️ No se encontraron datos en Firestore:", result.error);
+        const docRef = doc(db, 'users', firebaseUser.uid);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
         }
       } else {
-        console.log("👤 Usuario no autenticado");
         setUser(null);
         setUserData(null);
       }
       setLoading(false);
     });
 
-    return () => {
-      console.log("📴 Limpiando listener de autenticación");
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
-  // Login
-  const login = async (email, password) => {
-    console.log("🔐 Intentando login con:", email);
-    setLoading(true);
-    const result = await loginUser(email, password);
-    
-    if (result.success) {
-      console.log("✅ Login exitoso");
-      toast.success('¡Bienvenido de vuelta!');
-    } else {
-      console.log("❌ Login falló:", result.error);
-      toast.error(result.error);
-    }
-    
-    setLoading(false);
-    return result;
-  };
+  // REGISTRO CON VERIFICACIÓN DE EMAIL
+  const register = async (email, password, userData) => {
+    try {
+      // 1. Crear usuario en Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // 2. Guardar datos adicionales en Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        email: user.email,
+        name: userData.name,
+        phone: userData.phone || '',
+        emailVerified: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
 
-  // Registro
-  const register = async (userData) => {
-    console.log("📝 Intentando registro con:", userData.email);
-    setLoading(true);
-    const result = await registerUser(
-      userData.email, 
-      userData.password, 
-      userData
-    );
-    
-    if (result.success) {
-      console.log("✅ Registro exitoso");
-      toast.success('¡Registro exitoso! Bienvenido');
-    } else {
-      console.log("❌ Registro falló:", result.error);
-      toast.error(result.error);
-    }
-    
-    setLoading(false);
-    return result;
-  };
+      // 3. ENVIAR EMAIL DE VERIFICACIÓN
+      await sendEmailVerification(user, {
+        url: 'https://batistaglobalservice.web.app/cliente/login',
+        handleCodeInApp: true
+      });
 
-  // Logout
-  const logout = async () => {
-    console.log("🚪 Cerrando sesión");
-    setLoading(true);
-    const result = await logoutUser();
-    
-    if (result.success) {
-      console.log("✅ Sesión cerrada");
-      toast.success('Sesión cerrada');
-    } else {
-      console.log("❌ Error al cerrar sesión");
-      toast.error('Error al cerrar sesión');
-    }
-    
-    setLoading(false);
-    return result;
-  };
-
-  // Actualizar datos del usuario
-  const updateUser = async (data) => {
-    if (!user) return { success: false, error: 'No hay usuario autenticado' };
-    
-    console.log("✏️ Actualizando datos de usuario:", data);
-    const result = await updateUserData(user.uid, data);
-    
-    if (result.success) {
-      // Recargar datos del usuario
-      console.log("🔄 Recargando datos de usuario");
-      const userDataResult = await getUserData(user.uid);
-      if (userDataResult.success) {
-        setUserData(userDataResult.data);
+      toast.success('✅ Registro exitoso. Por favor verifica tu email.');
+      
+      // NO iniciamos sesión automáticamente
+      await signOut(auth);
+      
+      return { 
+        success: true, 
+        message: 'Registro exitoso. Revisa tu correo para verificar tu cuenta.' 
+      };
+      
+    } catch (error) {
+      console.error('Error en registro:', error);
+      let errorMessage = 'Error al registrarse';
+      
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'Este email ya está registrado';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Email inválido';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+          break;
+        default:
+          errorMessage = error.message;
       }
-      toast.success('Perfil actualizado');
+      
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  // LOGIN - VERIFICAR QUE EL EMAIL ESTÉ VERIFICADO
+  const login = async (email, password) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // VERIFICAR SI EL EMAIL ESTÁ CONFIRMADO
+      if (!user.emailVerified) {
+        // Reenviar email de verificación
+        await sendEmailVerification(user, {
+          url: 'https://batistaglobalservice.web.app/cliente/login',
+          handleCodeInApp: true
+        });
+        
+        await signOut(auth);
+        toast.warning('❌ Debes verificar tu email. Hemos enviado un nuevo código.');
+        return { 
+          success: false, 
+          error: 'Email no verificado. Revisa tu correo.' 
+        };
+      }
+      
+      // Actualizar estado de verificación en Firestore
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        emailVerified: true,
+        updatedAt: new Date().toISOString()
+      });
+      
+      toast.success('✅ Bienvenido');
+      return { success: true, user };
+      
+    } catch (error) {
+      console.error('Error en login:', error);
+      let errorMessage = 'Error al iniciar sesión';
+      
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'Usuario no encontrado';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Contraseña incorrecta';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Email inválido';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Demasiados intentos. Intenta más tarde';
+          break;
+        default:
+          errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  // 🔐 RECUPERAR CONTRASEÑA
+  const resetPassword = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email, {
+        url: 'https://batistaglobalservice.web.app/cliente/login',
+        handleCodeInApp: true
+      });
+      
+      toast.success('✅ Email de recuperación enviado. Revisa tu correo.');
+      return { 
+        success: true, 
+        message: 'Te hemos enviado un email para restablecer tu contraseña.' 
+      };
+    } catch (error) {
+      console.error('Error enviando recuperación:', error);
+      let errorMessage = 'Error al enviar email de recuperación';
+      
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No existe una cuenta con este email';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Email inválido';
+          break;
+        default:
+          errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  // REENVIAR EMAIL DE VERIFICACIÓN
+  const resendVerificationEmail = async () => {
+    if (!auth.currentUser) {
+      toast.error('No hay usuario autenticado');
+      return { success: false };
     }
     
-    return result;
+    try {
+      await sendEmailVerification(auth.currentUser, {
+        url: 'https://batistaglobalservice.web.app/cliente/login',
+        handleCodeInApp: true
+      });
+      toast.success('✅ Email de verificación reenviado');
+      return { success: true };
+    } catch (error) {
+      console.error('Error reenviando email:', error);
+      toast.error('Error al reenviar email');
+      return { success: false, error: error.message };
+    }
+  };
+
+  // LOGOUT
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      toast.success('Sesión cerrada');
+      return { success: true };
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      toast.error('Error al cerrar sesión');
+      return { success: false };
+    }
   };
 
   const value = {
     user,
     userData,
     loading,
-    login,
     register,
+    login,
     logout,
-    updateUser,
-    isAuthenticated: !!user
+    resetPassword,
+    resendVerificationEmail,
+    isAuthenticated: !!user && user.emailVerified
   };
 
   return (

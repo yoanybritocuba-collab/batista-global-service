@@ -32,7 +32,8 @@ import Cart from './pages/public/Cart';
 import ClienteLogin from './pages/public/ClienteLogin';
 import ClientePerfil from './pages/public/ClientePerfil';
 import SearchResultsPage from './pages/public/SearchResultsPage';
-import VerificacionPendiente from './pages/public/VerificacionPendiente'; // 👈 NUEVO
+import VerificacionPendiente from './pages/public/VerificacionPendiente';
+import RecuperarPassword from './pages/public/RecuperarPassword'; // 👈 NUEVA IMPORTACIÓN
 
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center h-64">
@@ -56,7 +57,7 @@ const AppRoutes = () => {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        {/* RUTAS PÚBLICAS - Todas con MainLayout */}
+        {/* RUTAS PÚBLICAS */}
         <Route path="/" element={
           <MainLayout>
             <HomeFixed />
@@ -69,7 +70,6 @@ const AppRoutes = () => {
           </MainLayout>
         } />
         
-        {/* Ruta dinámica para cada servicio individual */}
         <Route path="/servicio/:id" element={
           <MainLayout>
             <ServicioDetallePage />
@@ -94,19 +94,19 @@ const AppRoutes = () => {
           </MainLayout>
         } />
 
-        {/* Ruta de búsqueda */}
         <Route path="/buscar" element={
           <MainLayout>
             <SearchResultsPage />
           </MainLayout>
         } />
 
-        {/* LOGIN ADMIN - Sin layout (página completa) */}
+        {/* LOGIN ADMIN */}
         <Route path="/admin-login" element={<AdminLogin />} />
 
         {/* RUTAS DE CLIENTE */}
         <Route path="/cliente/login" element={<ClienteLogin />} />
-        <Route path="/verificacion-pendiente" element={<VerificacionPendiente />} /> {/* 👈 NUEVA RUTA */}
+        <Route path="/verificacion-pendiente" element={<VerificacionPendiente />} />
+        <Route path="/recuperar-password" element={<RecuperarPassword />} /> {/* 👈 NUEVA RUTA */}
         
         <Route path="/cliente/perfil" element={
           <ProtectedClienteRoute>
@@ -148,7 +148,7 @@ const AppRoutes = () => {
           </ProtectedClienteRoute>
         } />
 
-        {/* RUTAS ADMIN - Con AdminLayout */}
+        {/* RUTAS ADMIN */}
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminLayout />
@@ -165,7 +165,7 @@ const AppRoutes = () => {
           <Route path="analytics" element={<AdminAnalytics />} />
         </Route>
 
-        {/* 404 - Con MainLayout */}
+        {/* 404 */}
         <Route path="*" element={
           <MainLayout>
             <div className="text-center py-20">
@@ -179,7 +179,6 @@ const AppRoutes = () => {
         } />
       </Routes>
       
-      {/* WhatsApp Button - visible en todas partes */}
       <WhatsAppButton />
     </Suspense>
   );
