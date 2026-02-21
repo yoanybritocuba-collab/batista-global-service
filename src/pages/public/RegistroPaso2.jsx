@@ -1,30 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useClienteAuth } from '../../contexts/auth/ClienteAuthContext';
-import { User, Lock, Phone, Loader2, AlertCircle, ArrowLeft, CheckCircle } from 'lucide-react';
+import { User, Lock, Phone, Loader2, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { verificarCodigo, obtenerDatosVerificados } from '../../services/email/codigoService';
+import { verificarCodigo } from '../../services/email/codigoService';
 
 const RegistroPaso2 = () => {
   const [codigo, setCodigo] = useState(['', '', '', '', '', '']);
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [codigoValido, setCodigoValido] = useState(false);
+  const [verificado, setVerificado] = useState(false);
+  const [verificando, setVerificando] = useState(false);
   
-  const { register } = useClienteAuth();
+  const { register, verificarCodigoExitoso, codigoVerificado } = useClienteAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const email = location.state?.email || '';
 
   useEffect(() => {
-    if (!email) {
-      toast.error('No hay email pendiente de verificación');
+    if (location.state?.email) {
+      setEmail(location.state.email);
+      console.log('📧 Email recibido:', location.state.email);
+    } else {
+      toast.error('❌ No hay email pendiente de verificación');
       navigate('/registro');
     }
-  }, [email, navigate]);
+  }, [location.state, navigate]);
+
+  // Sincronizar con el contexto
+  useEffect(() => {
+    if (verificado) {
+      console.log('🔄 Sincronizando verificado con contexto');
+      verificarCodigoExitoso(email);
+    }
+  }, [verificado, email, verificarCodigoExitoso]);
+
+  // También sincronizar si el contexto ya está verificado
+  useEffect(() => {
+    if (codigoVerificado && !verificado) {
+      console.log('🔄 Contexto ya verificado, actualizando local');
+      setVerificado(true);
+    }
+  }, [codigoVerificado, verificado]);
+
+  const verificarAutomatico = async (codigoCompleto) => {
+    if (codigoCompleto.length !== 6 || verificando) return;
+    
+    setVerificando(true);
+    
+    try {
+      console.log('🔍 Verificando código:', codigoCompleto);
+      const resultado = verificarCodigo(email, codigoCompleto);
+      console.log('📊 Resultado:', resultado);
+      
+      if (resultado.valido) {
+        setVerificado(true);
+        setError('');
+        // No llamamos a verificarCodigoExitoso aquí, el useEffect lo hará
+        toast.success('✅ Código correcto');
+      } else {
+        setVerificado(false);
+        setError(resultado.error);
+        toast.error(resultado.error);
+      }
+    } catch (err) {
+      console.error('❌ Error:', err);
+      setVerificado(false);
+      setError('Error al verificar');
+    } finally {
+      setVerificando(false);
+    }
+  };
 
   const handleChange = (index, value) => {
     if (value.length > 1) return;
@@ -33,13 +82,14 @@ const RegistroPaso2 = () => {
     newCodigo[index] = value.replace(/[^0-9]/g, '');
     setCodigo(newCodigo);
     
-    // Auto-focus al siguiente input
     if (value && index < 5) {
       document.getElementById(`codigo-${index + 1}`)?.focus();
     }
     
-    // Resetear verificación cuando cambia el código
-    setCodigoValido(false);
+    if (index === 5 && value) {
+      const codigoCompleto = [...newCodigo.slice(0, 5), value].join('');
+      verificarAutomatico(codigoCompleto);
+    }
   };
 
   const handleKeyDown = (index, e) => {
@@ -48,36 +98,14 @@ const RegistroPaso2 = () => {
     }
   };
 
-  const verificarCodigoHandler = async () => {
-    const codigoCompleto = codigo.join('');
-    if (codigoCompleto.length !== 6) {
-      setError('Ingresa el código completo de 6 dígitos');
-      return false;
-    }
-
-    const resultado = verificarCodigo(email, codigoCompleto);
-    
-    if (resultado.valido) {
-      setCodigoValido(true);
-      setError('');
-      toast.success('✅ Código verificado correctamente');
-      return true;
-    } else {
-      setError(resultado.error);
-      return false;
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validar código primero
-    if (!codigoValido) {
-      const valido = await verificarCodigoHandler();
-      if (!valido) return;
+    if (!verificado) {
+      setError('Primero verifica el código');
+      return;
     }
 
-    // Validaciones básicas
     if (!password) {
       setError('Ingresa una contraseña');
       return;
@@ -97,21 +125,25 @@ const RegistroPaso2 = () => {
     setError('');
 
     try {
-      // Crear usuario en Firebase
+      console.log('📝 Registrando usuario con código verificado');
       const result = await register(email, password, {
         name,
-        phone,
-        emailVerified: true
+        phone
       });
+      
+      console.log('✅ Resultado registro:', result);
 
       if (result.success) {
-        navigate('/cliente/login', { 
+        // ✅ REDIRIGIR A LA PÁGINA PRINCIPAL
+        navigate('/', { 
           state: { message: '✅ Cuenta creada exitosamente. Ya puedes iniciar sesión.' } 
         });
+        toast.success('✅ Cuenta creada. Bienvenido a Batista Global Service');
       } else {
         setError(result.error || 'Error al crear la cuenta');
       }
     } catch (err) {
+      console.error('❌ Error:', err);
       setError('Error al crear la cuenta');
     } finally {
       setLoading(false);
@@ -132,66 +164,65 @@ const RegistroPaso2 = () => {
 
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">
-            {codigoValido ? 'Completa tu registro' : 'Verifica tu código'}
+            {verificado ? '✅ Código verificado' : 'Ingresa el código'}
           </h1>
           <p className="text-sm text-gray-600 mt-1">
-            {codigoValido ? (
-              'Ingresa tus datos para crear la cuenta'
-            ) : (
-              <>
-                Ingresa el código de 6 dígitos enviado a:<br />
-                <span className="font-semibold text-amber-600">{email}</span>
-              </>
-            )}
+            Código enviado a:
+          </p>
+          <p className="text-sm font-semibold text-amber-600 break-all">
+            {email}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           
-          {/* CÓDIGO DE VERIFICACIÓN */}
-          <div className={codigoValido ? 'opacity-50 pointer-events-none' : ''}>
-            <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 text-center">
               Código de verificación
             </label>
-            <div className="flex justify-center gap-1 mb-3">
-              {codigo.map((digito, index) => (
-                <input
-                  key={index}
-                  id={`codigo-${index}`}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digito}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none"
-                  autoFocus={index === 0}
-                  disabled={loading || codigoValido}
-                />
-              ))}
+            <div className="flex justify-center gap-2">
+              {codigo.map((digito, index) => {
+                let borderColor = 'border-gray-300';
+                if (verificado) {
+                  borderColor = 'border-green-500 bg-green-50';
+                } else if (error && !verificado) {
+                  borderColor = 'border-red-500 bg-red-50';
+                }
+                
+                return (
+                  <input
+                    key={index}
+                    id={`codigo-${index}`}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digito}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    className={`w-14 h-14 text-center text-2xl font-bold border-2 ${borderColor} rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all duration-300 transform hover:scale-105`}
+                    autoFocus={index === 0}
+                    disabled={loading || verificado}
+                  />
+                );
+              })}
             </div>
             
-            {!codigoValido && (
-              <button
-                type="button"
-                onClick={verificarCodigoHandler}
-                disabled={loading || codigo.join('').length !== 6}
-                className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 text-sm mb-4"
-              >
-                Verificar código
-              </button>
+            {verificado && (
+              <div className="flex items-center justify-center gap-2 text-green-600 mt-2 animate-pulse">
+                <CheckCircle className="h-5 w-5" />
+                <span className="text-sm font-medium">Código correcto ✓</span>
+              </div>
             )}
             
-            {codigoValido && (
-              <div className="bg-green-50 border border-green-200 text-green-700 p-3 rounded-lg mb-4 flex items-center gap-2">
-                <CheckCircle className="h-5 w-5" />
-                <span className="text-sm">✅ Código verificado</span>
+            {error && !verificado && (
+              <div className="flex items-center justify-center gap-2 text-red-600 mt-2 animate-shake">
+                <XCircle className="h-5 w-5" />
+                <span className="text-sm font-medium">{error}</span>
               </div>
             )}
           </div>
 
-          {/* DATOS DEL USUARIO (se muestran solo después de verificar) */}
-          {codigoValido && (
+          {verificado && (
             <>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -246,42 +277,33 @@ const RegistroPaso2 = () => {
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Mínimo 6 caracteres</p>
               </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 rounded-lg font-medium hover:from-amber-600 hover:to-orange-600 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 transform hover:scale-105"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Creando cuenta...</span>
+                  </>
+                ) : (
+                  'Crear cuenta'
+                )}
+              </button>
             </>
-          )}
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg flex items-start gap-2">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
-              <p className="text-sm">{error}</p>
-            </div>
-          )}
-
-          {codigoValido && (
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 rounded-lg font-medium hover:from-amber-600 hover:to-orange-600 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Creando cuenta...</span>
-                </>
-              ) : (
-                'Crear cuenta'
-              )}
-            </button>
           )}
         </form>
 
-        {!codigoValido && (
+        {!verificado && (
           <p className="text-xs text-gray-400 text-center mt-4">
             ¿No recibiste el código?{' '}
             <button 
               onClick={() => navigate('/registro')}
               className="text-amber-600 hover:text-amber-700"
             >
-              Solicitar nuevo código
+              Reenviar código
             </button>
           </p>
         )}

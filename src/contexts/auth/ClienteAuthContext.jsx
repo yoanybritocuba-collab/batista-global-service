@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  sendPasswordResetEmail,
   onAuthStateChanged
 } from 'firebase/auth';
 import { auth, db } from '../../services/firebase/config';
@@ -24,6 +25,8 @@ export const ClienteAuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [emailPendiente, setEmailPendiente] = useState(null);
+  const [codigoVerificado, setCodigoVerificado] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -46,32 +49,59 @@ export const ClienteAuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // ✅ REGISTRO - AHORA CON EMAIL YA VERIFICADO
+  // ✅ PASO 1: SOLICITAR CÓDIGO
+  const solicitarCodigo = (email) => {
+    setEmailPendiente(email);
+    setCodigoVerificado(false);
+  };
+
+  // ✅ PASO 2: VERIFICAR CÓDIGO - AHORA GUARDA EL EMAIL
+  const verificarCodigoExitoso = (email) => {
+    console.log('✅ Activando código verificado para:', email);
+    setCodigoVerificado(true);
+    setEmailPendiente(email); // 👈 NUEVO
+  };
+
+  // ✅ PASO 3: REGISTRO - Validación mejorada
   const register = async (email, password, userData) => {
+    console.log('🔍 Verificando código - Estado:', { codigoVerificado, emailPendiente, email });
+
+    // Validación más flexible
+    if (!codigoVerificado) {
+      console.log('❌ Código no verificado');
+      toast.error('❌ Debes verificar tu código primero');
+      return { success: false, error: 'Código no verificado' };
+    }
+
+    // Si hay emailPendiente, debe coincidir
+    if (emailPendiente !== null && emailPendiente !== email) {
+      console.log('❌ Email no coincide', { emailPendiente, email });
+      toast.error('❌ El email no coincide con el verificado');
+      return { success: false, error: 'Email no coincide' };
+    }
+
     try {
-      // 1. Crear usuario en Firebase Auth
+      console.log('📝 Creando usuario en Firebase...');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // 2. Guardar en Firestore (YA VERIFICADO por código)
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: user.email,
         name: userData.name,
         phone: userData.phone || '',
-        emailVerified: true, // ✅ Ya verificamos con código
+        emailVerified: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
 
-      // 3. Limpiar código temporal
       limpiarCodigo(email);
+      setEmailPendiente(null);
+      setCodigoVerificado(false);
       
-      // 4. Cerrar sesión para que el usuario haga login manualmente
       await signOut(auth);
       
       toast.success('✅ Cuenta creada exitosamente');
-      
       return { success: true };
       
     } catch (error) {
@@ -97,7 +127,7 @@ export const ClienteAuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ LOGIN NORMAL
+  // ✅ LOGIN
   const login = async (email, password) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -127,6 +157,40 @@ export const ClienteAuthProvider = ({ children }) => {
     }
   };
 
+  // ✅ RECUPERAR CONTRASEÑA
+  const resetPassword = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email, {
+        url: 'https://batistaglobalservice.web.app/cliente/login',
+        handleCodeInApp: true
+      });
+      
+      toast.success('✅ Email de recuperación enviado');
+      return { success: true };
+      
+    } catch (error) {
+      console.error('Error en reset password:', error);
+      let errorMessage = 'Error al enviar el email';
+      
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No existe una cuenta con este correo';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Email inválido';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Demasiados intentos. Intenta más tarde';
+          break;
+        default:
+          errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  };
+
   const logout = async () => {
     try {
       await signOut(auth);
@@ -146,6 +210,11 @@ export const ClienteAuthProvider = ({ children }) => {
     register,
     login,
     logout,
+    resetPassword,
+    solicitarCodigo,
+    verificarCodigoExitoso,
+    emailPendiente,
+    codigoVerificado,
     isAuthenticated: !!user
   };
 

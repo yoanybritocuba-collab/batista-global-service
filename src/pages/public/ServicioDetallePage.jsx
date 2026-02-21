@@ -287,8 +287,8 @@ const ServicioDetallePage = () => {
             {/* Detalle específico del servicio */}
             {renderServiceDetail()}
 
-            {/* Botones de acción - Siempre visibles al final */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 sticky bottom-6">
+            {/* Botones de acción - AHORA OCULTOS EN MÓVILES, VISIBLES EN PC */}
+            <div className="hidden lg:block bg-white rounded-2xl p-6 shadow-lg border border-gray-200 sticky bottom-6">
               <h3 className="font-semibold text-xl mb-4 text-gray-800">¿Necesitas ayuda?</h3>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button

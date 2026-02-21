@@ -1,8 +1,8 @@
 // src/services/email/codigoService.js
 import emailjs from '@emailjs/browser';
 
-// ✅ TUS CREDENCIALES REALES
-const EMAILJS_SERVICE_ID = 'service_a8mly7e';
+// ✅ TUS CREDENCIALES CORRECTAS
+const EMAILJS_SERVICE_ID = 'service_af19tfx';
 const EMAILJS_TEMPLATE_ID = 'template_mt2syvx';
 const EMAILJS_PUBLIC_KEY = 'SObq46i_K8W1ZK1Lk';
 

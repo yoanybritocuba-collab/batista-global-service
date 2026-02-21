@@ -23,6 +23,9 @@ import {
   Dog, Cat, Bird, Fish
 } from 'lucide-react';
 
+// Componente de WhatsApp flotante (se importa pero lo moveremos más arriba)
+import WhatsAppButton from '../../components/ui/WhatsAppButton';
+
 const HomeFixed = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -33,11 +36,11 @@ const HomeFixed = () => {
   const [visibleSections, setVisibleSections] = useState({});
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [destinoSlides, setDestinoSlides] = useState({}); // Para manejar slides de cada destino
   const sectionRefs = useRef({});
   const autoPlayRef = useRef();
 
-  // ===== TUS IMÁGENES LOCALES PARA EL CARRUSEL =====
-  // Usando las imágenes que tienes en /public/images/
+  // ===== TUS IMÁGENES LOCALES PARA EL CARRUSEL PRINCIPAL =====
   const heroImages = [
     { url: "/images/imagen1.png", nombre: "Imagen 1" },
     { url: "/images/imagen2.png", nombre: "Imagen 2" },
@@ -60,12 +63,18 @@ const HomeFixed = () => {
 
   useEffect(() => {
     if (destinos.length > 0) {
-      // Filtrar solo destinos activos y ordenar por 'orden'
       const activos = destinos
         .filter(d => d.activo !== false)
         .sort((a, b) => (a.orden || 0) - (b.orden || 0));
       console.log('Destinos activos cargados:', activos);
       setDestinosActivos(activos);
+      
+      // Inicializar slides para cada destino
+      const slides = {};
+      activos.forEach(destino => {
+        slides[destino.id] = 0;
+      });
+      setDestinoSlides(slides);
     }
   }, [destinos]);
 
@@ -104,6 +113,15 @@ const HomeFixed = () => {
     navigate(`/servicio/${serviceId}`);
   };
 
+  const handleDestinoClick = (destinoId, e) => {
+    // Prevenir si se hizo clic en un botón de navegación del carrusel
+    if (e.target.closest('.destino-carousel-btn')) {
+      return;
+    }
+    // Scroll suave al inicio de la sección de destinos
+    sectionRefs.current.destinos?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   const getServiceImageUrl = (service) => {
     const imageUrl = service.mainImage || service.imageUrl;
     
@@ -120,6 +138,46 @@ const HomeFixed = () => {
     }
     
     return `/images/${imageUrl}`;
+  };
+
+  // Función para obtener imágenes de un destino (simulando múltiples fotos)
+  const getDestinoImages = (destino) => {
+    // Si el destino ya tiene un array de imágenes, úsalo
+    if (destino.imagenes && Array.isArray(destino.imagenes) && destino.imagenes.length > 0) {
+      return destino.imagenes;
+    }
+    
+    // Si tiene una sola imagen, creamos un array con esa imagen y algunas de respaldo
+    const imagenes = [destino.imagen];
+    
+    // Agregar algunas imágenes de respaldo para simular un carrusel
+    const imagenesRespaldo = [
+      'https://images.pexels.com/photos/1285625/pexels-photo-1285625.jpeg',
+      'https://images.pexels.com/photos/1533720/pexels-photo-1533720.jpeg',
+      'https://images.pexels.com/photos/161963/chicago-illinois-skyline-skyscrapers-161963.jpeg',
+      'https://images.pexels.com/photos/3581363/pexels-photo-3581363.jpeg'
+    ];
+    
+    // Mezclamos para que no sean siempre las mismas
+    return [...imagenes, ...imagenesRespaldo.slice(0, 3)];
+  };
+
+  const nextDestinoSlide = (destinoId, e) => {
+    e.stopPropagation();
+    const imagenes = getDestinoImages(destinosActivos.find(d => d.id === destinoId));
+    setDestinoSlides(prev => ({
+      ...prev,
+      [destinoId]: (prev[destinoId] + 1) % imagenes.length
+    }));
+  };
+
+  const prevDestinoSlide = (destinoId, e) => {
+    e.stopPropagation();
+    const imagenes = getDestinoImages(destinosActivos.find(d => d.id === destinoId));
+    setDestinoSlides(prev => ({
+      ...prev,
+      [destinoId]: (prev[destinoId] - 1 + imagenes.length) % imagenes.length
+    }));
   };
 
   const nextSlide = () => {
@@ -225,6 +283,11 @@ const HomeFixed = () => {
 
   return (
     <div className="min-h-screen bg-white overflow-hidden pt-20">
+      
+      {/* ===== WHATSAPP BUTTON - AHORA MÁS ARRIBA (1 pulgada ≈ 96px) ===== */}
+      <div className="fixed z-50" style={{ bottom: '96px', right: '24px' }}>
+        <WhatsAppButton />
+      </div>
       
       {/* ===== HERO SECTION CON TUS IMÁGENES LOCALES ===== */}
       <section className="relative h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden">
@@ -353,7 +416,7 @@ const HomeFixed = () => {
         </div>
       </section>
 
-      {/* ===== DESTINOS POPULARES ===== */}
+      {/* ===== DESTINOS POPULARES CON CARRUSEL ===== */}
       <section id="destinos" ref={el => sectionRefs.current.destinos = el} className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -363,69 +426,123 @@ const HomeFixed = () => {
 
           {destinosActivos.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {destinosActivos.map((destino, index) => (
-                <div
-                  key={destino.id}
-                  className={`group relative h-80 rounded-xl overflow-hidden cursor-pointer transform transition-all duration-500 hover:-translate-y-2 ${
-                    visibleSections.destinos ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-                  }`}
-                  style={{ transitionDelay: `${index * 150}ms` }}
-                >
-                  <img
-                    src={destino.imagen || 'https://images.pexels.com/photos/1285625/pexels-photo-1285625.jpeg'}
-                    alt={destino.nombre}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    onError={(e) => {
-                      console.log('Error cargando imagen:', destino.imagen);
-                      e.target.onerror = null;
-                      e.target.src = 'https://images.pexels.com/photos/1285625/pexels-photo-1285625.jpeg';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <h3 className="text-2xl font-bold text-white mb-2">{destino.nombre}</h3>
-                    <p className="text-white/80 text-sm mb-3 line-clamp-2">{destino.descripcion}</p>
+              {destinosActivos.map((destino, index) => {
+                const imagenes = getDestinoImages(destino);
+                const slideIndex = destinoSlides[destino.id] || 0;
+                
+                return (
+                  <div
+                    key={destino.id}
+                    onClick={(e) => handleDestinoClick(destino.id, e)}
+                    className={`group relative h-96 rounded-xl overflow-hidden cursor-pointer transform transition-all duration-500 hover:-translate-y-2 ${
+                      visibleSections.destinos ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                    }`}
+                    style={{ transitionDelay: `${index * 150}ms` }}
+                  >
+                    {/* Carrusel de imágenes */}
+                    <div className="absolute inset-0">
+                      {imagenes.map((img, imgIndex) => (
+                        <img
+                          key={imgIndex}
+                          src={img}
+                          alt={`${destino.nombre} - Imagen ${imgIndex + 1}`}
+                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                            imgIndex === slideIndex ? 'opacity-100' : 'opacity-0'
+                          }`}
+                          onError={(e) => {
+                            console.log('Error cargando imagen:', img);
+                            e.target.onerror = null;
+                            e.target.src = 'https://images.pexels.com/photos/1285625/pexels-photo-1285625.jpeg';
+                          }}
+                        />
+                      ))}
+                    </div>
                     
-                    {/* RANGO DE PRECIOS */}
-                    <div className="space-y-1">
-                      {(destino.precioOfertaMin > 0 || destino.precioOfertaMax > 0) && (
+                    {/* Controles del carrusel */}
+                    {imagenes.length > 1 && (
+                      <>
+                        <button
+                          onClick={(e) => prevDestinoSlide(destino.id, e)}
+                          className="destino-carousel-btn absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/50"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={(e) => nextDestinoSlide(destino.id, e)}
+                          className="destino-carousel-btn absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/50"
+                        >
+                          <ChevronRightIcon className="h-4 w-4" />
+                        </button>
+                        
+                        {/* Indicadores */}
+                        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex gap-1">
+                          {imagenes.map((_, i) => (
+                            <button
+                              key={i}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDestinoSlides(prev => ({ ...prev, [destino.id]: i }));
+                              }}
+                              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                                i === slideIndex ? 'w-4 bg-amber-500' : 'bg-white/50 hover:bg-white'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                    
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <h3 className="text-2xl font-bold text-white mb-2">{destino.nombre}</h3>
+                      <p className="text-white/80 text-sm mb-3 line-clamp-2">{destino.descripcion}</p>
+                      
+                      {/* RANGO DE PRECIOS */}
+                      <div className="space-y-1">
+                        {(destino.precioOfertaMin > 0 || destino.precioOfertaMax > 0) && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-300 line-through text-sm">
+                              ${destino.precioMin} - ${destino.precioMax}
+                            </span>
+                            <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                              OFERTA
+                            </span>
+                          </div>
+                        )}
                         <div className="flex items-center gap-2">
-                          <span className="text-gray-300 line-through text-sm">
-                            ${destino.precioMin} - ${destino.precioMax}
+                          <span className="text-2xl font-bold text-amber-400">
+                            ${destino.precioOfertaMin || destino.precioMin}
                           </span>
-                          <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                            OFERTA
+                          <span className="text-white/60">-</span>
+                          <span className="text-2xl font-bold text-amber-400">
+                            ${destino.precioOfertaMax || destino.precioMax}
                           </span>
                         </div>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-amber-400">
-                          ${destino.precioOfertaMin || destino.precioMin}
-                        </span>
-                        <span className="text-white/60">-</span>
-                        <span className="text-2xl font-bold text-amber-400">
-                          ${destino.precioOfertaMax || destino.precioMax}
-                        </span>
                       </div>
                     </div>
+                    
+                    {destino.destacado && (
+                      <div className="absolute top-4 left-4">
+                        <span className="px-3 py-1 bg-amber-500 text-white rounded-full text-sm font-bold shadow-lg">
+                          ⭐ Destacado
+                        </span>
+                      </div>
+                    )}
+                    
+                    {(destino.precioOfertaMin > 0 || destino.precioOfertaMax > 0) && (
+                      <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                        -{Math.round(100 - ((destino.precioOfertaMin || destino.precioMin) / (destino.precioMin || 1) * 100))}%
+                      </div>
+                    )}
+                    
+                    {/* Texto indicador de que al hacer clic va al inicio de la sección */}
+                    <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs text-white/60">⬆️ Ir a sección</span>
+                    </div>
                   </div>
-                  
-                  {destino.destacado && (
-                    <div className="absolute top-4 left-4">
-                      <span className="px-3 py-1 bg-amber-500 text-white rounded-full text-sm font-bold shadow-lg">
-                        ⭐ Destacado
-                      </span>
-                    </div>
-                  )}
-                  
-                  {(destino.precioOfertaMin > 0 || destino.precioOfertaMax > 0) && (
-                    <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-                      -{Math.round(100 - ((destino.precioOfertaMin || destino.precioMin) / (destino.precioMin || 1) * 100))}%
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-12">

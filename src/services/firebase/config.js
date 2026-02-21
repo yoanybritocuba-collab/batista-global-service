@@ -3,14 +3,14 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-// ✅ VALORES DIRECTOS (NO variables de entorno)
+// ✅ API KEY CORRECTA desde Firebase Console
 const firebaseConfig = {
-  apiKey: "AIzaSyBvs3kM02lPJPmU0dUrXxSqLa5KFWaXH1E",
+  apiKey: "AIzaSyDFqig-6NozL6ALQh5klX15D-XIWIF8bnQ",
   authDomain: "batistaglobalservice.firebaseapp.com",
   projectId: "batistaglobalservice",
   storageBucket: "batistaglobalservice.firebasestorage.app",
-  messagingSenderId: "1066536738262",
-  appId: "1:1066536738262:web:b48439ef2de7551022812b"
+  messagingSenderId: "374616009302",
+  appId: "1:374616009302:web:79c76aa87515444e3969f7"
 };
 
 const app = initializeApp(firebaseConfig);
