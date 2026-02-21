@@ -3,9 +3,10 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
-// Tu configuración Firebase
+// Tu configuración Firebase con la NUEVA CLAVE DE API
+// IMPORTANTE: Reemplaza "AQUI_VA_TU_NUEVA_CLAVE" con la clave que generaste
 const firebaseConfig = {
-  apiKey: "AIzaSyDFqig-6NozL6ALQh5klX15D-XIWIF8bnQ",
+  apiKey: "AQUI_VA_TU_NUEVA_CLAVE", // 👈 PEGA AQUÍ LA NUEVA CLAVE
   authDomain: "batistaglobalservice.firebaseapp.com",
   projectId: "batistaglobalservice",
   storageBucket: "batistaglobalservice.firebasestorage.app",
@@ -19,7 +20,7 @@ const app = initializeApp(firebaseConfig);
 
 // Exportar servicios
 export const db = getFirestore(app);       // Firestore Database
-export const storage = getStorage(app);    // Cloud Storage - ¡DEBE ESTAR AQUÍ!
+export const storage = getStorage(app);    // Cloud Storage
 export const auth = getAuth(app);          // Authentication
 
 export default app;
