@@ -1,4 +1,4 @@
-ï»¿import React from 'react';
+import React from 'react';
 import { Package, Scale, Clock, MapPin, DollarSign, CheckCircle, XCircle, Truck, Globe, TrendingUp } from 'lucide-react';
 
 const ShippingDetail = ({ data, service }) => {
@@ -11,7 +11,7 @@ const ShippingDetail = ({ data, service }) => {
   const tarifas = shippingData.tarifas || [];
   const destinos = shippingData.destinos || [];
   const rangosPrecios = shippingData.rangosPrecios || { minimo: 15, maximo: 250 };
-  const tiempos = shippingData.tiempos || { nacional: '2-4 dÃ­as', internacional: '5-10 dÃ­as', express: '24-48h' };
+  const tiempos = shippingData.tiempos || { nacional: '2-4 días', internacional: '5-10 días', express: '24-48h' };
   const seguros = shippingData.seguros || [];
 
   return (

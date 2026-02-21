@@ -1,4 +1,4 @@
-Ôªøimport React from 'react';
+import React from 'react';
 import { 
   Globe, FileText, CheckCircle, Clock, 
   DollarSign, AlertCircle, Briefcase, 
@@ -14,9 +14,9 @@ const VisasDetail = ({ data, service }) => {
     requisitos: data?.requisitos || [],
     documentos: data?.documentos || [],
     tiempos: data?.tiempos || {
-      minimo: '5 d√≠as',
-      promedio: '15 d√≠as',
-      maximo: '30 d√≠as'
+      minimo: '5 dÌas',
+      promedio: '15 dÌas',
+      maximo: '30 dÌas'
     },
     rangosPrecios: {
       minima: data?.rangosPrecios?.minima || 120,
@@ -24,16 +24,16 @@ const VisasDetail = ({ data, service }) => {
       maxima: data?.rangosPrecios?.maxima || 350
     },
     procesos: data?.procesos || [
-      'Completar formulario en l√≠nea',
+      'Completar formulario en lÌnea',
       'Pagar arancel consular',
       'Agendar cita',
       'Entrevista personal',
-      'Esperar aprobaci√≥n'
+      'Esperar aprobaciÛn'
     ],
     advertencias: data?.advertencias || [
-      'Los tiempos pueden variar seg√∫n la temporada',
-      'No se garantiza la aprobaci√≥n de la visa',
-      'Recomendamos iniciar con 2 meses de anticipaci√≥n'
+      'Los tiempos pueden variar seg˙n la temporada',
+      'No se garantiza la aprobaciÛn de la visa',
+      'Recomendamos iniciar con 2 meses de anticipaciÛn'
     ]
   };
 
@@ -43,8 +43,8 @@ const VisasDetail = ({ data, service }) => {
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl p-8 shadow-xl">
         <div className="flex justify-between items-start">
           <div>
-            <h2 className="text-3xl font-bold mb-2">{service?.title || 'Tr√°mites de Visas'}</h2>
-            <p className="text-indigo-100 text-lg">{service?.subtitle || 'Asesor√≠a profesional'}</p>
+            <h2 className="text-3xl font-bold mb-2">{service?.title || 'Tr·mites de Visas'}</h2>
+            <p className="text-indigo-100 text-lg">{service?.subtitle || 'AsesorÌa profesional'}</p>
           </div>
           <div className="bg-white/20 backdrop-blur-sm rounded-xl px-6 py-3 text-center">
             <p className="text-sm opacity-90">Desde</p>
@@ -64,12 +64,12 @@ const VisasDetail = ({ data, service }) => {
           <div className="bg-green-50 rounded-xl p-5 text-center">
             <h4 className="font-bold text-lg mb-2">Turista</h4>
             <p className="text-3xl font-bold text-green-600 mb-2">${visaData.rangosPrecios.minima}</p>
-            <p className="text-sm text-gray-600">Estad√≠a corta</p>
+            <p className="text-sm text-gray-600">EstadÌa corta</p>
           </div>
           <div className="bg-amber-50 rounded-xl p-5 text-center">
             <h4 className="font-bold text-lg mb-2">Negocios</h4>
             <p className="text-3xl font-bold text-amber-600 mb-2">${visaData.rangosPrecios.promedio}</p>
-            <p className="text-sm text-gray-600">M√∫ltiples entradas</p>
+            <p className="text-sm text-gray-600">M˙ltiples entradas</p>
           </div>
           <div className="bg-purple-50 rounded-xl p-5 text-center">
             <h4 className="font-bold text-lg mb-2">Residencia</h4>
@@ -79,18 +79,18 @@ const VisasDetail = ({ data, service }) => {
         </div>
       </div>
 
-      {/* Pa√≠ses con tr√°mite disponible */}
+      {/* PaÌses con tr·mite disponible */}
       <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
         <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
           <Globe className="h-6 w-6 text-indigo-600" />
-          Pa√≠ses con tr√°mite disponible
+          PaÌses con tr·mite disponible
         </h3>
         
         {visaData.paises.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {visaData.paises.map((pais, idx) => {
-              // Determinar si el pa√≠s es un string simple o un objeto
-              const nombrePais = typeof pais === 'string' ? pais : pais.nombre || 'Pa√≠s';
+              // Determinar si el paÌs es un string simple o un objeto
+              const nombrePais = typeof pais === 'string' ? pais : pais.nombre || 'PaÌs';
               const precioPais = typeof pais === 'object' && pais.precio ? pais.precio : 130;
               const tipoPais = typeof pais === 'object' && pais.tipo ? pais.tipo : 'Turista';
               
@@ -110,7 +110,7 @@ const VisasDetail = ({ data, service }) => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Tiempo:</span>
-                      <span className="text-gray-800">15-20 d√≠as</span>
+                      <span className="text-gray-800">15-20 dÌas</span>
                     </div>
                   </div>
                 </div>
@@ -120,7 +120,7 @@ const VisasDetail = ({ data, service }) => {
         ) : (
           <div className="text-center py-8">
             <Globe className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No hay pa√≠ses configurados</p>
+            <p className="text-gray-500">No hay paÌses configurados</p>
           </div>
         )}
       </div>
@@ -129,7 +129,7 @@ const VisasDetail = ({ data, service }) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
           <Clock className="h-8 w-8 text-green-500 mb-3" />
-          <h4 className="font-bold text-gray-800">M√≠nimo</h4>
+          <h4 className="font-bold text-gray-800">MÌnimo</h4>
           <p className="text-2xl font-bold text-gray-900">{visaData.tiempos.minimo}</p>
         </div>
         <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
@@ -139,7 +139,7 @@ const VisasDetail = ({ data, service }) => {
         </div>
         <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
           <AlertCircle className="h-8 w-8 text-red-500 mb-3" />
-          <h4 className="font-bold text-gray-800">M√°ximo</h4>
+          <h4 className="font-bold text-gray-800">M·ximo</h4>
           <p className="text-2xl font-bold text-gray-900">{visaData.tiempos.maximo}</p>
         </div>
       </div>
@@ -189,12 +189,12 @@ const VisasDetail = ({ data, service }) => {
         <div className="bg-amber-50 rounded-2xl p-6 border border-amber-200">
           <h3 className="text-lg font-bold text-amber-800 mb-3 flex items-center gap-2">
             <AlertCircle className="h-5 w-5" />
-            Informaci√≥n importante
+            InformaciÛn importante
           </h3>
           <ul className="space-y-2">
             {visaData.advertencias.map((adv, idx) => (
               <li key={idx} className="flex items-start gap-2 text-amber-700">
-                <span className="text-lg font-bold">‚Ä¢</span>
+                <span className="text-lg font-bold">ï</span>
                 <span>{adv}</span>
               </li>
             ))}

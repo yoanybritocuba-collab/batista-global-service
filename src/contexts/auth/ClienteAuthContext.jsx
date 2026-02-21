@@ -3,12 +3,12 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  sendEmailVerification,
   onAuthStateChanged
 } from 'firebase/auth';
 import { auth, db } from '../../services/firebase/config';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
+import { limpiarCodigo } from '../../services/email/codigoService';
 
 const ClienteAuthContext = createContext();
 
@@ -24,26 +24,12 @@ export const ClienteAuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [emailPendiente, setEmailPendiente] = useState(null);
 
-  // Escuchar cambios en autenticación
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log('🔄 Auth state:', firebaseUser?.email || 'No user');
-      
       if (firebaseUser) {
         setUser(firebaseUser);
         
-        // Verificar emailVerified en cada cambio
-        if (firebaseUser.emailVerified) {
-          const userRef = doc(db, 'users', firebaseUser.uid);
-          await updateDoc(userRef, {
-            emailVerified: true,
-            updatedAt: new Date().toISOString()
-          });
-        }
-        
-        // Cargar datos de Firestore
         const docRef = doc(db, 'users', firebaseUser.uid);
         const docSnap = await getDoc(docRef);
         
@@ -60,41 +46,33 @@ export const ClienteAuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // ✅ REGISTRO CON VERIFICACIÓN OBLIGATORIA
+  // ✅ REGISTRO - AHORA CON EMAIL YA VERIFICADO
   const register = async (email, password, userData) => {
     try {
       // 1. Crear usuario en Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // 2. Guardar en Firestore
+      // 2. Guardar en Firestore (YA VERIFICADO por código)
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: user.email,
         name: userData.name,
         phone: userData.phone || '',
-        emailVerified: false,
+        emailVerified: true, // ✅ Ya verificamos con código
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
 
-      // 3. ENVIAR EMAIL DE VERIFICACIÓN
-      await sendEmailVerification(user, {
-        url: 'https://batistaglobalservice.web.app/cliente/login',
-        handleCodeInApp: true
-      });
-
-      // 4. Guardar email pendiente y cerrar sesión
-      setEmailPendiente(email);
+      // 3. Limpiar código temporal
+      limpiarCodigo(email);
+      
+      // 4. Cerrar sesión para que el usuario haga login manualmente
       await signOut(auth);
       
-      toast.success('✅ Revisa tu correo para verificar tu cuenta');
+      toast.success('✅ Cuenta creada exitosamente');
       
-      return { 
-        success: true, 
-        necesitaVerificacion: true,
-        email: email
-      };
+      return { success: true };
       
     } catch (error) {
       console.error('Error en registro:', error);
@@ -119,36 +97,11 @@ export const ClienteAuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ LOGIN - VERIFICA EMAIL
+  // ✅ LOGIN NORMAL
   const login = async (email, password) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
-      // VERIFICAR EMAIL
-      if (!user.emailVerified) {
-        // Reenviar email
-        await sendEmailVerification(user, {
-          url: 'https://batistaglobalservice.web.app/cliente/login',
-          handleCodeInApp: true
-        });
-        
-        await signOut(auth);
-        
-        toast.warning('❌ Debes verificar tu email. Hemos reenviado el código.');
-        return { 
-          success: false, 
-          necesitaVerificacion: true,
-          email: email
-        };
-      }
-      
-      // ACTUALIZAR FIRESTORE
-      const userRef = doc(db, 'users', user.uid);
-      await updateDoc(userRef, {
-        emailVerified: true,
-        updatedAt: new Date().toISOString()
-      });
       
       toast.success('✅ Bienvenido');
       return { success: true, user };
@@ -174,26 +127,6 @@ export const ClienteAuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ REENVIAR VERIFICACIÓN
-  const reenviarVerificacion = async () => {
-    if (!user) {
-      toast.error('No hay usuario para verificar');
-      return { success: false };
-    }
-    
-    try {
-      await sendEmailVerification(user, {
-        url: 'https://batistaglobalservice.web.app/cliente/login',
-        handleCodeInApp: true
-      });
-      toast.success('✅ Email de verificación reenviado');
-      return { success: true };
-    } catch (error) {
-      toast.error('Error al reenviar email');
-      return { success: false };
-    }
-  };
-
   const logout = async () => {
     try {
       await signOut(auth);
@@ -213,9 +146,7 @@ export const ClienteAuthProvider = ({ children }) => {
     register,
     login,
     logout,
-    reenviarVerificacion,
-    emailPendiente,
-    isAuthenticated: !!user && user.emailVerified
+    isAuthenticated: !!user
   };
 
   return (

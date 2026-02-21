@@ -1,4 +1,4 @@
-ï»¿import React from 'react';
+import React from 'react';
 import { 
   MapPin, Calendar, DollarSign, Star, Clock, 
   Users, Sun, Camera, Coffee, Ship, TreePine,
@@ -15,19 +15,19 @@ const ToursDetail = ({ data, service }) => {
   const ofertas = toursData.ofertas || [];
   const incluye = toursData.incluye || [
     'Transporte ida y vuelta',
-    'GuÃ­a profesional',
-    'Almuerzo tÃ­pico',
+    'Guía profesional',
+    'Almuerzo típico',
     'Seguro de viaje'
   ];
   const noIncluye = toursData.noIncluye || [
-    'Bebidas alcohÃ³licas',
-    'FotografÃ­as profesionales',
+    'Bebidas alcohólicas',
+    'Fotografías profesionales',
     'Propinas'
   ];
   const recomendaciones = toursData.recomendaciones || [
-    'Ropa cÃ³moda',
+    'Ropa cómoda',
     'Bloqueador solar',
-    'CÃ¡mara fotogrÃ¡fica'
+    'Cámara fotográfica'
   ];
   const rangosPrecios = toursData.rangosPrecios || {
     minimo: 79,
@@ -54,7 +54,7 @@ const ToursDetail = ({ data, service }) => {
         </div>
       </div>
 
-      {/* Destinos TurÃ­sticos */}
+      {/* Destinos Turísticos */}
       {destinos.length > 0 && (
         <div className="space-y-6">
           {destinos.map((destino, idx) => (
@@ -166,7 +166,7 @@ const ToursDetail = ({ data, service }) => {
         </div>
       )}
 
-      {/* QuÃ© incluye / No incluye */}
+      {/* Qué incluye / No incluye */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2">

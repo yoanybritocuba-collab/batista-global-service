@@ -33,7 +33,10 @@ import ClienteLogin from './pages/public/ClienteLogin';
 import ClientePerfil from './pages/public/ClientePerfil';
 import SearchResultsPage from './pages/public/SearchResultsPage';
 import RecuperarPassword from './pages/public/RecuperarPassword';
-import VerificacionCodigo from './pages/public/VerificacionCodigo';
+
+// ✅ NUEVAS IMPORTACIONES PARA EL REGISTRO POR CÓDIGO
+import RegistroPaso1 from './pages/public/RegistroPaso1';
+import RegistroPaso2 from './pages/public/RegistroPaso2';
 
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center h-64">
@@ -100,13 +103,16 @@ const AppRoutes = () => {
           </MainLayout>
         } />
 
+        {/* ✅ RUTAS DE REGISTRO POR CÓDIGO */}
+        <Route path="/registro" element={<RegistroPaso1 />} />
+        <Route path="/registro/paso2" element={<RegistroPaso2 />} />
+
         {/* LOGIN ADMIN */}
         <Route path="/admin-login" element={<AdminLogin />} />
 
         {/* RUTAS DE CLIENTE */}
         <Route path="/cliente/login" element={<ClienteLogin />} />
         <Route path="/recuperar-password" element={<RecuperarPassword />} />
-        <Route path="/verificacion-codigo" element={<VerificacionCodigo />} />
         
         <Route path="/cliente/perfil" element={
           <ProtectedClienteRoute>
