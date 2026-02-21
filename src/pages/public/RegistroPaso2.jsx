@@ -12,7 +12,6 @@ const RegistroPaso2 = () => {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [verificado, setVerificado] = useState(false);
   const [codigoValido, setCodigoValido] = useState(false);
   
   const { register } = useClienteAuth();
@@ -40,7 +39,6 @@ const RegistroPaso2 = () => {
     }
     
     // Resetear verificación cuando cambia el código
-    setVerificado(false);
     setCodigoValido(false);
   };
 
@@ -103,7 +101,7 @@ const RegistroPaso2 = () => {
       const result = await register(email, password, {
         name,
         phone,
-        emailVerified: true // Ya verificamos con código
+        emailVerified: true
       });
 
       if (result.success) {

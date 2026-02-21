@@ -34,7 +34,7 @@ import ClientePerfil from './pages/public/ClientePerfil';
 import SearchResultsPage from './pages/public/SearchResultsPage';
 import RecuperarPassword from './pages/public/RecuperarPassword';
 
-// ✅ NUEVAS IMPORTACIONES PARA EL REGISTRO POR CÓDIGO
+// ✅ NUEVAS IMPORTACIONES
 import RegistroPaso1 from './pages/public/RegistroPaso1';
 import RegistroPaso2 from './pages/public/RegistroPaso2';
 
