@@ -1,6 +1,6 @@
 import Fuse from 'fuse.js';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db } from '../firebase/config';  // 👈 RUTA CORREGIDA
 
 class SearchService {
   constructor() {
@@ -14,7 +14,7 @@ class SearchService {
         { name: 'tags', weight: 0.3 },
         { name: 'brand', weight: 0.4 }
       ],
-      threshold: 0.4, // Qué tan "difuso" es (0 = exacto, 1 = todo)
+      threshold: 0.4,
       ignoreLocation: true,
       findAllMatches: true,
       minMatchCharLength: 2,
@@ -30,7 +30,6 @@ class SearchService {
       this.products = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        // Normalizar texto para mejor búsqueda
         normalizedName: doc.data().name?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
         searchableText: this.generateSearchableText(doc.data())
       }));
@@ -45,7 +44,6 @@ class SearchService {
   }
 
   generateSearchableText(product) {
-    // Crear texto combinado para búsqueda
     const parts = [
       product.name,
       product.description,
@@ -62,8 +60,7 @@ class SearchService {
     }
 
     const results = this.fuse.search(query);
-    
-    // Mapear resultados con scores
+
     return results.slice(0, limit).map(result => ({
       ...result.item,
       score: result.score,
@@ -71,7 +68,6 @@ class SearchService {
     }));
   }
 
-  // Búsqueda con categorización
   searchByCategory(query, category) {
     const results = this.search(query);
     if (category && category !== 'all') {
@@ -80,7 +76,6 @@ class SearchService {
     return results;
   }
 
-  // Sugerencias en tiempo real
   getSuggestions(query, limit = 5) {
     const results = this.search(query, limit);
     return results.map(item => ({

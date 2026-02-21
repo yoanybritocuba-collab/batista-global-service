@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db } from '../../services/firebase/config';  // 👈 RUTA CORREGIDA
 
 export const useCategories = () => {
   const [categories, setCategories] = useState([]);
@@ -10,18 +10,18 @@ export const useCategories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        console.log('🔄 Buscando categorías...');
-        
+        console.log('🔍 Buscando categorías...');
+
         // PRIMERO: Intentar obtener categorías de la colección 'categories'
         const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-        
+
         if (!categoriesSnapshot.empty) {
           // SI EXISTEN categorías en Firestore, usarlas
           const categoriesList = [];
           categoriesSnapshot.forEach((doc) => {
             categoriesList.push({ id: doc.id, ...doc.data() });
           });
-          
+
           categoriesList.sort((a, b) => (a.order || 99) - (b.order || 99));
           console.log(`✅ Categorías de Firestore: ${categoriesList.length}`);
           setCategories([
@@ -35,7 +35,7 @@ export const useCategories = () => {
           console.log('🔍 Extrayendo categorías de productos existentes...');
           const productsSnapshot = await getDocs(collection(db, 'products'));
           const categoryMap = new Map();
-          
+
           productsSnapshot.forEach(doc => {
             const product = doc.data();
             if (product.category && typeof product.category === 'string') {
@@ -52,7 +52,7 @@ export const useCategories = () => {
               }
             }
           });
-          
+
           // Convertir a array y ordenar por cantidad de productos
           const categoriesFromProducts = Array.from(categoryMap.values())
             .sort((a, b) => b.count - a.count)
@@ -62,9 +62,9 @@ export const useCategories = () => {
               slug: cat.slug,
               icon: getIconForCategory(cat.id)
             }));
-          
+
           console.log(`✅ Categorías extraídas de productos: ${categoriesFromProducts.length}`);
-          
+
           // Añadir categorías especiales al inicio
           setCategories([
             { id: 'all', name: 'Todos', slug: 'all', icon: '📦' },
@@ -106,7 +106,7 @@ const getIconForCategory = (category) => {
     'toys': '🧸',
     'beauty': '💄',
     'food': '🍎',
-    'drinks': '🍹',
+    'drinks': '🥤',
     'default': '📦'
   };
   return iconMap[category] || iconMap.default;

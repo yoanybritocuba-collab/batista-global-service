@@ -11,7 +11,7 @@ import {
   where,
   serverTimestamp 
 } from "firebase/firestore";
-import { db } from "./firebase/firebaseConfig";
+import { db } from "./firebase/config";  // 👈 RUTA CORREGIDA
 
 const ORDERS_COLLECTION = "orders";
 
@@ -82,7 +82,7 @@ export const getOrderById = async (orderId) => {
   try {
     const orderRef = doc(db, ORDERS_COLLECTION, orderId);
     const orderSnap = await getDoc(orderRef);
-    
+
     if (orderSnap.exists()) {
       return { success: true, data: { id: orderSnap.id, ...orderSnap.data() } };
     } else {
@@ -98,18 +98,18 @@ export const getOrderById = async (orderId) => {
 export const createOrder = async (orderData) => {
   try {
     const timestamp = serverTimestamp();
-    
+
     const orderToSave = {
       ...orderData,
       createdAt: timestamp,
       updatedAt: timestamp,
       status: orderData.status || "pending"
     };
-    
+
     const docRef = await addDoc(collection(db, ORDERS_COLLECTION), orderToSave);
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       data: { id: docRef.id, ...orderToSave },
       message: "Orden creada exitosamente"
     };
@@ -123,14 +123,14 @@ export const createOrder = async (orderData) => {
 export const updateOrderStatus = async (orderId, status) => {
   try {
     const orderRef = doc(db, ORDERS_COLLECTION, orderId);
-    
+
     await updateDoc(orderRef, {
       status: status,
       updatedAt: serverTimestamp()
     });
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       message: "Estado de orden actualizado"
     };
   } catch (error) {
@@ -145,12 +145,12 @@ export const getOrdersByStatus = async (status) => {
     const ordersRef = collection(db, ORDERS_COLLECTION);
     const q = query(ordersRef, where("status", "==", status), orderBy("createdAt", "desc"));
     const querySnapshot = await getDocs(q);
-    
+
     const orders = [];
     querySnapshot.forEach((doc) => {
       orders.push({ id: doc.id, ...doc.data() });
     });
-    
+
     return { success: true, data: orders };
   } catch (error) {
     console.error("Error getting orders by status:", error);

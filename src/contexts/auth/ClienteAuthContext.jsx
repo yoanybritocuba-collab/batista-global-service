@@ -3,12 +3,12 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  sendEmailVerification,
   onAuthStateChanged
 } from 'firebase/auth';
 import { auth, db } from '../../services/firebase/config';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
-import { generarCodigo, guardarCodigo, verificarCodigo } from '../../services/email/codigoService';
 
 const ClienteAuthContext = createContext();
 
@@ -26,11 +26,24 @@ export const ClienteAuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [emailPendiente, setEmailPendiente] = useState(null);
 
+  // Escuchar cambios en autenticación
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('🔄 Auth state:', firebaseUser?.email || 'No user');
+      
       if (firebaseUser) {
         setUser(firebaseUser);
         
+        // Verificar emailVerified en cada cambio
+        if (firebaseUser.emailVerified) {
+          const userRef = doc(db, 'users', firebaseUser.uid);
+          await updateDoc(userRef, {
+            emailVerified: true,
+            updatedAt: new Date().toISOString()
+          });
+        }
+        
+        // Cargar datos de Firestore
         const docRef = doc(db, 'users', firebaseUser.uid);
         const docSnap = await getDoc(docRef);
         
@@ -47,20 +60,35 @@ export const ClienteAuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // REGISTRO - Guarda email pendiente y genera código
+  // ✅ REGISTRO CON VERIFICACIÓN OBLIGATORIA
   const register = async (email, password, userData) => {
     try {
-      // Guardar email pendiente
+      // 1. Crear usuario en Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // 2. Guardar en Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        email: user.email,
+        name: userData.name,
+        phone: userData.phone || '',
+        emailVerified: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+
+      // 3. ENVIAR EMAIL DE VERIFICACIÓN
+      await sendEmailVerification(user, {
+        url: 'https://batistaglobalservice.web.app/cliente/login',
+        handleCodeInApp: true
+      });
+
+      // 4. Guardar email pendiente y cerrar sesión
       setEmailPendiente(email);
+      await signOut(auth);
       
-      // Generar código de verificación
-      const codigo = generarCodigo();
-      guardarCodigo(email, codigo);
-      
-      // Mostrar alerta con el código (para pruebas)
-      alert(`🔑 CÓDIGO DE VERIFICACIÓN: ${codigo}\n\nGuárdalo para activar tu cuenta.`);
-      
-      toast.success('✅ Código generado. Ve a "Verificar Código" para activar tu cuenta.');
+      toast.success('✅ Revisa tu correo para verificar tu cuenta');
       
       return { 
         success: true, 
@@ -70,60 +98,99 @@ export const ClienteAuthProvider = ({ children }) => {
       
     } catch (error) {
       console.error('Error en registro:', error);
-      toast.error('Error al registrar');
-      return { success: false, error: error.message };
-    }
-  };
-
-  // VERIFICAR CÓDIGO Y CREAR USUARIO EN FIREBASE
-  const verificarYCompletarRegistro = async (email, password, codigo, userData) => {
-    try {
-      // Verificar código
-      const resultado = verificarCodigo(email, codigo);
+      let errorMessage = 'Error al registrarse';
       
-      if (!resultado.valido) {
-        toast.error(resultado.error);
-        return { success: false, error: resultado.error };
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'Este email ya está registrado';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Email inválido';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+          break;
+        default:
+          errorMessage = error.message;
       }
       
-      // Código válido - CREAR USUARIO EN FIREBASE
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
-      // Guardar en Firestore
-      await setDoc(doc(db, 'users', user.uid), {
-        uid: user.uid,
-        email: user.email,
-        name: userData.name,
-        phone: userData.phone || '',
-        emailVerified: true, // Ya verificamos con código
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
-      
-      setEmailPendiente(null);
-      toast.success('✅ Cuenta activada correctamente');
-      
-      return { success: true, user };
-      
-    } catch (error) {
-      console.error('Error activando cuenta:', error);
-      toast.error('Error al activar la cuenta');
-      return { success: false, error: error.message };
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 
-  // LOGIN
+  // ✅ LOGIN - VERIFICA EMAIL
   const login = async (email, password) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // VERIFICAR EMAIL
+      if (!user.emailVerified) {
+        // Reenviar email
+        await sendEmailVerification(user, {
+          url: 'https://batistaglobalservice.web.app/cliente/login',
+          handleCodeInApp: true
+        });
+        
+        await signOut(auth);
+        
+        toast.warning('❌ Debes verificar tu email. Hemos reenviado el código.');
+        return { 
+          success: false, 
+          necesitaVerificacion: true,
+          email: email
+        };
+      }
+      
+      // ACTUALIZAR FIRESTORE
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        emailVerified: true,
+        updatedAt: new Date().toISOString()
+      });
+      
       toast.success('✅ Bienvenido');
-      return { success: true, user: userCredential.user };
+      return { success: true, user };
       
     } catch (error) {
       console.error('Error en login:', error);
-      toast.error('Credenciales incorrectas');
-      return { success: false, error: error.message };
+      let errorMessage = 'Error al iniciar sesión';
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'Usuario no encontrado';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Contraseña incorrecta';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Demasiados intentos. Intenta más tarde';
+          break;
+        default:
+          errorMessage = error.message;
+      }
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  // ✅ REENVIAR VERIFICACIÓN
+  const reenviarVerificacion = async () => {
+    if (!user) {
+      toast.error('No hay usuario para verificar');
+      return { success: false };
+    }
+    
+    try {
+      await sendEmailVerification(user, {
+        url: 'https://batistaglobalservice.web.app/cliente/login',
+        handleCodeInApp: true
+      });
+      toast.success('✅ Email de verificación reenviado');
+      return { success: true };
+    } catch (error) {
+      toast.error('Error al reenviar email');
+      return { success: false };
     }
   };
 
@@ -146,9 +213,9 @@ export const ClienteAuthProvider = ({ children }) => {
     register,
     login,
     logout,
-    verificarYCompletarRegistro,
+    reenviarVerificacion,
     emailPendiente,
-    isAuthenticated: !!user
+    isAuthenticated: !!user && user.emailVerified
   };
 
   return (
