@@ -39,12 +39,12 @@ const Header = () => {
   return (
     <>
       {/* Espaciador para que el contenido no quede debajo del header */}
-      <div className="h-20 lg:h-24"></div>
+      <div className="h-24 lg:h-28"></div>
       
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-gradient-to-r from-gray-900 to-black shadow-lg py-3' 
-          : 'bg-gradient-to-r from-black to-gray-900 py-5'
+          ? 'bg-gradient-to-r from-gray-900 to-black shadow-lg py-6' 
+          : 'bg-gradient-to-r from-black to-gray-900 py-8'
       }`}>
         <div className="w-full px-6 lg:px-8">
           <div className="flex items-center justify-between">
