@@ -23,7 +23,7 @@ import {
   Dog, Cat, Bird, Fish
 } from 'lucide-react';
 
-// Componente de WhatsApp flotante (se importa pero lo moveremos más arriba)
+// Componente de WhatsApp flotante
 import WhatsAppButton from '../../components/ui/WhatsAppButton';
 
 const HomeFixed = () => {
@@ -36,7 +36,7 @@ const HomeFixed = () => {
   const [visibleSections, setVisibleSections] = useState({});
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
-  const [destinoSlides, setDestinoSlides] = useState({}); // Para manejar slides de cada destino
+  const [destinoSlides, setDestinoSlides] = useState({});
   const sectionRefs = useRef({});
   const autoPlayRef = useRef();
 
@@ -69,7 +69,6 @@ const HomeFixed = () => {
       console.log('Destinos activos cargados:', activos);
       setDestinosActivos(activos);
       
-      // Inicializar slides para cada destino
       const slides = {};
       activos.forEach(destino => {
         slides[destino.id] = 0;
@@ -114,11 +113,9 @@ const HomeFixed = () => {
   };
 
   const handleDestinoClick = (destinoId, e) => {
-    // Prevenir si se hizo clic en un botón de navegación del carrusel
     if (e.target.closest('.destino-carousel-btn')) {
       return;
     }
-    // Scroll suave al inicio de la sección de destinos
     sectionRefs.current.destinos?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -140,17 +137,13 @@ const HomeFixed = () => {
     return `/images/${imageUrl}`;
   };
 
-  // Función para obtener imágenes de un destino (simulando múltiples fotos)
   const getDestinoImages = (destino) => {
-    // Si el destino ya tiene un array de imágenes, úsalo
     if (destino.imagenes && Array.isArray(destino.imagenes) && destino.imagenes.length > 0) {
       return destino.imagenes;
     }
     
-    // Si tiene una sola imagen, creamos un array con esa imagen y algunas de respaldo
     const imagenes = [destino.imagen];
     
-    // Agregar algunas imágenes de respaldo para simular un carrusel
     const imagenesRespaldo = [
       'https://images.pexels.com/photos/1285625/pexels-photo-1285625.jpeg',
       'https://images.pexels.com/photos/1533720/pexels-photo-1533720.jpeg',
@@ -158,7 +151,6 @@ const HomeFixed = () => {
       'https://images.pexels.com/photos/3581363/pexels-photo-3581363.jpeg'
     ];
     
-    // Mezclamos para que no sean siempre las mismas
     return [...imagenes, ...imagenesRespaldo.slice(0, 3)];
   };
 
@@ -284,14 +276,13 @@ const HomeFixed = () => {
   return (
     <div className="min-h-screen bg-white overflow-hidden pt-20">
       
-      {/* ===== WHATSAPP BUTTON - AHORA MÁS ARRIBA (1 pulgada ≈ 96px) ===== */}
+      {/* ===== WHATSAPP BUTTON ===== */}
       <div className="fixed z-50" style={{ bottom: '96px', right: '24px' }}>
         <WhatsAppButton />
       </div>
       
-      {/* ===== HERO SECTION CON TUS IMÁGENES LOCALES ===== */}
+      {/* ===== HERO SECTION ===== */}
       <section className="relative h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden">
-        {/* Carrusel con tus imágenes */}
         <div className="absolute inset-0">
           {heroImages.map((image, index) => (
             <div
@@ -307,7 +298,7 @@ const HomeFixed = () => {
                 onError={(e) => {
                   console.log('Error cargando imagen:', image.url);
                   e.target.onerror = null;
-                  e.target.src = '/images/hero1.png'; // Fallback a hero1.png
+                  e.target.src = '/images/hero1.png';
                 }}
               />
             </div>
@@ -315,7 +306,6 @@ const HomeFixed = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/60"></div>
         </div>
 
-        {/* Controles del carrusel */}
         <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20">
           <ChevronLeft className="h-6 w-6" />
         </button>
@@ -323,7 +313,6 @@ const HomeFixed = () => {
           <ChevronRightIcon className="h-6 w-6" />
         </button>
 
-        {/* Indicadores */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
           {heroImages.map((_, index) => (
             <button
@@ -336,7 +325,6 @@ const HomeFixed = () => {
           ))}
         </div>
 
-        {/* Autoplay */}
         <button
           onClick={() => setIsAutoPlay(!isAutoPlay)}
           className="absolute bottom-8 right-8 z-20 w-8 h-8 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20"
@@ -344,7 +332,6 @@ const HomeFixed = () => {
           {isAutoPlay ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         </button>
 
-        {/* Título */}
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4">
@@ -439,7 +426,6 @@ const HomeFixed = () => {
                     }`}
                     style={{ transitionDelay: `${index * 150}ms` }}
                   >
-                    {/* Carrusel de imágenes */}
                     <div className="absolute inset-0">
                       {imagenes.map((img, imgIndex) => (
                         <img
@@ -458,7 +444,6 @@ const HomeFixed = () => {
                       ))}
                     </div>
                     
-                    {/* Controles del carrusel */}
                     {imagenes.length > 1 && (
                       <>
                         <button
@@ -474,8 +459,8 @@ const HomeFixed = () => {
                           <ChevronRightIcon className="h-4 w-4" />
                         </button>
                         
-                        {/* Indicadores */}
-                        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex gap-1">
+                        {/* ✅ INDICADORES - MÁS PEQUEÑOS Y REPOSICIONADOS */}
+                        <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
                           {imagenes.map((_, i) => (
                             <button
                               key={i}
@@ -483,8 +468,10 @@ const HomeFixed = () => {
                                 e.stopPropagation();
                                 setDestinoSlides(prev => ({ ...prev, [destino.id]: i }));
                               }}
-                              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                                i === slideIndex ? 'w-4 bg-amber-500' : 'bg-white/50 hover:bg-white'
+                              className={`rounded-full transition-all duration-300 ${
+                                i === slideIndex 
+                                  ? 'w-3 h-1.5 bg-amber-500' 
+                                  : 'w-1.5 h-1.5 bg-white/70 hover:bg-white'
                               }`}
                             />
                           ))}
@@ -498,7 +485,6 @@ const HomeFixed = () => {
                       <h3 className="text-2xl font-bold text-white mb-2">{destino.nombre}</h3>
                       <p className="text-white/80 text-sm mb-3 line-clamp-2">{destino.descripcion}</p>
                       
-                      {/* RANGO DE PRECIOS */}
                       <div className="space-y-1">
                         {(destino.precioOfertaMin > 0 || destino.precioOfertaMax > 0) && (
                           <div className="flex items-center gap-2">
@@ -536,7 +522,6 @@ const HomeFixed = () => {
                       </div>
                     )}
                     
-                    {/* Texto indicador de que al hacer clic va al inicio de la sección */}
                     <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <span className="text-xs text-white/60">⬆️ Ir a sección</span>
                     </div>
