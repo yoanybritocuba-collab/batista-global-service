@@ -183,9 +183,11 @@ const AdminDestinos = () => {
 
       if (editingId) {
         await updateDestino(editingId, destinoData);
+        await loadDestinos(); // ✅ FORZAR RECARGA
         toast.success('✅ Destino actualizado');
       } else {
         await addDestino(destinoData);
+        await loadDestinos(); // ✅ FORZAR RECARGA
         toast.success('✅ Destino agregado');
       }
 
@@ -221,6 +223,7 @@ const AdminDestinos = () => {
   const handleDelete = async (id) => {
     if (window.confirm('¿Estás seguro de eliminar este destino?')) {
       await deleteDestino(id);
+      await loadDestinos(); // ✅ FORZAR RECARGA
     }
   };
 
@@ -229,6 +232,7 @@ const AdminDestinos = () => {
       ...destino,
       activo: !destino.activo
     });
+    await loadDestinos(); // ✅ FORZAR RECARGA
   };
 
   const resetForm = () => {
