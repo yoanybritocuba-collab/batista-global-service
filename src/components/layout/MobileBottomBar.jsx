@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/cart/CartContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useClienteAuth } from '../../contexts/auth/ClienteAuthContext';
-import { Home, Search, ShoppingCart, User, X, LogOut, UserCircle, Heart, Shield, ArrowLeft } from 'lucide-react';
+import { Home, Search, ShoppingCart, User, X, LogOut, UserCircle, Heart } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const MobileBottomBar = () => {
@@ -44,19 +44,9 @@ const MobileBottomBar = () => {
     setShowUserMenu(false);
   };
 
-  const goBack = () => {
-    navigate(-1);
-    setShowUserMenu(false);
-  };
-
-  const goToAdmin = () => {
-    navigate('/admin-login');
-    setShowUserMenu(false);
-  };
-
   return (
     <>
-      {/* BARRA INFERIOR FLOTANTE */}
+      {/* BARRA INFERIOR FLOTANTE - VERSIÓN SIMPLIFICADA */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-lg border-t border-amber-400/20 shadow-2xl">
         <div className="flex items-center justify-around px-2 py-2">
 
@@ -69,15 +59,6 @@ const MobileBottomBar = () => {
             <span className="text-[10px] mt-0.5">Inicio</span>
           </button>
 
-          {/* ATRÁS */}
-          <button
-            onClick={goBack}
-            className="flex flex-col items-center justify-center p-2 text-white/80 hover:text-amber-400 transition-colors" 
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Atrás</span>
-          </button>
-
           {/* BUSCADOR */}
           <button
             onClick={() => setShowSearch(true)}
@@ -85,16 +66,6 @@ const MobileBottomBar = () => {
           >
             <Search className="w-5 h-5" />
             <span className="text-[10px] mt-0.5">{t('buscar')}</span>
-          </button>
-
-          {/* ADMIN */}
-          <button
-            onClick={goToAdmin}
-            className="flex flex-col items-center justify-center p-2 text-amber-400 hover:text-amber-300 transition-colors relative"
-          >
-            <Shield className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Admin</span>
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
           </button>
 
           {/* CARRITO */}
