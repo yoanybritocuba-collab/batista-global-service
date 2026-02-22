@@ -3,7 +3,7 @@ import {
   Hotel, MapPin, Star, Wifi, Coffee, Users, 
   Calendar, DollarSign, Sparkles, CheckCircle,
   Waves, Utensils, Car, Dumbbell, Briefcase,
-  TrendingUp, Sun, Moon
+  TrendingUp, Sun, Moon, Clock  // ← CLOCK AGREGADO AQUÍ
 } from 'lucide-react';
 
 const HotelsDetail = ({ data, service }) => {
@@ -69,22 +69,22 @@ const HotelsDetail = ({ data, service }) => {
           <div className="bg-green-50 rounded-xl p-4 text-center">
             <Hotel className="h-8 w-8 mx-auto text-green-600 mb-2" />
             <h4 className="font-semibold">Económico</h4>
-            <p className="text-2xl font-bold text-green-600">$${hotelsData.rangosPrecios.economico}</p>
+            <p className="text-2xl font-bold text-green-600">${hotelsData.rangosPrecios.economico}</p>
           </div>
           <div className="bg-amber-50 rounded-xl p-4 text-center">
             <Hotel className="h-8 w-8 mx-auto text-amber-600 mb-2" />
             <h4 className="font-semibold">3 Estrellas</h4>
-            <p className="text-2xl font-bold text-amber-600">$${hotelsData.rangosPrecios.intermedio}</p>
+            <p className="text-2xl font-bold text-amber-600">${hotelsData.rangosPrecios.intermedio}</p>
           </div>
           <div className="bg-orange-50 rounded-xl p-4 text-center">
             <Hotel className="h-8 w-8 mx-auto text-orange-600 mb-2" />
             <h4 className="font-semibold">4 Estrellas</h4>
-            <p className="text-2xl font-bold text-orange-600">$${hotelsData.rangosPrecios.premium}</p>
+            <p className="text-2xl font-bold text-orange-600">${hotelsData.rangosPrecios.premium}</p>
           </div>
           <div className="bg-purple-50 rounded-xl p-4 text-center">
             <Hotel className="h-8 w-8 mx-auto text-purple-600 mb-2" />
             <h4 className="font-semibold">5 Estrellas</h4>
-            <p className="text-2xl font-bold text-purple-600">$${hotelsData.rangosPrecios.lujo}</p>
+            <p className="text-2xl font-bold text-purple-600">${hotelsData.rangosPrecios.lujo}</p>
           </div>
         </div>
       </div>

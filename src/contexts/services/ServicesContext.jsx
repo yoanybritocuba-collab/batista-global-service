@@ -37,10 +37,18 @@ export const ServicesProvider = ({ children }) => {
       }));
       setServices(servicesData);
       console.log('✅ Servicios cargados:', servicesData.length);
+      
+      // Si no hay servicios, solo informar, no es un error crítico
+      if (servicesData.length === 0) {
+        console.log('ℹ️ No hay servicios en Firebase');
+      }
     } catch (err) {
       console.error('❌ Error cargando servicios:', err);
       setError('Error al cargar los servicios');
-      toast.error('Error al cargar servicios');
+      // Solo mostrar toast en desarrollo para evitar molestias al usuario
+      if (process.env.NODE_ENV === 'development') {
+        toast.error('Error al cargar servicios');
+      }
     } finally {
       setLoading(false);
     }
