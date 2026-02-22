@@ -39,6 +39,7 @@ const HomeFixed = () => {
   const [destinoSlides, setDestinoSlides] = useState({});
   const sectionRefs = useRef({});
   const autoPlayRef = useRef();
+  const destinoAutoPlayRef = useRef({});
 
   // ===== TUS IMÁGENES LOCALES PARA EL CARRUSEL PRINCIPAL =====
   const heroImages = [
@@ -77,6 +78,7 @@ const HomeFixed = () => {
     }
   }, [destinos]);
 
+  // Auto-play para el carrusel principal
   useEffect(() => {
     if (isAutoPlay) {
       autoPlayRef.current = setInterval(() => {
@@ -85,6 +87,34 @@ const HomeFixed = () => {
     }
     return () => clearInterval(autoPlayRef.current);
   }, [isAutoPlay, heroImages.length]);
+
+  // Auto-play para cada destino
+  useEffect(() => {
+    // Limpiar intervalos anteriores
+    Object.values(destinoAutoPlayRef.current).forEach(clearInterval);
+    
+    // Crear nuevos intervalos para cada destino
+    destinosActivos.forEach(destino => {
+      const imagenes = getDestinoImages(destino);
+      if (imagenes.length > 1) {
+        const interval = setInterval(() => {
+          setDestinoSlides(prev => {
+            const currentSlide = prev[destino.id] || 0;
+            return {
+              ...prev,
+              [destino.id]: (currentSlide + 1) % imagenes.length
+            };
+          });
+        }, 4000); // Cambia cada 4 segundos
+        
+        destinoAutoPlayRef.current[destino.id] = interval;
+      }
+    });
+    
+    return () => {
+      Object.values(destinoAutoPlayRef.current).forEach(clearInterval);
+    };
+  }, [destinosActivos]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -109,13 +139,16 @@ const HomeFixed = () => {
   }, []);
 
   const handleServiceClick = (serviceId) => {
-    navigate(`/servicio/${serviceId}`);
+    // Scroll suave al inicio de la sección de servicios
+    sectionRefs.current.services?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Navegar después de un pequeño delay
+    setTimeout(() => {
+      navigate(`/servicio/${serviceId}`);
+    }, 300);
   };
 
   const handleDestinoClick = (destinoId, e) => {
-    if (e.target.closest('.destino-carousel-btn')) {
-      return;
-    }
+    // Scroll suave al inicio de la sección de destinos
     sectionRefs.current.destinos?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -152,24 +185,6 @@ const HomeFixed = () => {
     ];
     
     return [...imagenes, ...imagenesRespaldo.slice(0, 3)];
-  };
-
-  const nextDestinoSlide = (destinoId, e) => {
-    e.stopPropagation();
-    const imagenes = getDestinoImages(destinosActivos.find(d => d.id === destinoId));
-    setDestinoSlides(prev => ({
-      ...prev,
-      [destinoId]: (prev[destinoId] + 1) % imagenes.length
-    }));
-  };
-
-  const prevDestinoSlide = (destinoId, e) => {
-    e.stopPropagation();
-    const imagenes = getDestinoImages(destinosActivos.find(d => d.id === destinoId));
-    setDestinoSlides(prev => ({
-      ...prev,
-      [destinoId]: (prev[destinoId] - 1 + imagenes.length) % imagenes.length
-    }));
   };
 
   const nextSlide = () => {
@@ -211,66 +226,6 @@ const HomeFixed = () => {
     { icon: Crown, titulo: 'Servicio premium', desc: 'Atención personalizada' },
     { icon: Rocket, titulo: 'Envíos rápidos', desc: 'Entrega exprés' },
     { icon: Gift, titulo: 'Ofertas exclusivas', desc: 'Promociones especiales' }
-  ];
-
-  const categorias = [
-    { nombre: 'Electrónica', icon: Laptop, color: 'blue', count: 45 },
-    { nombre: 'Moda', icon: Watch, color: 'pink', count: 67 },
-    { nombre: 'Hogar', icon: Speaker, color: 'green', count: 34 },
-    { nombre: 'Deportes', icon: Gamepad, color: 'orange', count: 23 },
-    { nombre: 'Juguetes', icon: Gift, color: 'purple', count: 41 },
-    { nombre: 'Libros', icon: Book, color: 'amber', count: 19 },
-    { nombre: 'Belleza', icon: Droplet, color: 'red', count: 28 },
-    { nombre: 'Mascotas', icon: Dog, color: 'emerald', count: 15 }
-  ];
-
-  const productosDestacados = [
-    { nombre: 'Smartphone X Pro', precio: '$899', imagen: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800', rating: 4.8 },
-    { nombre: 'Laptop Ultra', precio: '$1,299', imagen: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800', rating: 4.9 },
-    { nombre: 'Audífonos Premium', precio: '$199', imagen: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800', rating: 4.7 },
-    { nombre: 'Smartwatch Pro', precio: '$349', imagen: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800', rating: 4.6 },
-    { nombre: 'Tablet Plus', precio: '$499', imagen: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800', rating: 4.8 },
-    { nombre: 'Cámara 4K', precio: '$799', imagen: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800', rating: 4.9 }
-  ];
-
-  const ofertas = [
-    { titulo: 'Cyber Monday', descuento: '30%', valido: '30 Nov', productos: 120 },
-    { titulo: 'Black Friday', descuento: '50%', valido: '24 Nov', productos: 200 },
-    { titulo: 'Navidad', descuento: '25%', valido: '25 Dic', productos: 150 },
-    { titulo: 'Año Nuevo', descuento: '20%', valido: '1 Ene', productos: 100 },
-    { titulo: 'Día del Padre', descuento: '15%', valido: '19 Mar', productos: 80 },
-    { titulo: 'Día de la Madre', descuento: '15%', valido: '10 May', productos: 90 }
-  ];
-
-  const marcas = [
-    { nombre: 'Apple', logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg' },
-    { nombre: 'Samsung', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg' },
-    { nombre: 'Sony', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/ca/Sony_logo.svg' },
-    { nombre: 'LG', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/20/LG_symbol.svg' },
-    { nombre: 'Nike', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg' },
-    { nombre: 'Adidas', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Adidas_Logo.svg' }
-  ];
-
-  const equipo = [
-    { nombre: 'Juan Pérez', cargo: 'CEO', avatar: 'https://randomuser.me/api/portraits/men/1.jpg' },
-    { nombre: 'María García', cargo: 'Directora Comercial', avatar: 'https://randomuser.me/api/portraits/women/2.jpg' },
-    { nombre: 'Carlos López', cargo: 'Gerente de Operaciones', avatar: 'https://randomuser.me/api/portraits/men/3.jpg' },
-    { nombre: 'Ana Rodríguez', cargo: 'Atención al Cliente', avatar: 'https://randomuser.me/api/portraits/women/4.jpg' }
-  ];
-
-  const faqs = [
-    { pregunta: '¿Cómo puedo rastrear mi envío?', respuesta: 'Puedes rastrear tu envío desde tu perfil en la sección "Mis Pedidos" o usando el código de seguimiento que recibiste por email.' },
-    { pregunta: '¿Cuánto tiempo tarda un envío internacional?', respuesta: 'Los tiempos varían según el destino, pero generalmente entre 5-10 días hábiles.' },
-    { pregunta: '¿Qué métodos de pago aceptan?', respuesta: 'Aceptamos todas las tarjetas de crédito/débito, PayPal y transferencias bancarias.' },
-    { pregunta: '¿Puedo cancelar mi pedido?', respuesta: 'Sí, puedes cancelar hasta 24 horas después de realizado el pedido.' },
-    { pregunta: '¿Ofrecen envíos gratis?', respuesta: 'Sí, para compras superiores a $50 tenemos envío gratis.' },
-    { pregunta: '¿Cómo contactar a soporte?', respuesta: 'Puedes contactarnos por WhatsApp, email o teléfono 24/7.' }
-  ];
-
-  const blogPosts = [
-    { titulo: 'Consejos para viajar seguro', imagen: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800', fecha: '15 Feb 2026', autor: 'María' },
-    { titulo: 'Guía de envíos internacionales', imagen: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800', fecha: '10 Feb 2026', autor: 'Carlos' },
-    { titulo: 'Destinos imperdibles en 2026', imagen: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800', fecha: '5 Feb 2026', autor: 'Ana' }
   ];
 
   return (
@@ -403,7 +358,7 @@ const HomeFixed = () => {
         </div>
       </section>
 
-      {/* ===== DESTINOS POPULARES CON CARRUSEL ===== */}
+      {/* ===== DESTINOS POPULARES CON CARRUSEL AUTOMÁTICO ===== */}
       <section id="destinos" ref={el => sectionRefs.current.destinos = el} className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -432,7 +387,7 @@ const HomeFixed = () => {
                           key={imgIndex}
                           src={img}
                           alt={`${destino.nombre} - Imagen ${imgIndex + 1}`}
-                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
                             imgIndex === slideIndex ? 'opacity-100' : 'opacity-0'
                           }`}
                           onError={(e) => {
@@ -444,39 +399,20 @@ const HomeFixed = () => {
                       ))}
                     </div>
                     
+                    {/* ✅ SIN BOTONES DE NAVEGACIÓN - SOLO INDICADORES SUTILES */}
                     {imagenes.length > 1 && (
-                      <>
-                        <button
-                          onClick={(e) => prevDestinoSlide(destino.id, e)}
-                          className="destino-carousel-btn absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/50"
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={(e) => nextDestinoSlide(destino.id, e)}
-                          className="destino-carousel-btn absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/50"
-                        >
-                          <ChevronRightIcon className="h-4 w-4" />
-                        </button>
-                        
-                        {/* ✅ INDICADORES - MÁS PEQUEÑOS Y REPOSICIONADOS */}
-                        <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
-                          {imagenes.map((_, i) => (
-                            <button
-                              key={i}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setDestinoSlides(prev => ({ ...prev, [destino.id]: i }));
-                              }}
-                              className={`rounded-full transition-all duration-300 ${
-                                i === slideIndex 
-                                  ? 'w-3 h-1.5 bg-amber-500' 
-                                  : 'w-1.5 h-1.5 bg-white/70 hover:bg-white'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </>
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-1">
+                        {imagenes.map((_, i) => (
+                          <div
+                            key={i}
+                            className={`rounded-full transition-all duration-300 ${
+                              i === slideIndex 
+                                ? 'w-2 h-0.5 bg-amber-400/70' 
+                                : 'w-1 h-0.5 bg-white/40'
+                            }`}
+                          />
+                        ))}
+                      </div>
                     )}
                     
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -521,10 +457,6 @@ const HomeFixed = () => {
                         -{Math.round(100 - ((destino.precioOfertaMin || destino.precioMin) / (destino.precioMin || 1) * 100))}%
                       </div>
                     )}
-                    
-                    <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="text-xs text-white/60">⬆️ Ir a sección</span>
-                    </div>
                   </div>
                 );
               })}
