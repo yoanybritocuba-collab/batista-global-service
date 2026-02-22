@@ -27,6 +27,24 @@ const ServicioDetallePage = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [showShareMenu, setShowShareMenu] = useState(false);
 
+  // ✅ FORZAR SCROLL AL INICIO CUANDO CARGA LA PÁGINA
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant' // 'instant' para ir inmediatamente, 'smooth' para animación suave
+    });
+  }, []); // Solo se ejecuta una vez al cargar la página
+
+  // Alternativa con smooth (animación suave):
+  // useEffect(() => {
+  //   window.scrollTo({
+  //     top: 0,
+  //     left: 0,
+  //     behavior: 'smooth'
+  //   });
+  // }, []);
+
   useEffect(() => {
     const loadService = async () => {
       setLoading(true);
