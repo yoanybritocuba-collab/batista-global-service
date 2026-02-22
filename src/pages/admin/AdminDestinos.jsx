@@ -82,6 +82,11 @@ const AdminDestinos = () => {
       return;
     }
 
+    if (!formData.imagen && !selectedFile) {
+      toast.error('Debes seleccionar una imagen para el destino');
+      return;
+    }
+
     setSaving(true);
     setUploading(true);
 
@@ -351,6 +356,9 @@ const AdminDestinos = () => {
                       disabled={uploading}
                     />
                   </label>
+                  <p className="text-xs text-gray-500 mt-2">
+                    * La imagen es obligatoria. Formatos: JPG, PNG, GIF (max 5MB)
+                  </p>
                 </div>
               </div>
 
@@ -443,9 +451,13 @@ const AdminDestinos = () => {
             >
               <div className="relative h-48">
                 <img
-                  src={destino.imagen || 'https://via.placeholder.com/400x200'}
+                  src={destino.imagen || 'https://via.placeholder.com/400x200?text=Sin+Imagen'}
                   alt={destino.nombre}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://via.placeholder.com/400x200?text=Error+Imagen';
+                  }}
                 />
                 {destino.destacado && (
                   <div className="absolute top-2 left-2">

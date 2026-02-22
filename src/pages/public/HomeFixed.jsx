@@ -105,7 +105,7 @@ const HomeFixed = () => {
               [destino.id]: (currentSlide + 1) % imagenes.length
             };
           });
-        }, 4000); // Cambia cada 4 segundos
+        }, 4000);
         
         destinoAutoPlayRef.current[destino.id] = interval;
       }
@@ -170,21 +170,20 @@ const HomeFixed = () => {
     return `/images/${imageUrl}`;
   };
 
+  // ✅ NUEVA FUNCIÓN: SOLO USA IMÁGENES REALES, SIN RESPALDO
   const getDestinoImages = (destino) => {
+    // Si el destino tiene un array de imágenes, úsalo
     if (destino.imagenes && Array.isArray(destino.imagenes) && destino.imagenes.length > 0) {
       return destino.imagenes;
     }
     
-    const imagenes = [destino.imagen];
+    // Si tiene una sola imagen, úsala como única imagen
+    if (destino.imagen) {
+      return [destino.imagen];
+    }
     
-    const imagenesRespaldo = [
-      'https://images.pexels.com/photos/1285625/pexels-photo-1285625.jpeg',
-      'https://images.pexels.com/photos/1533720/pexels-photo-1533720.jpeg',
-      'https://images.pexels.com/photos/161963/chicago-illinois-skyline-skyscrapers-161963.jpeg',
-      'https://images.pexels.com/photos/3581363/pexels-photo-3581363.jpeg'
-    ];
-    
-    return [...imagenes, ...imagenesRespaldo.slice(0, 3)];
+    // Si no tiene imagen, mostrar un placeholder
+    return ['https://via.placeholder.com/800x600?text=Sin+Imagen'];
   };
 
   const nextSlide = () => {
@@ -393,7 +392,7 @@ const HomeFixed = () => {
                           onError={(e) => {
                             console.log('Error cargando imagen:', img);
                             e.target.onerror = null;
-                            e.target.src = 'https://images.pexels.com/photos/1285625/pexels-photo-1285625.jpeg';
+                            e.target.src = 'https://via.placeholder.com/800x600?text=Error+Imagen';
                           }}
                         />
                       ))}
