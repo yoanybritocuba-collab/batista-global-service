@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== AJUSTES DE PORTADA PARA SUBIR 2CM ===== */
+.hero-section {
+  margin-top: -2rem; /* Sube la imagen 2cm (aprox 2rem) */
+  position: relative;
+  z-index: 10;
+}
+
+.hero-image {
+  object-position: center 20%; /* Enfoca la parte superior de la imagen */
+}
+
+@media (min-width: 768px) {
+  .hero-section {
+    margin-top: -3rem; /* Un poco más en tablets */
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-section {
+    margin-top: -4rem; /* Un poco más en PC */
+  }
+}
+
 /* ===== ANIMACIONES MODERNAS ===== */
 
 /* Fade In Up */

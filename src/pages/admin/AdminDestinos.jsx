@@ -3,7 +3,7 @@ import { useDestinos } from '../../contexts/DestinosContext';
 import { 
   Plus, Edit, Trash2, Upload, X, Search,
   MapPin, DollarSign, Save,
-  Eye, EyeOff, Image as ImageIcon, Loader
+  Eye, EyeOff, Image as ImageIcon, Loader, PlusCircle
 } from 'lucide-react';
 import { uploadImage } from '../../services/firebase/storage';
 import { toast } from 'react-hot-toast';
@@ -15,7 +15,8 @@ const AdminDestinos = () => {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     nombre: '',
-    imagen: '',
+    imagenes: [], // Array de imágenes
+    imagenPortada: '', // Imagen principal (la primera)
     precioMin: '',
     precioMax: '',
     precioOfertaMin: '',
@@ -26,20 +27,20 @@ const AdminDestinos = () => {
     orden: 0
   });
   
-  const [imagePreview, setImagePreview] = useState('');
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   useEffect(() => {
     loadDestinos();
   }, []);
 
   useEffect(() => {
-    if (editingId && formData.imagen) {
-      setImagePreview(formData.imagen);
+    if (editingId && formData.imagenes && formData.imagenes.length > 0) {
+      setImagePreviews(formData.imagenes);
     }
-  }, [editingId, formData.imagen]);
+  }, [editingId, formData.imagenes]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -50,28 +51,62 @@ const AdminDestinos = () => {
   };
 
   const handleImageFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      toast.error('Por favor selecciona una imagen válida');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('La imagen no debe superar los 5MB');
-      return;
-    }
-
-    setSelectedFile(file);
+    const files = Array.from(e.target.files);
     
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    // Validar cada archivo
+    const validFiles = files.filter(file => {
+      if (!file.type.startsWith('image/')) {
+        toast.error(`${file.name} no es una imagen válida`);
+        return false;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} no debe superar los 5MB`);
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length === 0) return;
+
+    setSelectedFiles(prev => [...prev, ...validFiles]);
     
-    toast.success('✅ Imagen seleccionada. Guarda el destino para subirla.');
+    // Crear previsualizaciones
+    const newPreviews = [];
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        newPreviews.push(reader.result);
+        if (newPreviews.length === validFiles.length) {
+          setImagePreviews(prev => [...prev, ...newPreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    
+    toast.success(`✅ ${validFiles.length} imagen(es) seleccionada(s)`);
+  };
+
+  const removeImage = (index) => {
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const setAsPortada = (index) => {
+    // Mover la imagen seleccionada al principio del array
+    const newPreviews = [...imagePreviews];
+    const [selectedImage] = newPreviews.splice(index, 1);
+    newPreviews.unshift(selectedImage);
+    setImagePreviews(newPreviews);
+    
+    // También reordenar los archivos seleccionados si existen
+    if (selectedFiles.length > 0) {
+      const newFiles = [...selectedFiles];
+      const [selectedFile] = newFiles.splice(index, 1);
+      newFiles.unshift(selectedFile);
+      setSelectedFiles(newFiles);
+    }
+    
+    toast.success('✅ Imagen establecida como portada');
   };
 
   const handleSubmit = async (e) => {
@@ -82,8 +117,8 @@ const AdminDestinos = () => {
       return;
     }
 
-    if (!formData.imagen && !selectedFile) {
-      toast.error('Debes seleccionar una imagen para el destino');
+    if (imagePreviews.length === 0) {
+      toast.error('Debes seleccionar al menos una imagen');
       return;
     }
 
@@ -91,27 +126,35 @@ const AdminDestinos = () => {
     setUploading(true);
 
     try {
-      let imageUrl = formData.imagen;
+      let imagenesUrls = [];
 
-      if (selectedFile) {
-        toast.loading('Subiendo imagen...', { id: 'upload' });
-        const result = await uploadImage(selectedFile, 'destinos');
-        toast.dismiss('upload');
+      // Subir nuevas imágenes
+      if (selectedFiles.length > 0) {
+        toast.loading(`Subiendo ${selectedFiles.length} imágenes...`, { id: 'upload' });
         
-        if (result.success) {
-          imageUrl = result.url;
-          toast.success('✅ Imagen subida correctamente');
-        } else {
-          toast.error('Error al subir la imagen');
-          setSaving(false);
-          setUploading(false);
-          return;
+        for (const file of selectedFiles) {
+          const result = await uploadImage(file, 'destinos');
+          if (result.success) {
+            imagenesUrls.push(result.url);
+          } else {
+            toast.error('Error al subir una imagen');
+            setSaving(false);
+            setUploading(false);
+            return;
+          }
         }
+        
+        toast.dismiss('upload');
+        toast.success('✅ Imágenes subidas correctamente');
+      } else {
+        // Usar imágenes existentes (cuando se edita)
+        imagenesUrls = formData.imagenes || [];
       }
 
       const destinoData = {
         ...formData,
-        imagen: imageUrl,
+        imagenes: imagenesUrls,
+        imagenPortada: imagenesUrls[0] || '', // La primera imagen es la portada
         precioMin: parseFloat(formData.precioMin) || 0,
         precioMax: parseFloat(formData.precioMax) || 0,
         precioOfertaMin: parseFloat(formData.precioOfertaMin) || 0,
@@ -141,7 +184,8 @@ const AdminDestinos = () => {
     setEditingId(destino.id);
     setFormData({
       nombre: destino.nombre || '',
-      imagen: destino.imagen || '',
+      imagenes: destino.imagenes || (destino.imagen ? [destino.imagen] : []),
+      imagenPortada: destino.imagenPortada || destino.imagen || '',
       precioMin: destino.precioMin || '',
       precioMax: destino.precioMax || '',
       precioOfertaMin: destino.precioOfertaMin || '',
@@ -151,8 +195,8 @@ const AdminDestinos = () => {
       destacado: destino.destacado || false,
       orden: destino.orden || 0
     });
-    setImagePreview(destino.imagen || '');
-    setSelectedFile(null);
+    setImagePreviews(destino.imagenes || (destino.imagen ? [destino.imagen] : []));
+    setSelectedFiles([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -173,7 +217,8 @@ const AdminDestinos = () => {
     setEditingId(null);
     setFormData({
       nombre: '',
-      imagen: '',
+      imagenes: [],
+      imagenPortada: '',
       precioMin: '',
       precioMax: '',
       precioOfertaMin: '',
@@ -183,14 +228,8 @@ const AdminDestinos = () => {
       destacado: false,
       orden: 0
     });
-    setImagePreview('');
-    setSelectedFile(null);
-  };
-
-  const handleRemoveImage = () => {
-    setImagePreview('');
-    setFormData(prev => ({ ...prev, imagen: '' }));
-    setSelectedFile(null);
+    setImagePreviews([]);
+    setSelectedFiles([]);
   };
 
   const filteredDestinos = destinos.filter(destino =>
@@ -313,30 +352,51 @@ const AdminDestinos = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Imagen del Destino *
+                  Imágenes del Destino * (Múltiples)
                 </label>
                 
-                {imagePreview ? (
-                  <div className="relative mb-4">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-48 object-cover rounded-lg border-2 border-gray-200"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleRemoveImage}
-                      className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="mb-4 p-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 text-center">
-                    <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">No hay imagen seleccionada</p>
-                  </div>
-                )}
+                {/* Previsualización de imágenes */}
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg border-2 border-gray-200"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setAsPortada(index)}
+                          className="p-1 bg-blue-500 text-white rounded-full hover:bg-blue-600"
+                          title="Establecer como portada"
+                        >
+                          <Star className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                          title="Eliminar imagen"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                      {index === 0 && (
+                        <span className="absolute top-1 left-1 px-1 py-0.5 bg-amber-500 text-white text-xs rounded-full">
+                          Portada
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                  
+                  {imagePreviews.length === 0 && (
+                    <div className="col-span-2 p-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 text-center">
+                      <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500">No hay imágenes seleccionadas</p>
+                    </div>
+                  )}
+                </div>
 
                 <div>
                   <label className="block w-full cursor-pointer">
@@ -344,20 +404,21 @@ const AdminDestinos = () => {
                       {uploading ? (
                         <Loader className="h-5 w-5 animate-spin" />
                       ) : (
-                        <Upload className="h-5 w-5" />
+                        <PlusCircle className="h-5 w-5" />
                       )}
-                      <span>{uploading ? 'Subiendo...' : 'Seleccionar imagen'}</span>
+                      <span>{uploading ? 'Subiendo...' : 'Agregar imágenes'}</span>
                     </div>
                     <input
                       type="file"
                       accept="image/*"
+                      multiple
                       onChange={handleImageFileChange}
                       className="hidden"
                       disabled={uploading}
                     />
                   </label>
                   <p className="text-xs text-gray-500 mt-2">
-                    * La imagen es obligatoria. Formatos: JPG, PNG, GIF (max 5MB)
+                    * Puedes seleccionar múltiples imágenes. La primera será la portada.
                   </p>
                 </div>
               </div>
@@ -451,7 +512,7 @@ const AdminDestinos = () => {
             >
               <div className="relative h-48">
                 <img
-                  src={destino.imagen || 'https://via.placeholder.com/400x200?text=Sin+Imagen'}
+                  src={destino.imagenes?.[0] || destino.imagen || 'https://via.placeholder.com/400x200?text=Sin+Imagen'}
                   alt={destino.nombre}
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -464,6 +525,11 @@ const AdminDestinos = () => {
                     <span className="px-2 py-1 bg-amber-500 text-white rounded-full text-xs font-bold">
                       ⭐ Destacado
                     </span>
+                  </div>
+                )}
+                {destino.imagenes?.length > 1 && (
+                  <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+                    +{destino.imagenes.length - 1} fotos
                   </div>
                 )}
               </div>

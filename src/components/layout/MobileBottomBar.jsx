@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/cart/CartContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useClienteAuth } from '../../contexts/auth/ClienteAuthContext';
-import { Home, Search, ShoppingCart, User, X, LogOut, UserCircle, Heart } from 'lucide-react';
+import { Home, Search, User, X, LogOut, UserCircle, Heart } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const MobileBottomBar = () => {
@@ -46,7 +46,7 @@ const MobileBottomBar = () => {
 
   return (
     <>
-      {/* BARRA INFERIOR FLOTANTE - VERSIÓN SIMPLIFICADA */}
+      {/* BARRA INFERIOR FLOTANTE - SIN CARRITO */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-lg border-t border-amber-400/20 shadow-2xl">
         <div className="flex items-center justify-around px-2 py-2">
 
@@ -56,7 +56,7 @@ const MobileBottomBar = () => {
             className="flex flex-col items-center justify-center p-2 text-white/80 hover:text-amber-400 transition-colors" 
           >
             <Home className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Inicio</span>
+            <span className="text-[10px] mt-0.5">{t('inicio')}</span>
           </button>
 
           {/* BUSCADOR */}
@@ -67,20 +67,6 @@ const MobileBottomBar = () => {
             <Search className="w-5 h-5" />
             <span className="text-[10px] mt-0.5">{t('buscar')}</span>
           </button>
-
-          {/* CARRITO */}
-          <Link
-            to="/cart"
-            className="flex flex-col items-center justify-center p-2 text-white/80 hover:text-amber-400 transition-colors relative"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 right-1 bg-amber-400 text-black text-[10px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-            <span className="text-[10px] mt-0.5">{t('carrito')}</span>
-          </Link>
 
           {/* USUARIO */}
           <div className="relative">
@@ -94,7 +80,7 @@ const MobileBottomBar = () => {
                 <User className="w-5 h-5" />
               )}
               <span className="text-[10px] mt-0.5">
-                {isAuthenticated ? 'Mi cuenta' : t('ingresar')}
+                {isAuthenticated ? t('mi_cuenta') : t('ingresar')}
               </span>
             </button>
 
@@ -107,7 +93,7 @@ const MobileBottomBar = () => {
                 />
                 <div className="absolute bottom-full right-0 mb-2 w-48 bg-gray-900 rounded-xl shadow-2xl border border-amber-400/20 overflow-hidden z-50">
                   <div className="p-3 border-b border-amber-400/20">
-                    <p className="text-white font-medium text-sm truncate">{user?.name || 'Usuario'}</p>
+                    <p className="text-white font-medium text-sm truncate">{user?.name || t('usuario')}</p>
                     <p className="text-white/60 text-xs truncate">{user?.email}</p>
                   </div>
                   <div className="py-1">
@@ -116,14 +102,14 @@ const MobileBottomBar = () => {
                       className="block px-4 py-2 text-sm text-white/80 hover:text-amber-400 hover:bg-white/5 transition-colors"
                       onClick={() => setShowUserMenu(false)}
                     >
-                      Mi perfil
+                      {t('mi_perfil')}
                     </Link>
                     <Link
                       to="/cliente/pedidos"
                       className="block px-4 py-2 text-sm text-white/80 hover:text-amber-400 hover:bg-white/5 transition-colors"
                       onClick={() => setShowUserMenu(false)}
                     >
-                      Mis pedidos
+                      {t('mis_pedidos')}
                     </Link>
                     <Link
                       to="/cliente/favoritos"
@@ -132,7 +118,7 @@ const MobileBottomBar = () => {
                     >
                       <div className="flex items-center gap-2">
                         <Heart className="w-4 h-4" />
-                        Favoritos
+                        {t('favoritos')}
                       </div>
                     </Link>
                     <div className="border-t border-amber-400/20 my-1"></div>
@@ -141,7 +127,7 @@ const MobileBottomBar = () => {
                       className="w-full text-left px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors flex items-center gap-2"
                     >
                       <LogOut className="w-4 h-4" />
-                      Cerrar sesión
+                      {t('cerrar_sesion')}
                     </button>
                   </div>
                 </div>
@@ -157,7 +143,7 @@ const MobileBottomBar = () => {
           <div className="flex items-start justify-center min-h-screen pt-20 px-4">
             <div className="w-full max-w-md bg-gray-900 rounded-2xl p-6 border border-amber-400/20">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Buscar productos</h3>
+                <h3 className="text-lg font-semibold text-white">{t('buscar_productos')}</h3>
                 <button
                   onClick={() => setShowSearch(false)}
                   className="p-2 hover:bg-white/10 rounded-full transition-colors"
@@ -171,7 +157,7 @@ const MobileBottomBar = () => {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Escribe lo que buscas..."
+                  placeholder={t('escribe_lo_que_buscas')}
                   className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-amber-400 mb-4"
                   autoFocus
                 />
@@ -179,7 +165,7 @@ const MobileBottomBar = () => {
                   type="submit"
                   className="w-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-semibold py-3 px-4 rounded-xl hover:shadow-lg transition-all"
                 >
-                  Buscar
+                  {t('buscar')}
                 </button>
               </form>
             </div>
