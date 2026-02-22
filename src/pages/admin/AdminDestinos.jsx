@@ -3,7 +3,8 @@ import { useDestinos } from '../../contexts/DestinosContext';
 import { 
   Plus, Edit, Trash2, Upload, X, Search,
   MapPin, DollarSign, Save,
-  Eye, EyeOff, Image as ImageIcon, Loader, PlusCircle
+  Eye, EyeOff, Image as ImageIcon, Loader, PlusCircle,
+  Star, MoveUp, MoveDown
 } from 'lucide-react';
 import { uploadImage } from '../../services/firebase/storage';
 import { toast } from 'react-hot-toast';
@@ -15,8 +16,7 @@ const AdminDestinos = () => {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     nombre: '',
-    imagenes: [], // Array de imágenes
-    imagenPortada: '', // Imagen principal (la primera)
+    imagenes: [],
     precioMin: '',
     precioMax: '',
     precioOfertaMin: '',
@@ -53,7 +53,6 @@ const AdminDestinos = () => {
   const handleImageFileChange = async (e) => {
     const files = Array.from(e.target.files);
     
-    // Validar cada archivo
     const validFiles = files.filter(file => {
       if (!file.type.startsWith('image/')) {
         toast.error(`${file.name} no es una imagen válida`);
@@ -70,7 +69,6 @@ const AdminDestinos = () => {
 
     setSelectedFiles(prev => [...prev, ...validFiles]);
     
-    // Crear previsualizaciones
     const newPreviews = [];
     validFiles.forEach(file => {
       const reader = new FileReader();
@@ -91,14 +89,38 @@ const AdminDestinos = () => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  const moveImageUp = (index) => {
+    if (index === 0) return;
+    const newPreviews = [...imagePreviews];
+    [newPreviews[index - 1], newPreviews[index]] = [newPreviews[index], newPreviews[index - 1]];
+    setImagePreviews(newPreviews);
+    
+    if (selectedFiles.length > 0) {
+      const newFiles = [...selectedFiles];
+      [newFiles[index - 1], newFiles[index]] = [newFiles[index], newFiles[index - 1]];
+      setSelectedFiles(newFiles);
+    }
+  };
+
+  const moveImageDown = (index) => {
+    if (index === imagePreviews.length - 1) return;
+    const newPreviews = [...imagePreviews];
+    [newPreviews[index], newPreviews[index + 1]] = [newPreviews[index + 1], newPreviews[index]];
+    setImagePreviews(newPreviews);
+    
+    if (selectedFiles.length > 0) {
+      const newFiles = [...selectedFiles];
+      [newFiles[index], newFiles[index + 1]] = [newFiles[index + 1], newFiles[index]];
+      setSelectedFiles(newFiles);
+    }
+  };
+
   const setAsPortada = (index) => {
-    // Mover la imagen seleccionada al principio del array
     const newPreviews = [...imagePreviews];
     const [selectedImage] = newPreviews.splice(index, 1);
     newPreviews.unshift(selectedImage);
     setImagePreviews(newPreviews);
     
-    // También reordenar los archivos seleccionados si existen
     if (selectedFiles.length > 0) {
       const newFiles = [...selectedFiles];
       const [selectedFile] = newFiles.splice(index, 1);
@@ -128,7 +150,6 @@ const AdminDestinos = () => {
     try {
       let imagenesUrls = [];
 
-      // Subir nuevas imágenes
       if (selectedFiles.length > 0) {
         toast.loading(`Subiendo ${selectedFiles.length} imágenes...`, { id: 'upload' });
         
@@ -147,14 +168,12 @@ const AdminDestinos = () => {
         toast.dismiss('upload');
         toast.success('✅ Imágenes subidas correctamente');
       } else {
-        // Usar imágenes existentes (cuando se edita)
         imagenesUrls = formData.imagenes || [];
       }
 
       const destinoData = {
         ...formData,
         imagenes: imagenesUrls,
-        imagenPortada: imagenesUrls[0] || '', // La primera imagen es la portada
         precioMin: parseFloat(formData.precioMin) || 0,
         precioMax: parseFloat(formData.precioMax) || 0,
         precioOfertaMin: parseFloat(formData.precioOfertaMin) || 0,
@@ -185,7 +204,6 @@ const AdminDestinos = () => {
     setFormData({
       nombre: destino.nombre || '',
       imagenes: destino.imagenes || (destino.imagen ? [destino.imagen] : []),
-      imagenPortada: destino.imagenPortada || destino.imagen || '',
       precioMin: destino.precioMin || '',
       precioMax: destino.precioMax || '',
       precioOfertaMin: destino.precioOfertaMin || '',
@@ -218,7 +236,6 @@ const AdminDestinos = () => {
     setFormData({
       nombre: '',
       imagenes: [],
-      imagenPortada: '',
       precioMin: '',
       precioMax: '',
       precioOfertaMin: '',
@@ -355,8 +372,7 @@ const AdminDestinos = () => {
                   Imágenes del Destino * (Múltiples)
                 </label>
                 
-                {/* Previsualización de imágenes */}
-                <div className="grid grid-cols-2 gap-2 mb-4">
+                <div className="grid grid-cols-2 gap-2 mb-4 max-h-96 overflow-y-auto p-2 border rounded-lg">
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative group">
                       <img
@@ -368,10 +384,28 @@ const AdminDestinos = () => {
                         <button
                           type="button"
                           onClick={() => setAsPortada(index)}
-                          className="p-1 bg-blue-500 text-white rounded-full hover:bg-blue-600"
+                          className="p-1 bg-amber-500 text-white rounded-full hover:bg-amber-600"
                           title="Establecer como portada"
                         >
                           <Star className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveImageUp(index)}
+                          className="p-1 bg-blue-500 text-white rounded-full hover:bg-blue-600"
+                          title="Mover arriba"
+                          disabled={index === 0}
+                        >
+                          <MoveUp className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveImageDown(index)}
+                          className="p-1 bg-blue-500 text-white rounded-full hover:bg-blue-600"
+                          title="Mover abajo"
+                          disabled={index === imagePreviews.length - 1}
+                        >
+                          <MoveDown className="h-3 w-3" />
                         </button>
                         <button
                           type="button"
