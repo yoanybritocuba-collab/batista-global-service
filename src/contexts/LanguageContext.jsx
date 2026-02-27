@@ -10,7 +10,7 @@ export const useLanguage = () => {
   return context;
 };
 
-// Traducciones completas - SIN CLAVES DUPLICADAS
+// Traducciones completas - CON TODAS LAS CLAVES
 const translations = {
   es: {
     // ===== GENERAL =====
@@ -38,6 +38,13 @@ const translations = {
     'confirmar_eliminacion': '¿Estás seguro de eliminar este elemento?',
     'cambios_guardados': 'Cambios guardados correctamente',
     'sin_datos': 'No hay datos para mostrar',
+    
+    // ✅ TÍTULOS PRINCIPALES (NUEVOS)
+    'destinosPopulares': 'Destinos Populares',
+    'nuestrosServicios': 'Nuestros Servicios',
+    'estadisticas': 'Estadísticas',
+    'beneficios': 'Beneficios',
+    'comentariosClientes': 'Comentarios de Clientes',
     
     // ===== HEADER =====
     'buscar_productos': 'Buscar productos, marcas y más...',
@@ -282,6 +289,13 @@ const translations = {
     'confirmar_eliminacion': 'Are you sure you want to delete this item?',
     'cambios_guardados': 'Changes saved successfully',
     'sin_datos': 'No data to display',
+    
+    // ✅ TÍTULOS PRINCIPALES (NUEVOS)
+    'destinosPopulares': 'Popular Destinations',
+    'nuestrosServicios': 'Our Services',
+    'estadisticas': 'Statistics',
+    'beneficios': 'Benefits',
+    'comentariosClientes': 'Customer Comments',
     
     // ===== HEADER =====
     'buscar_productos': 'Search products, brands and more...',

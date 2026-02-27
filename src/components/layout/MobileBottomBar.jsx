@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/cart/CartContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useClienteAuth } from '../../contexts/auth/ClienteAuthContext';
-import { Home, Search, User, X, LogOut, UserCircle, Heart } from 'lucide-react';
+import { Home, Search, ShoppingCart, User, X, LogOut, UserCircle, Heart, CreditCard } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const MobileBottomBar = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
   const { cartCount } = useCart();
   const { t } = useLanguage();
   const { user, logout, isAuthenticated } = useClienteAuth();
@@ -46,7 +47,7 @@ const MobileBottomBar = () => {
 
   return (
     <>
-      {/* BARRA INFERIOR FLOTANTE - SIN CARRITO */}
+      {/* BARRA INFERIOR FLOTANTE - CON CARRITO AHORA */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-lg border-t border-amber-400/20 shadow-2xl">
         <div className="flex items-center justify-around px-2 py-2">
 
@@ -67,6 +68,71 @@ const MobileBottomBar = () => {
             <Search className="w-5 h-5" />
             <span className="text-[10px] mt-0.5">{t('buscar')}</span>
           </button>
+
+          {/* CARRITO - NUEVO EN BARRA INFERIOR */}
+          <Link
+            to="/cart"
+            className="flex flex-col items-center justify-center p-2 text-white/80 hover:text-amber-400 transition-colors relative"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 right-1 bg-amber-400 text-black text-[10px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+            <span className="text-[10px] mt-0.5">{t('carrito')}</span>
+          </Link>
+
+          {/* MÉTODOS DE PAGO - NUEVO */}
+          <div className="relative">
+            <button
+              onClick={() => setShowPaymentMethods(!showPaymentMethods)}
+              className="flex flex-col items-center justify-center p-2 text-white/80 hover:text-amber-400 transition-colors"
+            >
+              <CreditCard className="w-5 h-5" />
+              <span className="text-[10px] mt-0.5">Pagos</span>
+            </button>
+
+            {/* MODAL DE MÉTODOS DE PAGO */}
+            {showPaymentMethods && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowPaymentMethods(false)}
+                />
+                <div className="absolute bottom-full right-0 mb-2 w-64 bg-gray-900 rounded-xl shadow-2xl border border-amber-400/20 overflow-hidden z-50">
+                  <div className="p-4 border-b border-amber-400/20">
+                    <h3 className="text-white font-semibold text-sm">Métodos de pago</h3>
+                  </div>
+                  <div className="p-4 space-y-3">
+                    {/* Visa */}
+                    <div className="flex items-center gap-3 p-2 bg-white/5 rounded-lg">
+                      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visa/visa-original.svg" alt="Visa" className="w-8 h-8" />
+                      <span className="text-white text-sm">Visa</span>
+                    </div>
+                    
+                    {/* Mastercard */}
+                    <div className="flex items-center gap-3 p-2 bg-white/5 rounded-lg">
+                      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mastercard/mastercard-original.svg" alt="Mastercard" className="w-8 h-8" />
+                      <span className="text-white text-sm">Mastercard</span>
+                    </div>
+                    
+                    {/* American Express */}
+                    <div className="flex items-center gap-3 p-2 bg-white/5 rounded-lg">
+                      <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" alt="American Express" className="w-8 h-8" />
+                      <span className="text-white text-sm">American Express</span>
+                    </div>
+                    
+                    {/* PayPal */}
+                    <div className="flex items-center gap-3 p-2 bg-white/5 rounded-lg">
+                      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/paypal/paypal-original.svg" alt="PayPal" className="w-8 h-8" />
+                      <span className="text-white text-sm">PayPal</span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
 
           {/* USUARIO */}
           <div className="relative">

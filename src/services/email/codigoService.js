@@ -1,12 +1,11 @@
 // src/services/email/codigoService.js
 import emailjs from '@emailjs/browser';
 
-// ✅ TUS CREDENCIALES CORRECTAS
+// ✅ TUS CREDENCIALES
 const EMAILJS_SERVICE_ID = 'service_af19tfx';
 const EMAILJS_TEMPLATE_ID = 'template_mt2syvx';
 const EMAILJS_PUBLIC_KEY = 'SObq46i_K8W1ZK1Lk';
 
-// Inicializar EmailJS
 emailjs.init(EMAILJS_PUBLIC_KEY);
 
 // Generar código aleatorio de 6 dígitos
@@ -14,7 +13,7 @@ export const generarCodigo = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Guardar código temporalmente (en memoria)
+// Guardar código temporalmente
 const codigosTemp = new Map();
 
 export const guardarCodigo = (email, codigo, datosParciales = {}) => {
@@ -36,8 +35,8 @@ export const enviarCodigoEmail = async (email, codigo, nombre = 'Usuario') => {
       to_email: email,
       to_name: nombre,
       codigo: codigo,
-      from_name: 'Batista Global Service',
-      reply_to: 'no-reply@batistaglobalservice.com'
+      from_name: 'Batista Global Service', // ✅ Esto se mostrará como remitente
+      reply_to: 'batistaglobalservice25@gmail.com' // ✅ Correo de la empresa
     };
 
     const response = await emailjs.send(
@@ -78,12 +77,10 @@ export const verificarCodigo = (email, codigoIngresado) => {
     return { valido: false, error: `❌ Código incorrecto. Intentos restantes: ${3 - data.intentos}` };
   }
   
-  // Código válido
   data.verificado = true;
   return { valido: true, datos: data.datos };
 };
 
-// Obtener datos guardados (después de verificar)
 export const obtenerDatosVerificados = (email) => {
   const data = codigosTemp.get(email);
   if (data && data.verificado) {
@@ -92,7 +89,6 @@ export const obtenerDatosVerificados = (email) => {
   return null;
 };
 
-// Limpiar después de crear usuario
 export const limpiarCodigo = (email) => {
   codigosTemp.delete(email);
 };

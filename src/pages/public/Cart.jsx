@@ -1,10 +1,15 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/cart/CartContext';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, CreditCard } from 'lucide-react';
 
 const Cart = () => {
   const { cart, cartTotal, cartCount, removeFromCart, updateQuantity, clearCart } = useCart();
+  const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    navigate('/checkout');
+  };
 
   if (cart.length === 0) {
     return (
@@ -16,7 +21,7 @@ const Cart = () => {
         </p>
         <Link
           to="/tienda"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-[#00A8B5] text-white font-medium rounded-lg hover:bg-[#00909B] transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium rounded-lg hover:from-amber-600 hover:to-amber-700 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Ir a la tienda
@@ -64,7 +69,7 @@ const Cart = () => {
                   {item.category || 'Sin categoría'}
                 </p>
                 <div className="flex items-center gap-4">
-                  <span className="text-lg lg:text-xl font-bold text-[#00A8B5]">
+                  <span className="text-lg lg:text-xl font-bold text-amber-600">
                     ${(item.price * item.quantity).toFixed(2)}
                   </span>
                   <span className="text-sm text-gray-500">
@@ -109,7 +114,7 @@ const Cart = () => {
               onClick={clearCart}
               className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-4 w-4" />
               Vaciar carrito
             </button>
           </div>
@@ -134,14 +139,16 @@ const Cart = () => {
               <div className="border-t border-gray-200 pt-4 mt-4">
                 <div className="flex justify-between text-lg font-bold text-gray-900">
                   <span>Total</span>
-                  <span className="text-[#00A8B5]">${cartTotal.toFixed(2)}</span>
+                  <span className="text-amber-600">${cartTotal.toFixed(2)}</span>
                 </div>
               </div>
             </div>
 
             <button
-              className="w-full bg-gradient-to-r from-[#00A8B5] to-[#00909B] text-white font-semibold py-4 px-6 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 mb-3"
+              onClick={handleCheckout}
+              className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold py-4 px-6 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 mb-3 flex items-center justify-center gap-2"
             >
+              <CreditCard className="w-5 h-5" />
               Proceder al pago
             </button>
             <Link

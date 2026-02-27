@@ -4,30 +4,29 @@
 
 /* ===== AJUSTES DE PORTADA PARA SUBIR 2CM ===== */
 .hero-section {
-  margin-top: -2rem; /* Sube la imagen 2cm (aprox 2rem) */
+  margin-top: -2rem;
   position: relative;
   z-index: 10;
 }
 
 .hero-image {
-  object-position: center 20%; /* Enfoca la parte superior de la imagen */
+  object-position: center 20%;
 }
 
 @media (min-width: 768px) {
   .hero-section {
-    margin-top: -3rem; /* Un poco más en tablets */
+    margin-top: -3rem;
   }
 }
 
 @media (min-width: 1024px) {
   .hero-section {
-    margin-top: -4rem; /* Un poco más en PC */
+    margin-top: -4rem;
   }
 }
 
 /* ===== ANIMACIONES MODERNAS ===== */
 
-/* Fade In Up */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -43,21 +42,21 @@
   animation: fadeInUp 0.8s ease-out forwards;
 }
 
-/* Fade In */
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 .animate-fadeIn {
-  animation: fadeIn 1s ease-out forwards;
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
-/* Scale In */
 @keyframes scaleIn {
   from {
     opacity: 0;
@@ -73,7 +72,6 @@
   animation: scaleIn 0.6s ease-out forwards;
 }
 
-/* Slide In Left */
 @keyframes slideInLeft {
   from {
     opacity: 0;
@@ -89,7 +87,6 @@
   animation: slideInLeft 0.6s ease-out forwards;
 }
 
-/* Slide In Right */
 @keyframes slideInRight {
   from {
     opacity: 0;
@@ -105,7 +102,6 @@
   animation: slideInRight 0.6s ease-out forwards;
 }
 
-/* Bounce */
 @keyframes bounce {
   0%, 100% {
     transform: translateY(0);
@@ -119,7 +115,6 @@
   animation: bounce 2s ease-in-out infinite;
 }
 
-/* Pulse */
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
@@ -135,7 +130,6 @@
   animation: pulse 3s ease-in-out infinite;
 }
 
-/* Gradient Shift */
 @keyframes gradientShift {
   0% {
     background-position: 0% 50%;
@@ -153,7 +147,6 @@
   animation: gradientShift 5s ease infinite;
 }
 
-/* Float */
 @keyframes float {
   0%, 100% {
     transform: translateY(0px);
@@ -167,7 +160,6 @@
   animation: float 4s ease-in-out infinite;
 }
 
-/* Rotate */
 @keyframes rotate {
   from {
     transform: rotate(0deg);
@@ -181,7 +173,6 @@
   animation: rotate 10s linear infinite;
 }
 
-/* Glitch Effect */
 @keyframes glitch {
   0% {
     text-shadow: 2px 2px 0 #ff6b6b, -2px -2px 0 #4ecdc4;
@@ -204,7 +195,6 @@
   animation: glitch 0.3s infinite;
 }
 
-/* Neon Glow */
 @keyframes neonGlow {
   0%, 100% {
     text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #f59e0b, 0 0 20px #f59e0b;
@@ -218,7 +208,6 @@
   animation: neonGlow 2s ease-in-out infinite;
 }
 
-/* Text Reveal */
 @keyframes reveal {
   from {
     clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
@@ -232,7 +221,6 @@
   animation: reveal 1.5s ease-out forwards;
 }
 
-/* Shimmer */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -253,30 +241,14 @@
   animation: shimmer 2s infinite;
 }
 
-/* Delay classes */
-.delay-100 {
-  animation-delay: 100ms;
-}
-.delay-200 {
-  animation-delay: 200ms;
-}
-.delay-300 {
-  animation-delay: 300ms;
-}
-.delay-400 {
-  animation-delay: 400ms;
-}
-.delay-500 {
-  animation-delay: 500ms;
-}
-.delay-700 {
-  animation-delay: 700ms;
-}
-.delay-1000 {
-  animation-delay: 1000ms;
-}
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-700 { animation-delay: 700ms; }
+.delay-1000 { animation-delay: 1000ms; }
 
-/* MEJORAS TÁCTILES PARA MÓVIL */
 @media (max-width: 768px) {
   button, a, .clickable {
     min-height: 48px;
@@ -289,7 +261,6 @@
   }
 }
 
-/* LINE CLAMP */
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -297,7 +268,6 @@
   overflow: hidden;
 }
 
-/* GLASSMORPHISM */
 .glass {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
@@ -312,7 +282,6 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* NEUMORPHISM */
 .neumorph {
   background: #e0e0e0;
   box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;

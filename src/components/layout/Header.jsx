@@ -88,7 +88,7 @@ const Header = () => {
               <SearchBar />
             </div>
 
-            {/* LADO DERECHO: Idioma + Carrito + Hamburguesa */}
+            {/* LADO DERECHO: Idioma + Hamburguesa (SIN CARRITO EN MÓVIL) */}
             <div className="flex items-center gap-2 lg:gap-3">
               {/* Language Toggle */}
               <button 
@@ -102,11 +102,11 @@ const Header = () => {
                 )}
               </button>
 
-              {/* Cart */}
-              <Link to="/cart" className="p-2 lg:p-3 hover:bg-white/10 rounded-full transition-colors relative">
-                <ShoppingCart className="h-5 w-5 lg:h-6 lg:w-6 text-white/80" />
+              {/* Cart - SOLO EN PC */}
+              <Link to="/cart" className="hidden lg:block p-3 hover:bg-white/10 rounded-full transition-colors relative">
+                <ShoppingCart className="h-6 w-6 text-white/80" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs font-bold rounded-full min-w-[18px] h-4 lg:min-w-[20px] lg:h-5 px-1 flex items-center justify-center border-2 border-black">
+                  <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center border-2 border-black">
                     {cartCount}
                   </span>
                 )}

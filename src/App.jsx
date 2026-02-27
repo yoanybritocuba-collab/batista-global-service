@@ -1,4 +1,4 @@
-﻿import React, { Suspense } from 'react';
+﻿import React, { Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
 import { AuthProvider } from './contexts/auth/AuthContext';
@@ -33,10 +33,32 @@ import ClienteLogin from './pages/public/ClienteLogin';
 import ClientePerfil from './pages/public/ClientePerfil';
 import SearchResultsPage from './pages/public/SearchResultsPage';
 import RecuperarPassword from './pages/public/RecuperarPassword';
-
-// ✅ NUEVAS IMPORTACIONES
 import RegistroPaso1 from './pages/public/RegistroPaso1';
 import RegistroPaso2 from './pages/public/RegistroPaso2';
+import Checkout from './pages/public/Checkout';
+
+// ✅ COMPONENTE PARA CARGAR EL BOT DE ELFSIGHT
+const ElfsightChatbot = () => {
+  useEffect(() => {
+    // Cargar el script de Elfsight
+    const script = document.createElement('script');
+    script.src = 'https://elfsightcdn.com/platform.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      // Limpiar cuando el componente se desmonte
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  return (
+    <div 
+      className="elfsight-app-48bb674b-ca0e-4e2b-9d9d-b81ca2560048" 
+      data-elfsight-app-lazy
+    />
+  );
+};
 
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center h-64">
@@ -44,13 +66,11 @@ const LoadingSpinner = () => (
   </div>
 );
 
-// Middleware para proteger rutas admin
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/admin-login" />;
 };
 
-// Middleware para proteger rutas de cliente
 const ProtectedClienteRoute = ({ children }) => {
   const { isAuthenticated } = useClienteAuth();
   return isAuthenticated ? children : <Navigate to="/cliente/login" />;
@@ -60,106 +80,24 @@ const AppRoutes = () => {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        {/* RUTAS PÚBLICAS */}
-        <Route path="/" element={
-          <MainLayout>
-            <HomeFixed />
-          </MainLayout>
-        } />
-        
-        <Route path="/servicios" element={
-          <MainLayout>
-            <ServiciosPage />
-          </MainLayout>
-        } />
-        
-        <Route path="/servicio/:id" element={
-          <MainLayout>
-            <ServicioDetallePage />
-          </MainLayout>
-        } />
-        
-        <Route path="/tienda" element={
-          <MainLayout>
-            <Tienda />
-          </MainLayout>
-        } />
-        
-        <Route path="/cart" element={
-          <MainLayout>
-            <Cart />
-          </MainLayout>
-        } />
-        
-        <Route path="/categoria/:category" element={
-          <MainLayout>
-            <Tienda />
-          </MainLayout>
-        } />
-
-        <Route path="/buscar" element={
-          <MainLayout>
-            <SearchResultsPage />
-          </MainLayout>
-        } />
-
-        {/* ✅ RUTAS DE REGISTRO POR CÓDIGO */}
+        <Route path="/" element={<MainLayout><HomeFixed /></MainLayout>} />
+        <Route path="/servicios" element={<MainLayout><ServiciosPage /></MainLayout>} />
+        <Route path="/servicio/:id" element={<MainLayout><ServicioDetallePage /></MainLayout>} />
+        <Route path="/tienda" element={<MainLayout><Tienda /></MainLayout>} />
+        <Route path="/cart" element={<MainLayout><Cart /></MainLayout>} />
+        <Route path="/checkout" element={<MainLayout><Checkout /></MainLayout>} />
+        <Route path="/categoria/:category" element={<MainLayout><Tienda /></MainLayout>} />
+        <Route path="/buscar" element={<MainLayout><SearchResultsPage /></MainLayout>} />
         <Route path="/registro" element={<RegistroPaso1 />} />
         <Route path="/registro/paso2" element={<RegistroPaso2 />} />
-
-        {/* LOGIN ADMIN */}
         <Route path="/admin-login" element={<AdminLogin />} />
-
-        {/* RUTAS DE CLIENTE */}
         <Route path="/cliente/login" element={<ClienteLogin />} />
         <Route path="/recuperar-password" element={<RecuperarPassword />} />
+        <Route path="/cliente/perfil" element={<ProtectedClienteRoute><MainLayout><ClientePerfil /></MainLayout></ProtectedClienteRoute>} />
+        <Route path="/cliente/pedidos" element={<ProtectedClienteRoute><MainLayout><div className="min-h-screen bg-gray-50 py-8"><div className="max-w-7xl mx-auto px-4"><h1 className="text-2xl font-bold text-gray-900 mb-6">Mis Pedidos</h1><div className="bg-white rounded-xl shadow-sm p-8 text-center"><p className="text-gray-500">No tienes pedidos aún</p><a href="/tienda" className="inline-block mt-4 text-amber-500 hover:text-amber-600">Ir a la tienda</a></div></div></div></MainLayout></ProtectedClienteRoute>} />
+        <Route path="/cliente/favoritos" element={<ProtectedClienteRoute><MainLayout><div className="min-h-screen bg-gray-50 py-8"><div className="max-w-7xl mx-auto px-4"><h1 className="text-2xl font-bold text-gray-900 mb-6">Mis Favoritos</h1><div className="bg-white rounded-xl shadow-sm p-8 text-center"><p className="text-gray-500">No tienes favoritos guardados</p><a href="/tienda" className="inline-block mt-4 text-amber-500 hover:text-amber-600">Explorar productos</a></div></div></div></MainLayout></ProtectedClienteRoute>} />
         
-        <Route path="/cliente/perfil" element={
-          <ProtectedClienteRoute>
-            <MainLayout>
-              <ClientePerfil />
-            </MainLayout>
-          </ProtectedClienteRoute>
-        } />
-        
-        <Route path="/cliente/pedidos" element={
-          <ProtectedClienteRoute>
-            <MainLayout>
-              <div className="min-h-screen bg-gray-50 py-8">
-                <div className="max-w-7xl mx-auto px-4">
-                  <h1 className="text-2xl font-bold text-gray-900 mb-6">Mis Pedidos</h1>
-                  <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-                    <p className="text-gray-500">No tienes pedidos aún</p>
-                    <a href="/tienda" className="inline-block mt-4 text-amber-500 hover:text-amber-600">Ir a la tienda</a>
-                  </div>
-                </div>
-              </div>
-            </MainLayout>
-          </ProtectedClienteRoute>
-        } />
-        
-        <Route path="/cliente/favoritos" element={
-          <ProtectedClienteRoute>
-            <MainLayout>
-              <div className="min-h-screen bg-gray-50 py-8">
-                <div className="max-w-7xl mx-auto px-4">
-                  <h1 className="text-2xl font-bold text-gray-900 mb-6">Mis Favoritos</h1>
-                  <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-                    <p className="text-gray-500">No tienes favoritos guardados</p>
-                    <a href="/tienda" className="inline-block mt-4 text-amber-500 hover:text-amber-600">Explorar productos</a>
-                  </div>
-                </div>
-              </div>
-            </MainLayout>
-          </ProtectedClienteRoute>
-        } />
-
-        {/* RUTAS ADMIN */}
-        <Route path="/admin" element={
-          <ProtectedRoute>
-            <AdminLayout />
-          </ProtectedRoute>
-        }>
+        <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="products" element={<AdminProducts />} />
@@ -171,21 +109,12 @@ const AppRoutes = () => {
           <Route path="analytics" element={<AdminAnalytics />} />
         </Route>
 
-        {/* 404 */}
-        <Route path="*" element={
-          <MainLayout>
-            <div className="text-center py-20">
-              <h1 className="text-4xl font-bold mb-4">404</h1>
-              <p className="text-xl mb-8">Página no encontrada</p>
-              <a href="/" className="bg-amber-500 text-white px-6 py-2 rounded-lg hover:bg-amber-600">
-                Volver al inicio
-              </a>
-            </div>
-          </MainLayout>
-        } />
+        <Route path="*" element={<MainLayout><div className="text-center py-20"><h1 className="text-4xl font-bold mb-4">404</h1><p className="text-xl mb-8">Página no encontrada</p><a href="/" className="bg-amber-500 text-white px-6 py-2 rounded-lg hover:bg-amber-600">Volver al inicio</a></div></MainLayout>} />
       </Routes>
       
+      {/* Componentes flotantes */}
       <WhatsAppButton />
+      <ElfsightChatbot /> {/* ✅ NUEVO BOT DE ELFSIGHT */}
     </Suspense>
   );
 };

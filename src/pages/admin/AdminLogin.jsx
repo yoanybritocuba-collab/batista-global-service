@@ -58,7 +58,7 @@ const AdminLogin = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Campo email - SIN TEXTO PRECARGADO */}
+            {/* Campo email */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Correo electrónico
@@ -69,15 +69,15 @@ const AdminLogin = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-                  placeholder=""
+                  className="w-full pl-10 pr-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  placeholder="batistaglobalservice25@gmail.com"
                   required
-                  autoComplete="off"
+                  autoComplete="email"
                 />
               </div>
             </div>
 
-            {/* Campo password - SIN TEXTO PRECARGADO */}
+            {/* Campo password */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Contraseña
@@ -88,10 +88,10 @@ const AdminLogin = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 bg-white/5 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-                  placeholder=""
+                  className="w-full pl-10 pr-12 py-3 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  placeholder="••••••••"
                   required
-                  autoComplete="off"
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"

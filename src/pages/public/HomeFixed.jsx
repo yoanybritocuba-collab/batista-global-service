@@ -20,11 +20,314 @@ import {
   Printer, Monitor, Cpu, HardDrive,
   Battery, Flashlight, Thermometer, Droplet,
   Cloud, Snowflake, Flame, Book,
-  Dog, Cat, Bird, Fish
+  Dog, Cat, Bird, Fish, Send, ThumbsDown, Reply, Flag, MoreHorizontal
 } from 'lucide-react';
 
-// Componente de WhatsApp flotante
 import WhatsAppButton from '../../components/ui/WhatsAppButton';
+
+const ComentariosSection = () => {
+  const { t } = useLanguage();
+  const [comentarios, setComentarios] = useState([]);
+  const [nuevoComentario, setNuevoComentario] = useState('');
+  const [rating, setRating] = useState(5);
+  const [nombre, setNombre] = useState('');
+  const [email, setEmail] = useState('');
+  const [cargando, setCargando] = useState(false);
+  const [respuestaA, setRespuestaA] = useState(null);
+  const [respuestaTexto, setRespuestaTexto] = useState('');
+  
+  useEffect(() => {
+    const comentariosEjemplo = [
+      {
+        id: 1,
+        nombre: 'María González',
+        email: 'maria@email.com',
+        avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+        rating: 5,
+        fecha: '2026-02-20',
+        comentario: 'Excelente servicio, mis envíos siempre llegan a tiempo. Muy profesionales y atentos a los detalles.',
+        likes: 24,
+        dislikes: 2,
+        respuestas: [
+          {
+            id: 11,
+            nombre: 'Batista Global Service',
+            avatar: '/images/logo-icon.png',
+            fecha: '2026-02-21',
+            comentario: '¡Gracias María! Nos alegra mucho que estés satisfecha con nuestro servicio. 😊',
+            likes: 8,
+            esAdmin: true
+          }
+        ]
+      },
+      {
+        id: 2,
+        nombre: 'Carlos Rodríguez',
+        email: 'carlos@email.com',
+        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+        rating: 5,
+        fecha: '2026-02-18',
+        comentario: 'Los tours son increíbles, conocí lugares maravillosos en República Dominicana. Volveré a reservar sin duda.',
+        likes: 18,
+        dislikes: 1,
+        respuestas: []
+      },
+      {
+        id: 3,
+        nombre: 'Ana Martínez',
+        email: 'ana@email.com',
+        avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+        rating: 4,
+        fecha: '2026-02-15',
+        comentario: 'La renta de autos fue perfecta, el vehículo impecable y el precio justo. Muy recomendable.',
+        likes: 12,
+        dislikes: 0,
+        respuestas: []
+      }
+    ];
+    setComentarios(comentariosEjemplo);
+  }, []);
+
+  const handleSubmitComentario = (e) => {
+    e.preventDefault();
+    if (!nuevoComentario.trim() || !nombre.trim() || !email.trim()) return;
+    
+    setCargando(true);
+    
+    setTimeout(() => {
+      const nuevo = {
+        id: Date.now(),
+        nombre,
+        email,
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random`,
+        rating,
+        fecha: new Date().toISOString().split('T')[0],
+        comentario: nuevoComentario,
+        likes: 0,
+        dislikes: 0,
+        respuestas: []
+      };
+      
+      setComentarios([nuevo, ...comentarios]);
+      setNuevoComentario('');
+      setNombre('');
+      setEmail('');
+      setRating(5);
+      setCargando(false);
+      alert('✅ Comentario enviado correctamente');
+    }, 1000);
+  };
+
+  const handleRespuesta = (comentarioId) => {
+    if (!respuestaTexto.trim()) return;
+    
+    const nuevaRespuesta = {
+      id: Date.now(),
+      nombre: 'Batista Global Service',
+      avatar: '/images/logo-icon.png',
+      fecha: new Date().toISOString().split('T')[0],
+      comentario: respuestaTexto,
+      likes: 0,
+      esAdmin: true
+    };
+    
+    setComentarios(comentarios.map(c => 
+      c.id === comentarioId 
+        ? { ...c, respuestas: [...c.respuestas, nuevaRespuesta] }
+        : c
+    ));
+    
+    setRespuestaA(null);
+    setRespuestaTexto('');
+  };
+
+  return (
+    <div className="bg-white rounded-2xl shadow-xl p-8">
+      <h2 className="text-3xl font-bold text-gray-800 mb-2">{t('comentariosClientes')}</h2>
+      
+      <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 mb-8">
+        <h3 className="text-xl font-bold text-gray-800 mb-4">{t('dejaTuComentario')}</h3>
+        <form onSubmit={handleSubmitComentario} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              type="text"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder={t('tuNombre')}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+              required
+            />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={t('tuEmail')}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+              required
+            />
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <span className="text-gray-700">{t('tuCalificacion')}</span>
+            <div className="flex gap-1">
+              {[1,2,3,4,5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  className="focus:outline-none"
+                >
+                  <Star className={`h-6 w-6 ${star <= rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} />
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <textarea
+            value={nuevoComentario}
+            onChange={(e) => setNuevoComentario(e.target.value)}
+            placeholder="Escribe tu comentario..."
+            rows="4"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+            required
+          />
+          
+          <button
+            type="submit"
+            disabled={cargando}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg font-medium hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50"
+          >
+            {cargando ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>{t('enviando')}</span>
+              </>
+            ) : (
+              <>
+                <Send className="h-5 w-5" />
+                <span>{t('enviarComentario')}</span>
+              </>
+            )}
+          </button>
+        </form>
+      </div>
+
+      <div className="space-y-6">
+        {comentarios.map((comentario) => (
+          <div key={comentario.id} className="border-b border-gray-200 pb-6 last:border-0">
+            <div className="flex gap-4">
+              <img
+                src={comentario.avatar}
+                alt={comentario.nombre}
+                className="w-12 h-12 rounded-full object-cover"
+              />
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <div>
+                    <h4 className="font-bold text-gray-900">{comentario.nombre}</h4>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <span>{new Date(comentario.fecha).toLocaleDateString()}</span>
+                      <span>•</span>
+                      <div className="flex items-center gap-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`h-4 w-4 ${i < comentario.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <button className="p-1 hover:bg-gray-100 rounded-full">
+                    <MoreHorizontal className="h-5 w-5 text-gray-500" />
+                  </button>
+                </div>
+                
+                <p className="text-gray-700 mb-3">{comentario.comentario}</p>
+                
+                <div className="flex items-center gap-4">
+                  <button className="flex items-center gap-1 text-sm text-gray-500 hover:text-amber-500">
+                    <ThumbsUp className="h-4 w-4" />
+                    <span>{comentario.likes}</span>
+                  </button>
+                  <button className="flex items-center gap-1 text-sm text-gray-500 hover:text-amber-500">
+                    <ThumbsDown className="h-4 w-4" />
+                    <span>{comentario.dislikes}</span>
+                  </button>
+                  <button
+                    onClick={() => setRespuestaA(respuestaA === comentario.id ? null : comentario.id)}
+                    className="flex items-center gap-1 text-sm text-gray-500 hover:text-amber-500"
+                  >
+                    <Reply className="h-4 w-4" />
+                    <span>{t('responder')}</span>
+                  </button>
+                </div>
+
+                {respuestaA === comentario.id && (
+                  <div className="mt-4 pl-12">
+                    <div className="flex gap-3">
+                      <img
+                        src="/images/logo-icon.png"
+                        alt="Batista"
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      <div className="flex-1">
+                        <textarea
+                          value={respuestaTexto}
+                          onChange={(e) => setRespuestaTexto(e.target.value)}
+                          placeholder="Escribe tu respuesta..."
+                          rows="2"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-sm"
+                        />
+                        <div className="flex justify-end gap-2 mt-2">
+                          <button
+                            onClick={() => setRespuestaA(null)}
+                            className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+                          >
+                            {t('cancelar')}
+                          </button>
+                          <button
+                            onClick={() => handleRespuesta(comentario.id)}
+                            className="px-3 py-1 text-sm bg-amber-500 text-white rounded-lg hover:bg-amber-600"
+                          >
+                            {t('responder')}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {comentario.respuestas.length > 0 && (
+                  <div className="mt-4 pl-12 space-y-4">
+                    {comentario.respuestas.map((respuesta) => (
+                      <div key={respuesta.id} className="flex gap-3">
+                        <img
+                          src={respuesta.avatar}
+                          alt={respuesta.nombre}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                        <div className="flex-1 bg-gray-50 rounded-lg p-3">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold text-sm text-gray-900">{respuesta.nombre}</span>
+                            {respuesta.esAdmin && (
+                              <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">
+                                {t('administrador')}
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-500">{new Date(respuesta.fecha).toLocaleDateString()}</span>
+                          </div>
+                          <p className="text-sm text-gray-700">{respuesta.comentario}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const HomeFixed = () => {
   const { t } = useLanguage();
@@ -41,7 +344,6 @@ const HomeFixed = () => {
   const autoPlayRef = useRef();
   const destinoAutoPlayRef = useRef({});
 
-  // ===== TUS IMÁGENES LOCALES PARA EL CARRUSEL PRINCIPAL =====
   const heroImages = [
     { url: "/images/imagen1.png", nombre: "Imagen 1" },
     { url: "/images/imagen2.png", nombre: "Imagen 2" },
@@ -67,7 +369,6 @@ const HomeFixed = () => {
       const activos = destinos
         .filter(d => d.activo !== false)
         .sort((a, b) => (a.orden || 0) - (b.orden || 0));
-      console.log('Destinos activos cargados:', activos);
       setDestinosActivos(activos);
       
       const slides = {};
@@ -78,7 +379,6 @@ const HomeFixed = () => {
     }
   }, [destinos]);
 
-  // Auto-play para el carrusel principal
   useEffect(() => {
     if (isAutoPlay) {
       autoPlayRef.current = setInterval(() => {
@@ -88,12 +388,9 @@ const HomeFixed = () => {
     return () => clearInterval(autoPlayRef.current);
   }, [isAutoPlay, heroImages.length]);
 
-  // Auto-play para cada destino
   useEffect(() => {
-    // Limpiar intervalos anteriores
     Object.values(destinoAutoPlayRef.current).forEach(clearInterval);
     
-    // Crear nuevos intervalos para cada destino
     destinosActivos.forEach(destino => {
       const imagenes = getDestinoImages(destino);
       if (imagenes.length > 1) {
@@ -139,50 +436,29 @@ const HomeFixed = () => {
   }, []);
 
   const handleServiceClick = (serviceId) => {
-    // Scroll suave al inicio de la sección de servicios
     sectionRefs.current.services?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    // Navegar después de un pequeño delay
     setTimeout(() => {
       navigate(`/servicio/${serviceId}`);
     }, 300);
   };
 
   const handleDestinoClick = (destinoId, e) => {
-    // Scroll suave al inicio de la sección de destinos
     sectionRefs.current.destinos?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const getServiceImageUrl = (service) => {
     const imageUrl = service.mainImage || service.imageUrl;
-    
-    if (!imageUrl) {
-      return 'https://images.pexels.com/photos/1285625/pexels-photo-1285625.jpeg';
-    }
-    
-    if (imageUrl.startsWith('http') || imageUrl.startsWith('data:')) {
-      return imageUrl;
-    }
-    
-    if (imageUrl.startsWith('/')) {
-      return imageUrl;
-    }
-    
+    if (!imageUrl) return 'https://images.pexels.com/photos/1285625/pexels-photo-1285625.jpeg';
+    if (imageUrl.startsWith('http') || imageUrl.startsWith('data:')) return imageUrl;
+    if (imageUrl.startsWith('/')) return imageUrl;
     return `/images/${imageUrl}`;
   };
 
-  // ✅ FUNCIÓN PARA OBTENER IMÁGENES DEL DESTINO (SOPORTA MÚLTIPLES FOTOS)
   const getDestinoImages = (destino) => {
-    // Si el destino tiene un array de imágenes, úsalo
     if (destino.imagenes && Array.isArray(destino.imagenes) && destino.imagenes.length > 0) {
       return destino.imagenes;
     }
-    
-    // Si tiene una sola imagen, úsala como única imagen
-    if (destino.imagen) {
-      return [destino.imagen];
-    }
-    
-    // Si no tiene imagen, mostrar un placeholder
+    if (destino.imagen) return [destino.imagen];
     return ['https://via.placeholder.com/800x600?text=Sin+Imagen'];
   };
 
@@ -207,35 +483,24 @@ const HomeFixed = () => {
     { icon: Plane, value: '3K+', label: t('vuelos'), color: 'sky' }
   ];
 
-  const testimonios = [
-    { nombre: 'María González', avatar: 'https://randomuser.me/api/portraits/women/44.jpg', texto: 'Excelente servicio, mis envíos siempre llegan a tiempo. Muy profesionales.', rating: 5, pais: 'España' },
-    { nombre: 'Carlos Rodríguez', avatar: 'https://randomuser.me/api/portraits/men/32.jpg', texto: 'Los tours son increíbles, conocí lugares maravillosos. Volveré a reservar.', rating: 5, pais: 'México' },
-    { nombre: 'Ana Martínez', avatar: 'https://randomuser.me/api/portraits/women/68.jpg', texto: 'La renta de autos fue perfecta, el vehículo impecable y el precio justo.', rating: 5, pais: 'Colombia' },
-    { nombre: 'Javier López', avatar: 'https://randomuser.me/api/portraits/men/75.jpg', texto: 'Me ayudaron con todos los trámites de visa, súper recomendados.', rating: 5, pais: 'Argentina' },
-    { nombre: 'Laura Sánchez', avatar: 'https://randomuser.me/api/portraits/women/33.jpg', texto: 'Increíble experiencia, volveré a contratar sus servicios sin duda.', rating: 5, pais: 'Chile' },
-    { nombre: 'Pedro Gómez', avatar: 'https://randomuser.me/api/portraits/men/46.jpg', texto: 'Profesionales y confiables, 100% recomendados.', rating: 5, pais: 'Perú' }
-  ];
-
   const beneficios = [
-    { icon: Shield, titulo: t('beneficios_lista.seguridad'), desc: t('beneficios_lista.seguridad') },
-    { icon: Clock3, titulo: t('beneficios_lista.atencion'), desc: t('beneficios_lista.atencion') },
-    { icon: CreditCard, titulo: t('beneficios_lista.pagos'), desc: t('beneficios_lista.pagos') },
-    { icon: Wifi, titulo: t('beneficios_lista.seguimiento'), desc: t('beneficios_lista.seguimiento') },
-    { icon: Gem, titulo: t('beneficios_lista.precios'), desc: t('beneficios_lista.precios') },
-    { icon: Crown, titulo: t('beneficios_lista.premium'), desc: t('beneficios_lista.premium') },
-    { icon: Rocket, titulo: t('beneficios_lista.envios_rapidos'), desc: t('beneficios_lista.envios_rapidos') },
-    { icon: Gift, titulo: t('beneficios_lista.ofertas_exclusivas'), desc: t('beneficios_lista.ofertas_exclusivas') }
+    { icon: Shield, titulo: t('seguridad'), desc: t('seguridad') },
+    { icon: Clock3, titulo: t('atencion247'), desc: t('atencion247') },
+    { icon: CreditCard, titulo: t('pagos'), desc: t('pagos') },
+    { icon: Wifi, titulo: t('seguimiento'), desc: t('seguimiento') },
+    { icon: Gem, titulo: t('precios'), desc: t('precios') },
+    { icon: Crown, titulo: t('premium'), desc: t('premium') },
+    { icon: Rocket, titulo: t('enviosRapidos'), desc: t('enviosRapidos') },
+    { icon: Gift, titulo: t('ofertasExclusivas'), desc: t('ofertasExclusivas') }
   ];
 
   return (
     <div className="min-h-screen bg-white overflow-hidden pt-20">
       
-      {/* ===== WHATSAPP BUTTON ===== */}
       <div className="fixed z-50" style={{ bottom: '96px', right: '24px' }}>
         <WhatsAppButton />
       </div>
       
-      {/* ===== HERO SECTION CON PORTADA MÁS ARRIBA ===== */}
       <section className="relative h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden -mt-16 md:-mt-20 lg:-mt-24">
         <div className="absolute inset-0">
           {heroImages.map((image, index) => (
@@ -250,7 +515,6 @@ const HomeFixed = () => {
                 alt={image.nombre} 
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  console.log('Error cargando imagen:', image.url);
                   e.target.onerror = null;
                   e.target.src = '/images/hero1.png';
                 }}
@@ -291,19 +555,122 @@ const HomeFixed = () => {
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4">
               Batista Global Service
             </h1>
-            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-              Tu mejor opción para viajes y envíos en el Caribe
-            </p>
           </div>
         </div>
       </section>
 
-      {/* ===== SERVICIOS DESTACADOS ===== */}
+      <section id="destinos" ref={el => sectionRefs.current.destinos = el} className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900">{t('destinosPopulares')}</h2>
+          </div>
+          {destinosActivos.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {destinosActivos.map((destino, index) => {
+                const imagenes = getDestinoImages(destino);
+                const slideIndex = destinoSlides[destino.id] || 0;
+                
+                return (
+                  <div
+                    key={destino.id}
+                    onClick={(e) => handleDestinoClick(destino.id, e)}
+                    className={`group relative h-96 rounded-xl overflow-hidden cursor-pointer transform transition-all duration-500 hover:-translate-y-2 ${
+                      visibleSections.destinos ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                    }`}
+                    style={{ transitionDelay: `${index * 150}ms` }}
+                  >
+                    <div className="absolute inset-0">
+                      {imagenes.map((img, imgIndex) => (
+                        <img
+                          key={imgIndex}
+                          src={img}
+                          alt={`${destino.nombre} - Imagen ${imgIndex + 1}`}
+                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                            imgIndex === slideIndex ? 'opacity-100' : 'opacity-0'
+                          }`}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://via.placeholder.com/800x600?text=Error+Imagen';
+                          }}
+                        />
+                      ))}
+                    </div>
+                    
+                    {imagenes.length > 1 && (
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-1">
+                        {imagenes.map((_, i) => (
+                          <div
+                            key={i}
+                            className={`rounded-full transition-all duration-300 ${
+                              i === slideIndex 
+                                ? 'w-2 h-0.5 bg-amber-400/70' 
+                                : 'w-1 h-0.5 bg-white/40'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <h3 className="text-2xl font-bold text-white mb-2">{destino.nombre}</h3>
+                      <p className="text-white/80 text-sm mb-3 line-clamp-2">{destino.descripcion}</p>
+                      
+                      <div className="space-y-1">
+                        {(destino.precioOfertaMin > 0 || destino.precioOfertaMax > 0) && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-300 line-through text-sm">
+                              ${destino.precioMin} - ${destino.precioMax}
+                            </span>
+                            <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                              {t('oferta')}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl font-bold text-amber-400">
+                            ${destino.precioOfertaMin || destino.precioMin}
+                          </span>
+                          <span className="text-white/60">-</span>
+                          <span className="text-2xl font-bold text-amber-400">
+                            ${destino.precioOfertaMax || destino.precioMax}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {destino.destacado && (
+                      <div className="absolute top-4 left-4">
+                        <span className="px-3 py-1 bg-amber-500 text-white rounded-full text-sm font-bold shadow-lg">
+                          ⭐ {t('destacado')}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {(destino.precioOfertaMin > 0 || destino.precioOfertaMax > 0) && (
+                      <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                        -{Math.round(100 - ((destino.precioOfertaMin || destino.precioMin) / (destino.precioMin || 1) * 100))}%
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <MapPin className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-800 mb-2">{t('sinDestinos')}</h3>
+              <p className="text-gray-600">{t('proximamente')}</p>
+            </div>
+          )}
+        </div>
+      </section>
+
       <section id="services" ref={el => sectionRefs.current.services = el} className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-2">Nuestros Servicios</h2>
-            <p className="text-lg text-gray-600">Descubre todo lo que tenemos para ti</p>
+            <h2 className="text-4xl font-bold text-gray-900">{t('nuestrosServicios')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {serviciosDestacados.slice(0, 12).map((service, index) => (
@@ -337,9 +704,53 @@ const HomeFixed = () => {
         </div>
       </section>
 
-      {/* ===== ESTADÍSTICAS ===== */}
+      <section id="tienda" className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900">{t('tienda')}</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white rounded-xl p-6 shadow-lg text-center">
+              <Package className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+              <h3 className="font-bold text-lg mb-2">{t('productosDestacados')}</h3>
+              <p className="text-gray-600 mb-4">{t('exploraTienda')}</p>
+              <Link to="/tienda" className="inline-block px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
+                {t('verTodos')}
+              </Link>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-lg text-center">
+              <Sparkles className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+              <h3 className="font-bold text-lg mb-2">{t('ofertasEspeciales')}</h3>
+              <p className="text-gray-600 mb-4">{t('descuentosExclusivos')}</p>
+              <Link to="/tienda?ofertas=true" className="inline-block px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
+                {t('verTodos')}
+              </Link>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-lg text-center">
+              <Truck className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+              <h3 className="font-bold text-lg mb-2">{t('enviosGratis')}</h3>
+              <p className="text-gray-600 mb-4">{t('enviosGratisDesc')}</p>
+              <Link to="/tienda" className="inline-block px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
+                {t('comprarAhora')}
+              </Link>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-lg text-center">
+              <Heart className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+              <h3 className="font-bold text-lg mb-2">{t('favoritos')}</h3>
+              <p className="text-gray-600 mb-4">{t('productosPopulares')}</p>
+              <Link to="/tienda?favoritos=true" className="inline-block px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
+                {t('verTodos')}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="stats" ref={el => sectionRefs.current.stats = el} className="py-16 bg-gradient-to-br from-amber-50 via-white to-amber-50">
         <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900">{t('estadisticas')}</h2>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
@@ -357,125 +768,10 @@ const HomeFixed = () => {
         </div>
       </section>
 
-      {/* ===== DESTINOS POPULARES CON CARRUSEL AUTOMÁTICO ===== */}
-      <section id="destinos" ref={el => sectionRefs.current.destinos = el} className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-2">Destinos Populares</h2>
-            <p className="text-lg text-gray-600">Los lugares más visitados por nuestros clientes</p>
-          </div>
-
-          {destinosActivos.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {destinosActivos.map((destino, index) => {
-                const imagenes = getDestinoImages(destino);
-                const slideIndex = destinoSlides[destino.id] || 0;
-                
-                return (
-                  <div
-                    key={destino.id}
-                    onClick={(e) => handleDestinoClick(destino.id, e)}
-                    className={`group relative h-96 rounded-xl overflow-hidden cursor-pointer transform transition-all duration-500 hover:-translate-y-2 ${
-                      visibleSections.destinos ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-                    }`}
-                    style={{ transitionDelay: `${index * 150}ms` }}
-                  >
-                    <div className="absolute inset-0">
-                      {imagenes.map((img, imgIndex) => (
-                        <img
-                          key={imgIndex}
-                          src={img}
-                          alt={`${destino.nombre} - Imagen ${imgIndex + 1}`}
-                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-                            imgIndex === slideIndex ? 'opacity-100' : 'opacity-0'
-                          }`}
-                          onError={(e) => {
-                            console.log('Error cargando imagen:', img);
-                            e.target.onerror = null;
-                            e.target.src = 'https://via.placeholder.com/800x600?text=Error+Imagen';
-                          }}
-                        />
-                      ))}
-                    </div>
-                    
-                    {/* SIN BOTONES DE NAVEGACIÓN - SOLO INDICADORES SUTILES */}
-                    {imagenes.length > 1 && (
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-1">
-                        {imagenes.map((_, i) => (
-                          <div
-                            key={i}
-                            className={`rounded-full transition-all duration-300 ${
-                              i === slideIndex 
-                                ? 'w-2 h-0.5 bg-amber-400/70' 
-                                : 'w-1 h-0.5 bg-white/40'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
-                    
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <h3 className="text-2xl font-bold text-white mb-2">{destino.nombre}</h3>
-                      <p className="text-white/80 text-sm mb-3 line-clamp-2">{destino.descripcion}</p>
-                      
-                      <div className="space-y-1">
-                        {(destino.precioOfertaMin > 0 || destino.precioOfertaMax > 0) && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-gray-300 line-through text-sm">
-                              ${destino.precioMin} - ${destino.precioMax}
-                            </span>
-                            <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                              OFERTA
-                            </span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl font-bold text-amber-400">
-                            ${destino.precioOfertaMin || destino.precioMin}
-                          </span>
-                          <span className="text-white/60">-</span>
-                          <span className="text-2xl font-bold text-amber-400">
-                            ${destino.precioOfertaMax || destino.precioMax}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {destino.destacado && (
-                      <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1 bg-amber-500 text-white rounded-full text-sm font-bold shadow-lg">
-                          ⭐ Destacado
-                        </span>
-                      </div>
-                    )}
-                    
-                    {(destino.precioOfertaMin > 0 || destino.precioOfertaMax > 0) && (
-                      <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-                        -{Math.round(100 - ((destino.precioOfertaMin || destino.precioMin) / (destino.precioMin || 1) * 100))}%
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <MapPin className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-800 mb-2">No hay destinos disponibles</h3>
-              <p className="text-gray-600">Pronto agregaremos nuevos destinos para ti</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ===== BENEFICIOS ===== */}
       <section id="beneficios" ref={el => sectionRefs.current.beneficios = el} className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-2">¿Por qué elegirnos?</h2>
-            <p className="text-lg text-gray-600">Beneficios exclusivos</p>
+            <h2 className="text-4xl font-bold text-gray-900">{t('beneficios')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {beneficios.map((item, index) => {
@@ -494,37 +790,13 @@ const HomeFixed = () => {
         </div>
       </section>
 
-      {/* ===== TESTIMONIOS ===== */}
-      <section id="testimonios" ref={el => sectionRefs.current.testimonios = el} className="py-16 bg-white">
+      <section id="comentarios" className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-2">Lo que dicen nuestros clientes</h2>
-            <p className="text-lg text-gray-600">Experiencias reales</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonios.map((testimonio, index) => (
-              <div key={index} className={`bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 ${visibleSections.testimonios ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} style={{ transitionDelay: `${index * 150}ms` }}>
-                <div className="flex items-center gap-3 mb-4">
-                  <img src={testimonio.avatar} alt={testimonio.nombre} className="w-12 h-12 rounded-full object-cover" />
-                  <div>
-                    <h4 className="font-bold text-gray-900">{testimonio.nombre}</h4>
-                    <p className="text-sm text-gray-500">{testimonio.pais}</p>
-                  </div>
-                </div>
-                <p className="text-gray-700 mb-4">"{testimonio.texto}"</p>
-                <div className="flex items-center gap-1">
-                  {[...Array(testimonio.rating)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          <ComentariosSection />
         </div>
       </section>
     </div>
   );
 };
 
-// ✅ EXPORT DEFAULT - ESTO ES LO QUE FALTA
 export default HomeFixed;
